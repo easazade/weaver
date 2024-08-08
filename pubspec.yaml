@@ -1,19 +1,19 @@
 name: weaver
-description: "A new Flutter package project."
+description: "Best dependency injection library for Flutter"
 version: 0.0.1
-homepage:
+homepage: https://pub.dev/packages/weaver
 
 environment:
   sdk: ^3.5.0
-  flutter: ">=1.17.0"
+  flutter: ">=3.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
 
 dev_dependencies:
+  flutter_lints: ^4.0.0
   flutter_test:
     sdk: flutter
-  flutter_lints: ^4.0.0
 
 flutter:

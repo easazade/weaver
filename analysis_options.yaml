@@ -1,4 +1,18 @@
 include: package:flutter_lints/flutter.yaml
 
-# Additional information about this file can be found at
-# https://dart.dev/guides/language/analysis-options
+
+linter:
+  rules:
+    - prefer_final_fields
+    - prefer_const_constructors
+    - prefer_final_in_for_each
+    - prefer_final_locals
+    - prefer_final_parameters
+    - directives_ordering
+    - non_constant_identifier_names
+    - constant_identifier_names
+    - curly_braces_in_flow_control_structures
+    - camel_case_types
+    - file_names
+    - package_names
+    - sort_pub_dependencies
