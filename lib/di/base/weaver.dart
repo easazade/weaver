@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:weaver/di/base/dependency.dart';
-import 'package:weaver/di/base/scope_registry.dart';
+import 'package:weaver/di/base/weaver_scope.dart';
 import 'package:weaver/di/utils/log.dart';
 
 final weaver = Weaver();
@@ -68,7 +68,7 @@ class Weaver extends ChangeNotifier {
     }
   }
 
-  Future<void> addScopeRegistry(final ScopeRegistry scopeRegistry) async {
+  Future<void> addScopeRegistry(final WeaverScope scopeRegistry) async {
     final alreadyRegistered = _scopeRegistryBundles.firstWhereOrNull(
             (final e) => e.scopeRegistry.name == scopeRegistry.name) !=
         null;
@@ -108,7 +108,7 @@ class Weaver extends ChangeNotifier {
   }
 
   Future<void> _checkAndUpdateScopeFrom(
-    final ScopeRegistry scopeRegistry,
+    final WeaverScope scopeRegistry,
   ) async {
     if (scopeRegistry.isInScope.value) {
       await scopeRegistry.register(this);
@@ -125,7 +125,7 @@ class Weaver extends ChangeNotifier {
 }
 
 class _ScopeRegistryBundle {
-  final ScopeRegistry scopeRegistry;
+  final WeaverScope scopeRegistry;
   final void Function() listener;
 
   _ScopeRegistryBundle({required this.scopeRegistry, required this.listener});

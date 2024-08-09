@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:weaver/di/base/weaver.dart';
 
-abstract class ScopeRegistry {
+abstract class WeaverScope {
   String get name;
 
   ValueNotifier<bool> get isInScope;
