@@ -6,9 +6,9 @@ abstract class WeaverScope {
 
   ValueNotifier<bool> get isInScope;
 
-  Future<void> register(final Weaver di);
+  Future<void> register(final Weaver weaver);
 
-  Future<void> unregister(final Weaver di);
+  Future<void> unregister(final Weaver weaver);
 
   void dispose() {}
 }

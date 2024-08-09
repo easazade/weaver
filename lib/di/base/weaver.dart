@@ -21,7 +21,7 @@ class Weaver extends ChangeNotifier {
     log('Registering object of type $T');
 
     if (isRegistered<T>() && !allowReassignment) {
-      throw DIException(
+      throw WeaverException(
         'Cannot register object of type $T because there is an instance already registered',
       );
     }
@@ -52,7 +52,7 @@ class Weaver extends ChangeNotifier {
     if (isRegistered<T>()) {
       return _dependencies[T]!.value;
     } else {
-      throw DIException('There is no instance of $T registered');
+      throw WeaverException('There is no instance of $T registered');
     }
   }
 
@@ -74,7 +74,7 @@ class Weaver extends ChangeNotifier {
         null;
 
     if (alreadyRegistered && !allowReassignment) {
-      throw DIException(
+      throw WeaverException(
         'Cannot register ScopeRegistry with name ${scopeRegistry.name}, since one is already registered',
       );
     }
@@ -131,8 +131,8 @@ class _ScopeRegistryBundle {
   _ScopeRegistryBundle({required this.scopeRegistry, required this.listener});
 }
 
-class DIException implements Exception {
-  DIException(this.message) {
+class WeaverException implements Exception {
+  WeaverException(this.message) {
     // Since in web sometimes uncaught exception do not get logged correctly
     if (kIsWeb) {
       log(message);

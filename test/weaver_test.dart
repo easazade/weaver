@@ -48,7 +48,7 @@ void main() {
         );
 
         test(
-          'Should be able to request an object from di class before it is created using getAsync method. '
+          'Should be able to request an object from weaver class before it is created using getAsync method. '
           'And wait for its creation and fetch the object as soon as it is created.',
           () async {
             Future.delayed(const Duration(milliseconds: 500), () {
