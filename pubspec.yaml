@@ -2,6 +2,8 @@ name: weaver
 description: "Best dependency injection library for Flutter"
 version: 0.1.1
 homepage: https://pub.dev/packages/weaver
+issue_tracker: https://github.com/easazade/weaver/issues
+
 
 environment:
   sdk: ">=3.0.0 <4.0.0"
