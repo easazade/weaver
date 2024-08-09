@@ -1,7 +1,6 @@
 library weaver;
 
-/// A Calculator.
-class Calculator {
-  /// Returns [value] plus 1.
-  int addOne(int value) => value + 1;
-}
+export 'di/base/dependency.dart';
+export 'di/base/scope_registry.dart';
+export 'di/base/weaver.dart';
+export 'di/widgets/require_dependencies.dart';
