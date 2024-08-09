@@ -1,6 +1,6 @@
 library weaver;
 
-export 'di/base/dependency.dart';
-export 'di/base/weaver.dart';
-export 'di/base/weaver_scope.dart';
-export 'di/widgets/require_dependencies.dart';
+export 'src/base/dependency.dart';
+export 'src/base/weaver.dart';
+export 'src/base/weaver_scope.dart';
+export 'src/widgets/require_dependencies.dart';

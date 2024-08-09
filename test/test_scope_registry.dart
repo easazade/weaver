@@ -1,6 +1,6 @@
 import 'package:flutter/src/foundation/change_notifier.dart';
-import 'package:weaver/di/base/weaver.dart';
-import 'package:weaver/di/base/weaver_scope.dart';
+import 'package:weaver/src/base/weaver.dart';
+import 'package:weaver/src/base/weaver_scope.dart';
 
 class TestScopeRegistry extends WeaverScope {
   TestScopeRegistry({

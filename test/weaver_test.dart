@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:weaver/di/base/weaver.dart';
+import 'package:weaver/src/base/weaver.dart';
 
 import 'test_scope_registry.dart';
 

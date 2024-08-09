@@ -1,5 +1,5 @@
 import 'package:flutter/foundation.dart';
-import 'package:weaver/di/base/weaver.dart';
+import 'package:weaver/src/base/weaver.dart';
 
 abstract class WeaverScope {
   String get name;
