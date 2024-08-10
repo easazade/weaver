@@ -106,7 +106,7 @@ void main() {
           'When registered a new ScopeRegistry which currently is in scope '
           'its dependencies should be registered and available to fetch',
           () {
-            final scopeRegistry = TestScopeRegistry(
+            final scopeRegistry = TestScope(
               stringObject: 'ali',
               intObject: 9,
             );
@@ -121,7 +121,7 @@ void main() {
         test(
           'Should not allow registering RegistryScopes with duplicate names',
           () {
-            final scopeRegistry = TestScopeRegistry(
+            final scopeRegistry = TestScope(
               stringObject: 'ali',
               intObject: 9,
               name: 'duplicate-scope-name',
@@ -129,7 +129,7 @@ void main() {
 
             weaver.addScopeRegistry(scopeRegistry);
 
-            final scopeRegistry2 = TestScopeRegistry(
+            final scopeRegistry2 = TestScope(
               intObject: 90,
               name: 'duplicate-scope-name',
             );
@@ -143,7 +143,7 @@ void main() {
           'When removed a ScopeRegistry which currently is in scope '
           'its dependencies should not be available to fetch anymore',
           () {
-            final scopeRegistry = TestScopeRegistry(
+            final scopeRegistry = TestScope(
               stringObject: 'ali',
               intObject: 9,
             );
@@ -164,7 +164,7 @@ void main() {
         test(
           'Should register the dependencies of a registered ScopeRegistry after it comes in scope',
           () {
-            final scopeRegistry = TestScopeRegistry(
+            final scopeRegistry = TestScope(
               stringObject: 'ali',
               intObject: 9,
               initialIsInScopeValue: false,

@@ -2,8 +2,8 @@ import 'package:flutter/src/foundation/change_notifier.dart';
 import 'package:weaver/src/base/weaver.dart';
 import 'package:weaver/src/base/weaver_scope.dart';
 
-class TestScopeRegistry extends WeaverScope {
-  TestScopeRegistry({
+class TestScope extends WeaverScope {
+  TestScope({
     this.stringObject,
     this.intObject,
     this.doubleObject,
