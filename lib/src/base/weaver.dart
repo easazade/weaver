@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:nativewrappers/_internal/vm/lib/ffi_allocation_patch.dart';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
@@ -17,6 +18,25 @@ class Weaver extends ChangeNotifier {
   final List<_ScopeRegistryBundle> _scopeRegistryBundles = [];
   var allowReassignment = false;
 
+  void registerLazy<T extends Object>(final T Function() callback) {
+    log('Registering object of type $T');
+
+    if (isRegistered<T>() && !allowReassignment) {
+      throw WeaverException(
+        'Cannot register object of type $T because there is an instance already registered',
+      );
+    }
+
+    if (_dependencies.containsKey(T)) {
+      final dependency = (_dependencies[T]! as Dependency<T>);
+      dependency.lazyInstantiateCallback = callback;
+    } else {
+      _dependencies[T] = Dependency<T>.lazy(callback);
+    }
+    
+    notifyListeners();
+  }
+
   void register<T extends Object>(final T instance) {
     log('Registering object of type $T');
 
@@ -27,9 +47,9 @@ class Weaver extends ChangeNotifier {
     }
     if (_dependencies.containsKey(T)) {
       final dependency = (_dependencies[T]! as Dependency<T>);
-      dependency.setValue(instance);
+      dependency.value = instance;
     } else {
-      _dependencies[T] = Dependency<T>(instance);
+      _dependencies[T] = Dependency<T>.value(instance);
     }
     notifyListeners();
   }
@@ -43,14 +63,20 @@ class Weaver extends ChangeNotifier {
 
   bool isRegistered<T extends Object>([final Type? t]) {
     if (t != null) {
-      return _dependencies.containsKey(t) && _dependencies[t]?.value != null;
+      return _dependencies.containsKey(t) && _dependencies[t]!.hasValue;
     }
-    return _dependencies.containsKey(T) && _dependencies[T]?.value != null;
+    return _dependencies.containsKey(T) && _dependencies[T]!.hasValue;
   }
 
   T get<T extends Object>() {
     if (isRegistered<T>()) {
-      return _dependencies[T]!.value;
+      final dependency = _dependencies[T]! as Dependency<T>;
+      if (dependency.value == null &&
+          dependency.lazyInstantiateCallback != null) {
+        dependency.value = dependency.lazyInstantiateCallback!();
+      }
+
+      return dependency.value!;
     } else {
       throw WeaverException('There is no instance of $T registered');
     }
@@ -61,7 +87,7 @@ class Weaver extends ChangeNotifier {
       return get<T>();
     } else {
       if (!_dependencies.containsKey(T)) {
-        _dependencies[T] = Dependency<T>(null);
+        _dependencies[T] = Dependency<T>.placeHolder();
       }
 
       return (_dependencies[T]! as Dependency<T>).completer.future;
