@@ -21,6 +21,7 @@ class Dependency<T> {
 
   T? get value => _value;
 
+  // ignore: unnecessary_getters_setters
   T Function()? get lazyInstantiateCallback => _lazyInstantiateCallback;
 
   set lazyInstantiateCallback(final T Function()? callback) {
