@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:nativewrappers/_internal/vm/lib/ffi_allocation_patch.dart';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
@@ -33,7 +32,7 @@ class Weaver extends ChangeNotifier {
     } else {
       _dependencies[T] = Dependency<T>.lazy(callback);
     }
-    
+
     notifyListeners();
   }
 
