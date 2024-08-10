@@ -181,6 +181,40 @@ void main() {
             expect(weaver.get<int>(), 9);
           },
         );
+
+        test(
+          'Should register the dependency lazy',
+          () {
+            expect(weaver.isRegistered<String>(), false);
+            weaver.registerLazy(() => 'Ali');
+            expect(weaver.isRegistered<String>(), true);
+            expect(weaver.get<String>(), 'Ali');
+          },
+        );
+
+        test(
+          'Should register the dependency lazy',
+          () {
+            expect(weaver.isRegistered<String>(), false);
+            weaver.registerLazy(() => 'Ali');
+            expect(weaver.isRegistered<String>(), true);
+            expect(weaver.get<String>(), 'Ali');
+          },
+        );
+
+        test(
+          'Should unregister the dependency that was lazily registered',
+          () {
+            expect(weaver.isRegistered<String>(), false);
+            weaver.registerLazy(() => 'Ali');
+            expect(weaver.isRegistered<String>(), true);
+            expect(weaver.get<String>(), 'Ali');
+
+            weaver.unregister<String>();
+            expect(weaver.isRegistered<String>(), false);
+            expect(() => weaver.get<String>(), throwsException);
+          },
+        );
       },
     );
   }
