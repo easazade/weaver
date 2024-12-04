@@ -152,6 +152,7 @@ class Weaver extends ChangeNotifier {
   /// Deletes all registered dependencies and all scope registries
   void reset() {
     _dependencies.clear();
+    _scopes.clear();
     _scopeHandlers.clear();
   }
 }

@@ -1,7 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:weaver/src/base/weaver.dart';
+import 'package:weaver/weaver.dart';
 
-import 'test_scope_registry.dart';
+import 'test_scope_handler.dart';
 
 void main() {
   final weaverInstances = [
@@ -12,27 +12,27 @@ void main() {
   ];
 
   for (var i = 0; i < weaverInstances.length; i++) {
-    final weaver = weaverInstances[i];
+    final weaverInstance = weaverInstances[i];
     group(
       'Weaver instance $i - ',
       () {
         tearDown(() {
-          weaver.reset();
-          weaver.allowReassignment = false;
+          weaverInstance.reset();
+          weaverInstance.allowReassignment = false;
         });
 
         test(
           'When no object registered should not be able to fetch it',
           () {
-            expect(() => weaver.get<String>(), throwsException);
+            expect(() => weaverInstance.get<String>(), throwsException);
           },
         );
 
         test(
           'When object registered should be able to fetch it',
           () {
-            weaver.register('ali');
-            expect(weaver.get<String>(), 'ali');
+            weaverInstance.register('ali');
+            expect(weaverInstance.get<String>(), 'ali');
           },
         );
 
@@ -40,10 +40,10 @@ void main() {
           'When object registered should be able to fetch it and '
           'when unregistered should not be able to fetch it.',
           () {
-            weaver.register('ali');
-            expect(weaver.get<String>(), 'ali');
-            weaver.unregister<String>();
-            expect(() => weaver.get<String>(), throwsException);
+            weaverInstance.register('ali');
+            expect(weaverInstance.get<String>(), 'ali');
+            weaverInstance.unregister<String>();
+            expect(() => weaverInstance.get<String>(), throwsException);
           },
         );
 
@@ -52,170 +52,207 @@ void main() {
           'And wait for its creation and fetch the object as soon as it is created.',
           () async {
             Future.delayed(const Duration(milliseconds: 500), () {
-              weaver.register('Ali');
+              weaverInstance.register('Ali');
             });
 
-            expect(() => weaver.get<String>(), throwsException);
-            expect(await weaver.getAsync<String>(), 'Ali');
+            expect(() => weaverInstance.get<String>(), throwsException);
+            expect(await weaverInstance.getAsync<String>(), 'Ali');
           },
         );
 
         test(
           'isRegistered method should be able to tell whether a dependency object is registered or not',
           () {
-            weaver.register('ali');
-            expect(weaver.isRegistered<String>(), true);
-            weaver.unregister<String>();
-            expect(weaver.isRegistered<String>(), false);
+            weaverInstance.register('ali');
+            expect(weaverInstance.isRegistered<String>(), true);
+            weaverInstance.unregister<String>();
+            expect(weaverInstance.isRegistered<String>(), false);
           },
         );
 
         test(
           'When multiple objects registered should be able to fetch each',
           () {
-            weaver.register('ali');
-            weaver.register<int>(10);
-            weaver.register(true);
+            weaverInstance.register('ali');
+            weaverInstance.register<int>(10);
+            weaverInstance.register(true);
 
-            expect(weaver.get<String>(), 'ali');
-            expect(weaver.get<int>(), 10);
-            expect(weaver.get<bool>(), true);
+            expect(weaverInstance.get<String>(), 'ali');
+            expect(weaverInstance.get<int>(), 10);
+            expect(weaverInstance.get<bool>(), true);
           },
         );
 
         test(
           'Should not be able to re-register objects of the same type',
           () {
-            weaver.register('ali');
-            expect(() => weaver.register('till'), throwsException);
+            weaverInstance.register('ali');
+            expect(() => weaverInstance.register('till'), throwsException);
           },
         );
 
         test(
           'Should be able to re-register objects of the same type when allowed reassignment',
           () {
-            weaver.allowReassignment = true;
-            weaver.register('ali');
-            weaver.register('till');
+            weaverInstance.allowReassignment = true;
+            weaverInstance.register('ali');
+            weaverInstance.register('till');
 
-            expect(weaver.get<String>(), 'till');
+            expect(weaverInstance.get<String>(), 'till');
           },
         );
 
         test(
-          'When registered a new ScopeRegistry which currently is in scope '
+          'When registered a new ScopeHandler which currently is in scope '
           'its dependencies should be registered and available to fetch',
           () {
-            final scopeRegistry = TestScope(
+            final scopeHandler = TestScopeHandler(
               stringObject: 'ali',
               intObject: 9,
             );
 
-            weaver.addScopeRegistry(scopeRegistry);
+            weaverInstance.addScopeHandler(scopeHandler);
 
-            expect(weaver.get<String>(), 'ali');
-            expect(weaver.get<int>(), 9);
+            weaverInstance.enterScope(TestScope());
+
+            expect(weaverInstance.get<String>(), 'ali');
+            expect(weaverInstance.get<int>(), 9);
           },
         );
 
         test(
-          'Should not allow registering RegistryScopes with duplicate names',
+          'Should not allow registering ScopeHandlers with duplicate names',
           () {
-            final scopeRegistry = TestScope(
+            final scopeHandler = TestScopeHandler(
               stringObject: 'ali',
               intObject: 9,
-              name: 'duplicate-scope-name',
+              scopeName: 'duplicate-scope-name',
             );
 
-            weaver.addScopeRegistry(scopeRegistry);
+            weaverInstance.addScopeHandler(scopeHandler);
 
-            final scopeRegistry2 = TestScope(
+            final scopeHandler2 = TestScopeHandler(
               intObject: 90,
-              name: 'duplicate-scope-name',
+              scopeName: 'duplicate-scope-name',
             );
 
-            expect(
-                () => weaver.addScopeRegistry(scopeRegistry2), throwsException);
+            expect(() => weaverInstance.addScopeHandler(scopeHandler2),
+                throwsException);
           },
         );
 
         test(
-          'When removed a ScopeRegistry which currently is in scope '
+          'When removed a ScopeHandler which currently is in scope '
           'its dependencies should not be available to fetch anymore',
           () {
-            final scopeRegistry = TestScope(
+            final scopeHandler = TestScopeHandler(
               stringObject: 'ali',
               intObject: 9,
             );
 
-            weaver.addScopeRegistry(scopeRegistry);
+            weaverInstance.addScopeHandler(scopeHandler);
 
-            expect(weaver.get<String>(), 'ali');
-            expect(weaver.get<int>(), 9);
+            weaverInstance.enterScope(TestScope());
 
-            // remove scopeRegistry
+            expect(weaverInstance.get<String>(), 'ali');
+            expect(weaverInstance.get<int>(), 9);
 
-            weaver.removeScopeRegistry(scopeRegistry.name);
-            expect(() => weaver.get<String>(), throwsException);
-            expect(() => weaver.get<int>(), throwsException);
+            // remove scopeHandler
+
+            weaverInstance.removeScopeHandler(scopeHandler.scopeName);
+            expect(() => weaverInstance.get<String>(), throwsException);
+            expect(() => weaverInstance.get<int>(), throwsException);
           },
         );
 
         test(
-          'Should register the dependencies of a registered ScopeRegistry after it comes in scope',
+          'Should register the dependencies of a registered ScopeHandler after it comes in scope. '
+          'And unregister after weaver leaves the scope',
           () {
-            final scopeRegistry = TestScope(
+            final scopeHandler = TestScopeHandler(
               stringObject: 'ali',
               intObject: 9,
               initialIsInScopeValue: false,
             );
 
-            weaver.addScopeRegistry(scopeRegistry);
+            weaverInstance.addScopeHandler(scopeHandler);
 
-            expect(() => weaver.get<String>(), throwsException);
-            expect(() => weaver.get<int>(), throwsException);
+            expect(() => weaverInstance.get<String>(), throwsException);
+            expect(() => weaverInstance.get<int>(), throwsException);
 
-            scopeRegistry.isInScope.value = true;
+            final testScope = TestScope();
+            weaverInstance.enterScope(testScope);
 
-            expect(weaver.get<String>(), 'ali');
-            expect(weaver.get<int>(), 9);
+            expect(weaverInstance.get<String>(), 'ali');
+            expect(weaverInstance.get<int>(), 9);
+
+            weaverInstance.leaveScope(testScope.name);
+
+            expect(() => weaverInstance.get<String>(), throwsException);
+            expect(() => weaverInstance.get<int>(), throwsException);
           },
         );
 
         test(
           'Should register the dependency lazy',
           () {
-            expect(weaver.isRegistered<String>(), false);
-            weaver.registerLazy(() => 'Ali');
-            expect(weaver.isRegistered<String>(), true);
-            expect(weaver.get<String>(), 'Ali');
+            expect(weaverInstance.isRegistered<String>(), false);
+            weaverInstance.registerLazy(() => 'Ali');
+            expect(weaverInstance.isRegistered<String>(), true);
+            expect(weaverInstance.get<String>(), 'Ali');
           },
         );
 
         test(
           'Should register the dependency lazy',
           () {
-            expect(weaver.isRegistered<String>(), false);
-            weaver.registerLazy(() => 'Ali');
-            expect(weaver.isRegistered<String>(), true);
-            expect(weaver.get<String>(), 'Ali');
+            expect(weaverInstance.isRegistered<String>(), false);
+            weaverInstance.registerLazy(() => 'Ali');
+            expect(weaverInstance.isRegistered<String>(), true);
+            expect(weaverInstance.get<String>(), 'Ali');
           },
         );
 
         test(
           'Should unregister the dependency that was lazily registered',
           () {
-            expect(weaver.isRegistered<String>(), false);
-            weaver.registerLazy(() => 'Ali');
-            expect(weaver.isRegistered<String>(), true);
-            expect(weaver.get<String>(), 'Ali');
+            expect(weaverInstance.isRegistered<String>(), false);
+            weaverInstance.registerLazy(() => 'Ali');
+            expect(weaverInstance.isRegistered<String>(), true);
+            expect(weaverInstance.get<String>(), 'Ali');
 
-            weaver.unregister<String>();
-            expect(weaver.isRegistered<String>(), false);
-            expect(() => weaver.get<String>(), throwsException);
+            weaverInstance.unregister<String>();
+            expect(weaverInstance.isRegistered<String>(), false);
+            expect(() => weaverInstance.get<String>(), throwsException);
+          },
+        );
+
+        test(
+          'Should throw an error if scope handler registered and scope object used to enter scope '
+          'have the same name but different argument types',
+          () {
+            final scopeHandler = TestScopeHandler(
+              stringObject: 'ali',
+              intObject: 9,
+              initialIsInScopeValue: false,
+            );
+
+            weaverInstance.addScopeHandler(scopeHandler);
+
+            expect(() => weaverInstance.get<String>(), throwsException);
+            expect(() => weaverInstance.get<int>(), throwsException);
+
+            expect(
+              () => weaverInstance.enterScope(WrongArgTestScope(argument: 2)),
+              throwsException,
+            );
           },
         );
       },
     );
   }
+}
+
+class WrongArgTestScope extends Scope<int> {
+  WrongArgTestScope({super.argument}) : super(name: 'test');
 }

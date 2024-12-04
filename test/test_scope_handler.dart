@@ -1,14 +1,17 @@
-import 'package:flutter/src/foundation/change_notifier.dart';
 import 'package:weaver/src/base/weaver.dart';
 import 'package:weaver/src/base/weaver_scope.dart';
 
-class TestScope extends WeaverScope {
-  TestScope({
+class TestScope extends Scope<String> {
+  TestScope({super.argument}) : super(name: 'test');
+}
+
+class TestScopeHandler extends ScopeHandler<String> {
+  TestScopeHandler({
     this.stringObject,
     this.intObject,
     this.doubleObject,
     this.boolObject,
-    this.name = 'test',
+    this.scopeName = 'test',
     this.initialIsInScopeValue = true,
   });
 
@@ -19,10 +22,10 @@ class TestScope extends WeaverScope {
   final bool initialIsInScopeValue;
 
   @override
-  late ValueNotifier<bool> isInScope = ValueNotifier(initialIsInScopeValue);
+  final String scopeName;
 
   @override
-  Future<void> register(final Weaver weaver) async {
+  Future<void> onEnterScope(final Weaver weaver, final argument) async {
     if (stringObject != null) {
       weaver.register(stringObject!);
     }
@@ -38,10 +41,7 @@ class TestScope extends WeaverScope {
   }
 
   @override
-  final String name;
-
-  @override
-  Future<void> unregister(final Weaver weaver) async {
+  Future<void> onLeaveScope(final Weaver weaver) async {
     if (stringObject != null) {
       weaver.unregister<String>();
     }
