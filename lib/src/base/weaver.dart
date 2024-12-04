@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import 'package:weaver/src/base/dependency.dart';
-import 'package:weaver/src/base/weaver_scope.dart';
+import 'package:weaver/src/base/scope.dart';
 import 'package:weaver/src/utils/log.dart';
 
 final weaver = Weaver();

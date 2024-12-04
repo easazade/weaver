@@ -1,5 +1,5 @@
 import 'package:weaver/src/base/weaver.dart';
-import 'package:weaver/src/base/weaver_scope.dart';
+import 'package:weaver/src/base/scope.dart';
 
 class TestScope extends Scope<String> {
   TestScope({super.argument}) : super(name: 'test');

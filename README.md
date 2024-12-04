@@ -66,62 +66,76 @@ final userBloc = await weaver.getAsync<UserBloc>();
 
 #### Scoped Dependencies
 
-When it comes to dependency injection, usually dependency objects are required to exists as long as the app is running. But sometimes it is required for a dependency object to only exist within a the duration of a lifecycle.
+When it comes to dependency injection, usually dependency objects are required to exists as long as the app is running. But sometimes it is required for a dependency object to exist only in certain scenario. In short some dependencies only live in certain scopes.
 
-For example in an application it might make sense to only register some objects after user is authenticated and unregister them after user is logged out. Hence it can be said those dependency objects only live within the authentication-scope.
+For example in an application it might make sense to only register some objects after user is authenticated and unregister them after user has logged out. Hence it can be said those dependency objects only live within the authentication scope.
 
-With weaver it is possible to define a scope by extending `WeaverScope` and registering it.
+With weaver it is possible to define a scope by extending `Scope` class and then define a `ScopeHandler` to handle creation and registering of objects that should exist when weaver enters that scope and unregistering them when weaver leaves that scope.
 
 ```dart
-class AuthScope extends WeaverScope {
+class AuthenticatedScope extends Scope<AuthenticatedScopeArgs> {
+  AuthenticatedScope({required super.argument}) : super(name: 'authenticated');
+}
+
+class AuthenticatedScopeHandler extends ScopeHandler<AuthenticatedScopeArgs> {
   @override
-  final String name = 'auth-scope';
+  String get scopeName => 'authenticated';
 
   @override
-  final ValueNotifier<bool> isInScope = ValueNotifier(false);
-
-  final Stream<AuthState> authBlocChanges;
-
-  StreamSubscription? _authChangesSubscription;
-
-  AuthScope({required this.authBlocChanges }) {
-    _authChangesSubscription = authBlocChanges.listen((final authState) {
-        isInScope.value = authState is Authenticated;
-    });
+  Future<void> onEnterScope(
+    final Weaver weaver,
+    final AuthenticatedScopeArgs? argument,
+  ) async {
+    if (argument != null) {
+      weaver.register(UserCubit(userId: argument.userId));
+    }
   }
 
   @override
-  Future<void> register(final Weaver weaver) async {
-    weaver.register(ProductsBloc());
+  Future<void> onLeaveScope(final Weaver weaver) async {
+    weaver.unregister<UserCubit>();
   }
+}
 
-  @override
-  Future<void> unregister(final Weaver weaver) async {
-    weaver.unregister(ProductsBloc());
-  }
+class AuthenticatedScopeArgs {
+  AuthenticatedScopeArgs({required this.userId});
 
-  @override
-  void dispose() {
-    _authChangesSubscription?.cancel();
-  }
+  final String userId;
 }
 ```
 
-After defining the scope, it is required to register in weaver.
+After defining the scope, it is required to register the handler to weaver.
 
 ```dart
-weaver.registerScope(AuthScope());
+weaver.addScopeHandler(AuthenticatedScopeHandler());
 ```
 
-By updating the `isInScope` value the dependencies handled by the above scope will be updated. If value of `isInScope` will be set to true `register` callback will be called to register dependencies of this scope. If value of `isInScope` will be set to false `unregister` callback will be called to unregister the dependencies handled by this scope.
+Now whenever the user is authenticated, weaver can be signaled that application has entered the scope of authenticated. that can be done using the `enterScope()` method and the `AuthenticatedScope` class defined above.
+
+```dart
+  // after user authenticated
+  weaver.enterScope(
+    AuthenticatedScope(
+      argument: AuthenticatedScopeArgs(userId: id),
+    ),
+  );
+```
+
+Above call will trigger `AuthenticatedScopeHandler` to register objects.
+
+To leave a scope method `leaveScope()` should be used
+
+```dart
+weaver.leaveScope('authenticated');
+```
 
 #### Listen for changes in dependencies
 
-All registerations and unregisterations can be listened to by adding a listener on `weaver`
+All registrations and un-registrations can be listened to by adding a listener on `weaver`
 
 ```dart
 weaver.addListener() { 
-    if(weaver.isRegistered<UserBloc>()){
+    if(weaver.isRegistered<UserCubit>()){
         // ...
     }
 }
