@@ -14,7 +14,10 @@ class Weaver extends ChangeNotifier {
   Weaver();
 
   final _dependencies = <Type, Dependency>{};
-  final List<_ScopeRegistryBundle> _scopeRegistryBundles = [];
+  final _scopeHandlers = <ScopeHandler>[];
+  final _scopes = <Scope>{};
+
+  Iterable<Scope> get scopes => _scopes;
   var allowReassignment = false;
 
   void registerLazy<T extends Object>(final T Function() callback) {
@@ -93,67 +96,64 @@ class Weaver extends ChangeNotifier {
     }
   }
 
-  Future<void> addScopeRegistry(final WeaverScope scopeRegistry) async {
-    final alreadyRegistered = _scopeRegistryBundles.firstWhereOrNull(
-            (final e) => e.scopeRegistry.name == scopeRegistry.name) !=
+  bool hasEnteredScope(final String scopeName) =>
+      scopes.firstWhereOrNull((final e) => e.name == scopeName) != null;
+
+  void enterScope(final Scope scope) {
+    if (hasEnteredScope(scope.name)) {
+      throw WeaverException(
+        'Has already entered scope <${scope.name}>, '
+        'cannot call method weaver.enterScope on this scope again',
+      );
+    }
+
+    _scopes.add(scope);
+    for (final scopeHandler in _scopeHandlers) {
+      scopeHandler.handle(this);
+    }
+  }
+
+  void leaveScope(final String scopeName) {
+    if (hasEnteredScope(scopeName)) {
+      _scopes.removeWhere((final e) => e.name == scopeName);
+      for (final scopeHandler in _scopeHandlers) {
+        scopeHandler.handle(this);
+      }
+    }
+  }
+
+  Future<void> addScopeHandler(final ScopeHandler handler) async {
+    final alreadyAdded = _scopeHandlers
+            .firstWhereOrNull((final e) => e.scopeName == handler.scopeName) !=
         null;
 
-    if (alreadyRegistered && !allowReassignment) {
+    if (alreadyAdded && !allowReassignment) {
       throw WeaverException(
-        'Cannot register ScopeRegistry with name ${scopeRegistry.name}, since one is already registered',
+        'Cannot add ScopeHandler with name ${handler.scopeName}, since one is already added',
       );
     }
 
-    void listener() {
-      _checkAndUpdateScopeFrom(scopeRegistry);
-    }
-
-    scopeRegistry.isInScope.addListener(listener);
-
-    final scopeRegistryBundle = _ScopeRegistryBundle(
-      scopeRegistry: scopeRegistry,
-      listener: listener,
-    );
-
-    _scopeRegistryBundles.add(scopeRegistryBundle);
-    await _checkAndUpdateScopeFrom(scopeRegistry);
+    _scopeHandlers.add(handler);
+    handler.handle(this);
   }
 
-  Future<void> removeScopeRegistry(final String scopeName) async {
-    final bundle = _scopeRegistryBundles.firstWhereOrNull(
-        (final bundle) => bundle.scopeRegistry.name == scopeName);
-    if (bundle != null) {
-      bundle.scopeRegistry.isInScope.removeListener(bundle.listener);
-      await bundle.scopeRegistry.unregister(this);
-      _scopeRegistryBundles.removeWhere(
-        (final bundle) => bundle.scopeRegistry.name == scopeName,
-      );
-      bundle.scopeRegistry.dispose();
-    }
-  }
+  Future<void> removeScopeHandler(final String scopeName) async {
+    final handler = _scopeHandlers
+        .firstWhereOrNull((final handler) => handler.scopeName == scopeName);
 
-  Future<void> _checkAndUpdateScopeFrom(
-    final WeaverScope scopeRegistry,
-  ) async {
-    if (scopeRegistry.isInScope.value) {
-      await scopeRegistry.register(this);
-    } else {
-      await scopeRegistry.unregister(this);
+    if (handler != null) {
+      _scopeHandlers.removeWhere((final e) => e.scopeName == scopeName);
+      await handler.onLeaveScope(this);
+      handler.scopeHandlerState = ScopeHandlerState.left;
+      handler.dispose();
     }
   }
 
   /// Deletes all registered dependencies and all scope registries
   void reset() {
     _dependencies.clear();
-    _scopeRegistryBundles.clear();
+    _scopeHandlers.clear();
   }
-}
-
-class _ScopeRegistryBundle {
-  final WeaverScope scopeRegistry;
-  final void Function() listener;
-
-  _ScopeRegistryBundle({required this.scopeRegistry, required this.listener});
 }
 
 class WeaverException implements Exception {
