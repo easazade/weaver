@@ -3,9 +3,9 @@ Dependency Injection library, rethought and tailored specifically for Flutter.
 ## Features
 
 - Register objects and get them anywhere in your code by just calling `weaver.get()`.
-- Ability to both register an object where it can live globally or within the lifecycle of defined `WeaverScope`.
 - Ability to wait for an creation of an object before it is even created and then get it as soon as it is created with `getAsync()`.
 - Build widgets without worrying about whether dependency objects are created or not by using `RequireDependencies` widget.
+- Ability to both register an object where it can live globally or within the lifecycle of defined `Scope` that can be handled by a     `ScopeHandler`.
 - Register objects to be created lazily.
 
 ## Getting started
@@ -134,7 +134,7 @@ weaver.leaveScope('authenticated');
 All registrations and un-registrations can be listened to by adding a listener on `weaver`
 
 ```dart
-weaver.addListener() { 
+weaver.addListener() {
     if(weaver.isRegistered<UserCubit>()){
         // ...
     }
@@ -142,6 +142,7 @@ weaver.addListener() {
 ```
 
 #### Testing
+
 For testing purposes it is possible to allow re-registration of objects by setting `allowReassignment` to true.
 
-It is also possible to `weaver.reset()` to clear all registered dependencies and scopes. 
+It is also possible to `weaver.reset()` to clear all registered dependencies and scopes.
