@@ -96,11 +96,11 @@ class Weaver extends ChangeNotifier {
     }
   }
 
-  bool hasEnteredScope(final String scopeName) =>
+  bool isInScope(final String scopeName) =>
       scopes.firstWhereOrNull((final e) => e.name == scopeName) != null;
 
   void enterScope(final Scope scope) {
-    if (hasEnteredScope(scope.name)) {
+    if (isInScope(scope.name)) {
       throw WeaverException(
         'Has already entered scope <${scope.name}>, '
         'cannot call method weaver.enterScope on this scope again',
@@ -114,7 +114,7 @@ class Weaver extends ChangeNotifier {
   }
 
   void leaveScope(final String scopeName) {
-    if (hasEnteredScope(scopeName)) {
+    if (isInScope(scopeName)) {
       _scopes.removeWhere((final e) => e.name == scopeName);
       for (final scopeHandler in _scopeHandlers) {
         scopeHandler.handle(this);
