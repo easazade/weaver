@@ -36,7 +36,6 @@ abstract class ScopeHandler<T> {
   var scopeHandlerState = ScopeHandlerState.left;
 
   void handle(final Weaver weaver) {
-
     final scope = weaver.scopes
         .firstWhereOrNull((final scope) => scope.name == scopeName);
     final isInScope = scope != null;
