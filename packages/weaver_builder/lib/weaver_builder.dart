@@ -1,3 +1,6 @@
-int calculate() {
-  return 6 * 7;
-}
+  import 'package:build/build.dart';
+
+  Builder weaverBuilder(BuilderOptions options) {
+    // return your Builder instance
+    throw UnimplementedError();
+  }

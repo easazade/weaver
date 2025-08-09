@@ -1,0 +1,19 @@
+targets:
+  $default:
+    builders:
+      weaver_builder:weaver:
+        # Limit generation scope as needed later.
+        generate_for:
+          - lib/**.dart
+
+builders:
+  weaver:
+    import: "package:weaver_builder/weaver_builder.dart"
+    builder_factories: ["weaverBuilder"]
+    build_extensions:
+      ".dart": [".weaver.dart"]
+    auto_apply: dependents
+    build_to: source
+    # Uncomment when using source_gen combining builder
+    # applies_builders: ["source_gen:combining_builder"]
+

@@ -1,0 +1,19 @@
+name: weaver
+
+packages:
+  - packages/*
+
+command:
+  bootstrap:
+    runPubGetInParallel: true
+
+scripts:
+  format:
+    run: dart format --set-exit-if-changed .
+    
+  analyze:
+    run: melos exec -c 1 -- "dart analyze"
+
+  test:
+    run: melos exec -c 1 -- "dart test"
+
