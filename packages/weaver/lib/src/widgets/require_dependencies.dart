@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:weaver/src/base/weaver.dart';
-import 'package:weaver/src/utils/log.dart';
+import '../base/weaver.dart';
+import '../utils/log.dart';
 
 class RequireDependencies extends StatefulWidget {
   final Weaver weaver;

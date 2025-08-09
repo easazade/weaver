@@ -1,5 +1,5 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:weaver/weaver.dart';
+import '../lib/weaver.dart';
 
 import 'test_scope_handler.dart';
 
