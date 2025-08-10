@@ -1,5 +1,6 @@
 library weaver;
 
+export 'src/annotations.dart';
 export 'src/base/dependency.dart';
 export 'src/base/scope.dart';
 export 'src/base/weaver.dart';
