@@ -19,5 +19,5 @@ scripts:
     run: melos exec -c 1 -- "flutter test"
 
   gen:
-    run: melos exec -c 1 --scope="example" -- "dart run build_runner build -d"
+    run: melos exec -c 1 --scope="example" -- "flutter pub run build_runner build -d"
 

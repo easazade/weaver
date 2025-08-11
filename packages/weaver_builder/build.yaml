@@ -2,12 +2,12 @@ builders:
   weaver:
     import: "package:weaver_builder/weaver_builder.dart"
     builder_factories: ["weaverBuilder"]
-    build_extensions:
-      ".dart": [".weaver.dart"]
     auto_apply: dependents
     build_to: source
+    build_extensions:
+      "$lib": [".weaver.dart"]
     # applies_builders:
-      # - source_gen|combining_builder    
+    #   - source_gen|combining_builder
     # defaults:
     #   generate_for:
     #     - "lib/**"
