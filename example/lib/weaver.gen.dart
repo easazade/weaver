@@ -5,12 +5,10 @@ import 'package:example/person.dart';
 // ignore_for_file: unnecessary_string_interpolations
 
 extension PersonAuto on Person {
-  @override
   String stringify() =>
       "Person(firstName: $firstName, lastName: $lastName, age: $age, isActive: $isActive)";
 }
 
 extension ModelAuto on Model {
-  @override
   String stringify() => "Model(name: $name, age: $age)";
 }

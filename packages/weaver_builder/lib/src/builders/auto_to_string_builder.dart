@@ -47,7 +47,6 @@ class AutoToStringAggregateBuilder implements Builder {
 
         extensionsBuffer
           ..writeln('extension ${className}Auto on $className {')
-          ..writeln('  @override')
           ..writeln(
             '  String stringify() => "$className(${fields.map((f) => '${f.name3}: \${${f.name3}}').join(', ')})";',
           )
