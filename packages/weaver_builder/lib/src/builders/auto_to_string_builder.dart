@@ -1,218 +1,118 @@
-import 'dart:async';
-
+import 'package:analyzer/dart/element/element2.dart';
 import 'package:build/build.dart';
 import 'package:dart_style/dart_style.dart';
-import 'package:glob/glob.dart';
-import 'package:weaver_builder/src/utils/log.dart';
+import 'package:source_gen/source_gen.dart';
+import 'package:weaver/weaver.dart';
 
-class AutoToStringGenerator extends Builder {
-  final _formatter = DartFormatter(
+class WeaverGenerator extends GeneratorForAnnotation<AutoToString> {
+  final _fmt = DartFormatter(
     languageVersion: DartFormatter.latestLanguageVersion,
   );
 
   @override
-  FutureOr<void> build(BuildStep buildStep) async {
-    if (!await buildStep.resolver.isLibrary(buildStep.inputId)) {
-      return;
-    }
-
-    final inputSource = await buildStep.readAsString(buildStep.inputId);
-
-    // Check if this file contains @WeaverMain annotation
-    Log.greenText('Start build() method');
-    Log.yellowText('Input Source: $inputSource');
-    bool hasWeaverMain = inputSource.contains('@WeaverMain()');
-
-    // Only generate the output file for the file that has @WeaverMain
-    if (!hasWeaverMain) {
-      return;
-    }
-
-    // Collect all classes annotated with @AutoToString from the entire project
-    final autoToStringClasses = <ClassInfo>[];
-
-    // Find all dart files in the project
-    final dartFiles = Glob('**/*.dart');
-    await for (final assetId in buildStep.findAssets(dartFiles)) {
-      Log.whiteText('Checking if assetId: ($assetId) is a library');
-
-      if (await buildStep.resolver.isLibrary(assetId)) {
-        final sourceContent = await buildStep.readAsString(assetId);
-
-        // Simple regex-based parsing for classes with @AutoToString annotation
-        if (sourceContent.contains('@AutoToString()')) {
-          final lines = sourceContent.split('\n');
-
-          for (int i = 0; i < lines.length; i++) {
-            final line = lines[i];
-            if (line.trim().startsWith('@AutoToString()')) {
-              // Look for the class definition in the next few lines
-              for (int j = i + 1; j < lines.length && j < i + 5; j++) {
-                final classLine = lines[j].trim();
-                if (classLine.startsWith('class ')) {
-                  final className = _extractClassName(classLine);
-                  if (className != null) {
-                    final fields = _extractFields(sourceContent, className);
-                    autoToStringClasses.add(
-                      ClassInfo(
-                        className: className,
-                        fields: fields,
-                        libraryUri: assetId.uri.toString(),
-                      ),
-                    );
-                    break;
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
-    }
-
-    // Generate the output file
-    final generatedCode = _generateToStringFile(autoToStringClasses);
-    final formattedCode = _formatter.format(generatedCode);
-
-    final outputId = buildStep.allowedOutputs.first;
-    await buildStep.writeAsString(outputId, formattedCode);
-    Log.redText('End build method');
-  }
-
-  String? _extractClassName(String classLine) {
-    final regex = RegExp(r'class\s+(\w+)');
-    final match = regex.firstMatch(classLine);
-    return match?.group(1);
-  }
-
-  List<FieldInfo> _extractFields(String sourceContent, String className) {
-    final fields = <FieldInfo>[];
-    final lines = sourceContent.split('\n');
-    bool inClass = false;
-    int braceCount = 0;
-
-    for (final line in lines) {
-      final trimmedLine = line.trim();
-
-      if (trimmedLine.contains('class $className')) {
-        inClass = true;
-        continue;
-      }
-
-      if (inClass) {
-        // Count braces to know when we're inside the class
-        braceCount += '{'.allMatches(trimmedLine).length;
-        braceCount -= '}'.allMatches(trimmedLine).length;
-
-        if (braceCount == 0 && trimmedLine.contains('}')) {
-          break; // End of class
-        }
-
-        // Look for field declarations
-        if (trimmedLine.contains('final ') ||
-            (trimmedLine.contains(' ') &&
-                trimmedLine.endsWith(';') &&
-                !trimmedLine.startsWith('//') &&
-                !trimmedLine.contains('(') &&
-                !trimmedLine.contains('{'))) {
-          final fieldInfo = _parseFieldDeclaration(trimmedLine);
-          if (fieldInfo != null) {
-            fields.add(fieldInfo);
-          }
-        }
-      }
-    }
-
-    return fields;
-  }
-
-  FieldInfo? _parseFieldDeclaration(String line) {
-    // Simple field parsing - this could be more sophisticated
-    final regex = RegExp(r'(?:final\s+)?(\w+)\s+(\w+);');
-    final match = regex.firstMatch(line.trim());
-    if (match != null) {
-      return FieldInfo(name: match.group(2)!, type: match.group(1)!);
-    }
-    return null;
-  }
-
-  String _generateToStringFile(List<ClassInfo> classes) {
-    final buffer = StringBuffer();
-
-    buffer.writeln('// GENERATED CODE - DO NOT MODIFY BY HAND');
-    buffer.writeln('// Generated by weaver_builder');
-    buffer.writeln();
-
-    // Add imports for all the classes
-    final imports = <String>{};
-    for (final classInfo in classes) {
-      if (classInfo.libraryUri.startsWith('package:') ||
-          classInfo.libraryUri.startsWith('dart:')) {
-        imports.add(classInfo.libraryUri);
-      } else {
-        // Convert file:// URIs to relative imports
-        final uri = Uri.parse(classInfo.libraryUri);
-        if (uri.scheme == 'file') {
-          final relativePath = uri.pathSegments.last;
-          imports.add(relativePath);
-        }
-      }
-    }
-
-    for (final import in imports) {
-      if (import.startsWith('package:') || import.startsWith('dart:')) {
-        buffer.writeln("import '$import';");
-      } else {
-        buffer.writeln("import '$import';");
-      }
-    }
-
-    buffer.writeln();
-    buffer.writeln('class GeneratedToStringMethods {');
-
-    for (final classInfo in classes) {
-      buffer.writeln(
-        '  static String ${classInfo.className.toLowerCase()}ToString(${classInfo.className} obj) {',
+  generateForAnnotatedElement(
+    Element2 element,
+    ConstantReader annotation,
+    BuildStep buildStep,
+  ) {
+    if (element is! ClassElement2) {
+      throw InvalidGenerationSourceError(
+        '@AutoToString can only be used on classes.',
+        element: element,
       );
-      buffer.write('    return \'${classInfo.className}(');
-
-      for (int i = 0; i < classInfo.fields.length; i++) {
-        final field = classInfo.fields[i];
-        if (i > 0) buffer.write(', ');
-        buffer.write('${field.name}: \${obj.${field.name}}');
-      }
-
-      buffer.writeln(')\';');
-      buffer.writeln('  }');
-      buffer.writeln();
     }
 
-    buffer.writeln('}');
+    final cls = element;
+    final fields = cls.fields2.where((f) => !f.isStatic).toList();
 
-    return buffer.toString();
+    final buf = StringBuffer()
+      ..writeln('// GENERATED CODE - DO NOT MODIFY BY HAND')
+      ..writeln('extension ${cls.name3}Auto on ${cls.name3} {')
+      ..writeln('  @override')
+      ..writeln(
+        '  String toString() => "${cls.name3}('
+        '${fields.map((f) => '${f.name3}: \${this.${f.name3}}').join(', ')}'
+        ')";',
+      )
+      ..writeln('}');
+
+    return _fmt.format(buf.toString());
   }
-
-  @override
-  Map<String, List<String>> get buildExtensions => {
-    '.dart': ['.weaver.dart'],
-  };
 }
 
-class ClassInfo {
-  final String className;
-  final List<FieldInfo> fields;
-  final String libraryUri;
+// class AutoToStringBuilder extends Builder {
+//   final _formatter = DartFormatter(
+//     languageVersion: DartFormatter.latestLanguageVersion,
+//   );
 
-  ClassInfo({
-    required this.className,
-    required this.fields,
-    required this.libraryUri,
-  });
-}
+//   @override
+//   FutureOr<void> build(BuildStep buildStep) async {
+//     if (!await buildStep.resolver.isLibrary(buildStep.inputId)) {
+//       return;
+//     }
 
-class FieldInfo {
-  final String name;
-  final String type;
+//     // Check if this file contains @WeaverMain annotation
+//     Log.greenText('Start build() method');
+//     final inputSource = await buildStep.readAsString(buildStep.inputId);
+//     bool hasWeaverMain = inputSource.contains('@WeaverMain()');
 
-  FieldInfo({required this.name, required this.type});
-}
+//     Log.yellowText('Input ID: ${buildStep.inputId}');
+//     // Log.yellowText('Input Source: $inputSource');
+
+//     // Only generate the output file for the file that has @WeaverMain
+
+//     // Collect all classes annotated with @AutoToString from the entire project
+
+//     // Find all dart files in the project
+//     final dartFiles = Glob('**/*.dart');
+//     // await for (final assetId in buildStep.findAssets(dartFiles)) {
+//     //   Log.whiteText('Checking if assetId: ($assetId) is a library');
+
+//     //   if (await buildStep.resolver.isLibrary(assetId)) {
+//     //     final sourceContent = await buildStep.readAsString(assetId);
+
+//     //     // Simple regex-based parsing for classes with @AutoToString annotation
+//     //     if (sourceContent.contains('@AutoToString()')) {
+//     //       final lines = sourceContent.split('\n');
+
+//     //       for (int i = 0; i < lines.length; i++) {
+//     //         final line = lines[i];
+//     //         if (line.trim().startsWith('@AutoToString()')) {
+//     //           // Look for the class definition in the next few lines
+//     //           for (int j = i + 1; j < lines.length && j < i + 5; j++) {
+//     //             final classLine = lines[j].trim();
+//     //             if (classLine.startsWith('class ')) {
+//     //               final className = _extractClassName(classLine);
+//     //               if (className != null) {
+//     //                 final fields = _extractFields(sourceContent, className);
+//     //                 autoToStringClasses.add(
+//     //                   ClassInfo(
+//     //                     className: className,
+//     //                     fields: fields,
+//     //                     libraryUri: assetId.uri.toString(),
+//     //                   ),
+//     //                 );
+//     //                 break;
+//     //               }
+//     //             }
+//     //           }
+//     //         }
+//     //       }
+//     //     }
+//     //   }
+//     // }
+
+//     // Generate the output file
+//     // final generatedCode = _generateToStringFile(autoToStringClasses);
+//     // final formattedCode = _formatter.format(generatedCode);
+
+//     final outputId = buildStep.allowedOutputs.first;
+//     await buildStep.writeAsString(outputId, '// ${buildStep.inputId}');
+//     Log.redText('End build method');
+//   }
+
+//   @override
+//   Map<String, List<String>> get buildExtensions => {
+//     '.dart': ['.weaver.dart'],
+//   };
+// }
