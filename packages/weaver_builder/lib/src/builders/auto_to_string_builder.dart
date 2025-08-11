@@ -1,7 +1,4 @@
-import 'package:analyzer/dart/element/element.dart';
-import 'package:analyzer/dart/element/element2.dart';
 import 'package:build/build.dart';
-import 'package:dart_style/dart_style.dart';
 import 'package:glob/glob.dart';
 import 'package:source_gen/source_gen.dart';
 // ignore: unused_import
@@ -14,22 +11,31 @@ class AutoToStringAggregateBuilder implements Builder {
 
   @override
   Map<String, List<String>> get buildExtensions => const {
-    r'$lib$': ['weaver.weaver.dart'],
+    r'$lib$': ['weaver.gen.dart'],
   };
 
   @override
   Future<void> build(BuildStep buildStep) async {
-    final buffer = StringBuffer()
+    final extensionsBuffer = StringBuffer()
       ..writeln('// GENERATED CODE - DO NOT MODIFY BY HAND')
       ..writeln('// ignore_for_file: unnecessary_string_interpolations')
       ..writeln();
 
     final glob = Glob('lib/**.dart');
 
+    final importsBuffer = StringBuffer();
+
     await for (final input in buildStep.findAssets(glob)) {
+      // Compute a package: import for this library
+      // input.path is like 'lib/src/foo.dart' → import 'package:pkg/src/foo.dart';
       if (!await buildStep.resolver.isLibrary(input)) continue;
       final resolver = buildStep.resolver;
       final library = await resolver.libraryFor(input);
+
+      final package = buildStep.inputId.package;
+      final rel = input.path.substring('lib/'.length);
+      final importLine = "import 'package:$package/$rel';";
+      importsBuffer.writeln(importLine);
 
       for (final element in library.classes) {
         if (!_autoToStringChecker.hasAnnotationOfExact(element)) continue;
@@ -39,18 +45,23 @@ class AutoToStringAggregateBuilder implements Builder {
             .where((f) => !f.isStatic && !f.isSynthetic)
             .toList();
 
-        buffer
+        extensionsBuffer
           ..writeln('extension ${className}Auto on $className {')
           ..writeln('  @override')
           ..writeln(
-            '  String toString() => "$className(${fields.map((f) => '${f.name3}: \${this.${f.name3}}').join(', ')})";',
+            '  String stringify() => "$className(${fields.map((f) => '${f.name3}: \${${f.name3}}').join(', ')})";',
           )
           ..writeln('}')
           ..writeln();
       }
     }
 
-    final out = AssetId(buildStep.inputId.package, 'lib/weaver.weaver.dart');
-    await buildStep.writeAsString(out, buffer.toString());
+    final out = AssetId(buildStep.inputId.package, 'lib/weaver.gen.dart');
+    final content =
+        '''${importsBuffer.toString()}
+
+    ${extensionsBuffer.toString()}
+    ''';
+    await buildStep.writeAsString(out, content);
   }
 }
