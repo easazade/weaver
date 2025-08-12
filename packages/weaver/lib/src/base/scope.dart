@@ -35,7 +35,7 @@ abstract class ScopeHandler<T> {
 
   var scopeState = ScopeState.left;
 
-  Future<void> handle(final Weaver weaver) async{
+  Future<void> handle(final Weaver weaver) async {
     final scope = weaver.scopes
         .firstWhereOrNull((final scope) => scope.name == scopeName);
     final isInScope = scope != null;

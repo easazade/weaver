@@ -118,7 +118,7 @@ class Weaver extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> leaveScope(final String scopeName) async{
+  Future<void> leaveScope(final String scopeName) async {
     if (isInScope(scopeName)) {
       _scopes.removeWhere((final e) => e.name == scopeName);
       // make scope handlers to handle the change in scopes
@@ -130,6 +130,7 @@ class Weaver extends ChangeNotifier {
     notifyListeners();
   }
 
+  /// Adds a [ScopeHandler] instance and weaver which will handle scope changes
   Future<void> addScopeHandler(final ScopeHandler handler) async {
     final alreadyAdded = _scopeHandlers
             .firstWhereOrNull((final e) => e.scopeName == handler.scopeName) !=
@@ -145,6 +146,9 @@ class Weaver extends ChangeNotifier {
     await handler.handle(this);
   }
 
+  /// Removes the [ScopeHandler] instance that handles the scope with name [scopeName].
+  /// NOTE: this method only removes the [ScopeHandler] but does not leaves the scope with name [scopeName]
+  /// for that leaveScope method must be called.
   Future<void> removeScopeHandler(final String scopeName) async {
     final handler = _scopeHandlers
         .firstWhereOrNull((final handler) => handler.scopeName == scopeName);
@@ -152,17 +156,21 @@ class Weaver extends ChangeNotifier {
     if (handler != null) {
       _scopeHandlers.removeWhere((final e) => e.scopeName == scopeName);
 
-      // not calling handler.handle since the scope might not be removed 
+      // not calling handler.handle since the scope might not be left yet.
       await handler.onLeaveScope(this);
       handler.scopeState = ScopeState.left;
       handler.dispose();
     }
   }
 
-  /// Deletes all registered dependencies and all scope registries
+  /// Deletes all registered dependencies and Removes all current scopes.
+  /// Deletes and disposes all scope handlers.
   void reset() {
     _dependencies.clear();
     _scopes.clear();
+    for (final handler in _scopeHandlers) {
+      handler.dispose();
+    }
     _scopeHandlers.clear();
   }
 }
