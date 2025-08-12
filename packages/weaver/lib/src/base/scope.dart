@@ -14,10 +14,10 @@ enum ScopeState { entered, left }
 /// be notified to register or unregister dependencies.
 ///
 abstract class Scope<T> {
-  Scope({required this.name, this.args});
+  Scope({required this.name, required this.args});
 
   final String name;
-  final T? args;
+  final T args;
 }
 
 /// manages dependencies under it's [scopeName]. If [Weaver] class enters/leaves a scope
@@ -51,14 +51,14 @@ abstract mixin class ScopeHandler<T> {
       }
 
       scopeState = ScopeState.entered;
-      await onEnterScope(weaver, scope.args as T?);
+      await onEnterScope(weaver, scope.args as T);
     } else if (!isInScope && scopeState == ScopeState.entered) {
       await onLeaveScope(weaver);
       scopeState = ScopeState.left;
     }
   }
 
-  Future<void> onEnterScope(final Weaver weaver, final T? argument);
+  Future<void> onEnterScope(final Weaver weaver, final T argument);
 
   Future<void> onLeaveScope(final Weaver weaver);
 
