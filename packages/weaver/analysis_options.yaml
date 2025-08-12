@@ -16,3 +16,8 @@ linter:
     - file_names
     - package_names
     - sort_pub_dependencies
+
+
+formatter:
+  page_width: 120
+  trailing_commas: automate

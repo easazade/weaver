@@ -1,6 +1,7 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:weaver/src/base/scope.dart';
 import 'package:weaver/src/base/weaver.dart';
+
 import 'test_scope_handler.dart';
 
 void main() {
@@ -243,7 +244,7 @@ void main() {
             expect(() => weaverInstance.get<int>(), throwsException);
 
             expect(
-              () => weaverInstance.enterScope(WrongArgTestScope(argument: 2)),
+              () => weaverInstance.enterScope(WrongArgTestScope(args: 2)),
               throwsException,
             );
           },
@@ -254,5 +255,5 @@ void main() {
 }
 
 class WrongArgTestScope extends Scope<int> {
-  WrongArgTestScope({super.argument}) : super(name: 'test');
+  WrongArgTestScope({super.args}) : super(name: 'test');
 }

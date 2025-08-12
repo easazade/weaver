@@ -14,10 +14,10 @@ enum ScopeState { entered, left }
 /// be notified to register or unregister dependencies.
 ///
 abstract class Scope<T> {
-  Scope({required this.name, this.argument});
+  Scope({required this.name, this.args});
 
   final String name;
-  final T? argument;
+  final T? args;
 }
 
 /// manages dependencies under it's [scopeName]. If [Weaver] class enters/leaves a scope
@@ -30,7 +30,7 @@ abstract class Scope<T> {
 /// [dispose] method can be overridden to handle disposing this class id needed.
 /// It will be called by [Weaver] class when this [ScopeHandler] instance is being
 /// removed from [Weaver] class.
-abstract class ScopeHandler<T> {
+abstract mixin class ScopeHandler<T> {
   String get scopeName;
 
   var scopeState = ScopeState.left;
@@ -41,17 +41,17 @@ abstract class ScopeHandler<T> {
     final isInScope = scope != null;
 
     if (isInScope && scopeState == ScopeState.left) {
-      if (scope.argument != null && scope.argument is! T) {
+      if (scope.args != null && scope.args is! T) {
         throw WeaverException(
           'Scope and ScopeHandler that use the same scope-name should '
           'have the same argument type scope argument of type '
-          '${scope.argument.runtimeType} is not of argument type accepted '
+          '${scope.args.runtimeType} is not of argument type accepted '
           'by this ScopeHandler which is ${T.runtimeType}. ',
         );
       }
 
       scopeState = ScopeState.entered;
-      await onEnterScope(weaver, scope.argument as T?);
+      await onEnterScope(weaver, scope.args as T?);
     } else if (!isInScope && scopeState == ScopeState.entered) {
       await onLeaveScope(weaver);
       scopeState = ScopeState.left;

@@ -1,6 +1,3 @@
-import 'package:weaver/weaver.dart';
-
-@AutoToString()
 class Person {
   final String firstName;
   final String lastName;

@@ -1,7 +1,13 @@
-class AutoToString {
-  const AutoToString();
+class WeaverScope {
+  final String name;
+
+  const WeaverScope({required this.name});
 }
 
-class WeaverMain {
-  const WeaverMain();
+class OnEnterScope {
+  const OnEnterScope();
+}
+
+class OnLeaveScope {
+  const OnLeaveScope();
 }

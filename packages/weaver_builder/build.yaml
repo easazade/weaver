@@ -6,8 +6,8 @@ builders:
     build_to: source
     build_extensions:
       "$lib": [".gen.dart"]
-    # applies_builders:
-    #   - source_gen|combining_builder
+    applies_builders:
+      - source_gen|combining_builder
     # defaults:
     #   generate_for:
     #     - "lib/**"
