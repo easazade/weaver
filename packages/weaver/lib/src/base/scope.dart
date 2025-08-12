@@ -1,7 +1,7 @@
 import 'package:collection/collection.dart';
 import 'package:weaver/weaver.dart';
 
-enum ScopeHandlerState { entered, left }
+enum ScopeState { entered, left }
 
 /// Defines a scope in which existence of dependencies are tied to
 ///
@@ -33,15 +33,15 @@ abstract class Scope<T> {
 abstract class ScopeHandler<T> {
   String get scopeName;
 
-  var scopeHandlerState = ScopeHandlerState.left;
+  var scopeState = ScopeState.left;
 
   void handle(final Weaver weaver) {
     final scope = weaver.scopes
         .firstWhereOrNull((final scope) => scope.name == scopeName);
     final isInScope = scope != null;
 
-    if (isInScope && scopeHandlerState == ScopeHandlerState.left) {
-      scopeHandlerState = ScopeHandlerState.entered;
+    if (isInScope && scopeState == ScopeState.left) {
+      scopeState = ScopeState.entered;
       if (scope.argument != null && scope.argument is! T) {
         throw WeaverException(
           'Scope and ScopeHandler that use the same scope-name should '
@@ -52,9 +52,9 @@ abstract class ScopeHandler<T> {
       }
 
       onEnterScope(weaver, scope.argument as T?);
-    } else if (!isInScope && scopeHandlerState == ScopeHandlerState.entered) {
+    } else if (!isInScope && scopeState == ScopeState.entered) {
       onLeaveScope(weaver);
-      scopeHandlerState = ScopeHandlerState.left;
+      scopeState = ScopeState.left;
     }
   }
 

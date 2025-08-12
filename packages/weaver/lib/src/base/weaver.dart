@@ -145,7 +145,7 @@ class Weaver extends ChangeNotifier {
     if (handler != null) {
       _scopeHandlers.removeWhere((final e) => e.scopeName == scopeName);
       await handler.onLeaveScope(this);
-      handler.scopeHandlerState = ScopeHandlerState.left;
+      handler.scopeState = ScopeState.left;
       handler.dispose();
     }
   }
