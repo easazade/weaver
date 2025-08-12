@@ -2,7 +2,6 @@ import 'package:analyzer/dart/element/element2.dart';
 import 'package:build/build.dart';
 import 'package:collection/collection.dart';
 import 'package:dart_style/dart_style.dart';
-import 'package:glob/glob.dart';
 import 'package:recase/recase.dart';
 import 'package:source_gen/source_gen.dart';
 // ignore: unused_import
@@ -19,93 +18,79 @@ class WeaverScopeBuilder implements Builder {
 
   @override
   Map<String, List<String>> get buildExtensions => const {
-    r'$lib$': ['weaver.gen.dart'],
+    '.dart': ['.weaver.dart'],
   };
 
   @override
   Future<void> build(BuildStep buildStep) async {
     final codeBuffer = StringBuffer();
 
-    final glob = Glob('lib/**.dart');
-
     final imports = <String>{"import 'package:weaver/weaver.dart';"};
 
-    await for (final input in buildStep.findAssets(glob)) {
-      // Compute a package: import for this library
-      // input.path is like 'lib/src/foo.dart' → import 'package:pkg/src/foo.dart';
-      if (!await buildStep.resolver.isLibrary(input)) continue;
-      final resolver = buildStep.resolver;
-      final library = await resolver.libraryFor(input);
+    // Compute a package: import for this library
+    // input.path is like 'lib/src/foo.dart' → import 'package:pkg/src/foo.dart';
+    final resolver = buildStep.resolver;
+    if (!await resolver.isLibrary(buildStep.inputId)) return;
+    final library = await resolver.libraryFor(buildStep.inputId);
 
-      for (final classElement in library.classes) {
-        if (!_weaverScopeTypeChecker.hasAnnotationOfExact(classElement)) continue;
-        final weaverScopeAnnotation = _weaverScopeTypeChecker.firstAnnotationOfExact(classElement)!;
+    for (final classElement in library.classes) {
+      if (!_weaverScopeTypeChecker.hasAnnotationOfExact(classElement)) return;
+      final weaverScopeAnnotation = _weaverScopeTypeChecker.firstAnnotationOfExact(classElement)!;
 
-        _validateSourceSyntaxOnWeaverScopeClass(classElement);
+      _validateSourceSyntaxOnWeaverScopeClass(classElement);
 
-        final methods = classElement.methods2;
-        final onEnterScopeMethod = methods.firstWhere(
-          (method) => _onEnterScopeTypeChecker.hasAnnotationOfExact(method),
-        );
+      final methods = classElement.methods2;
+      final onEnterScopeMethod = methods.firstWhere((method) => _onEnterScopeTypeChecker.hasAnnotationOfExact(method));
 
-        final onLeaveScopeMethod = methods.firstWhere(
-          (method) => _onLeaveScopeTypeChecker.hasAnnotationOfExact(method),
-        );
+      final onLeaveScopeMethod = methods.firstWhere((method) => _onLeaveScopeTypeChecker.hasAnnotationOfExact(method));
 
-        // process onEnterScope
-        if (!_onEnterScopeTypeChecker.hasAnnotationOfExact(onEnterScopeMethod)) continue;
+      final importLine = "import '${buildStep.inputId.uri.toString()}';";
 
-        final package = buildStep.inputId.package;
-        final rel = input.path.substring('lib/'.length);
-        final importLine = "import 'package:$package/$rel';";
-        imports.add(importLine);
+      imports.add(importLine);
 
-        final functionName = onEnterScopeMethod.displayName;
-        final params = onEnterScopeMethod.formalParameters;
+      final functionName = onEnterScopeMethod.displayName;
+      final params = onEnterScopeMethod.formalParameters;
 
-        _validateSourceSyntaxForOnEnterScopeMethod(params, functionName);
+      _validateSourceSyntaxForOnEnterScopeMethod(params, functionName);
 
-        final reader = ConstantReader(weaverScopeAnnotation);
-        final scopeName = reader.read('name').stringValue;
-        final scopeClassName = '${scopeName.pascalCase.replaceAll('Scope', '')}Scope';
-        final scopeArgsClassName = params.length > 2 ? '${scopeClassName}Args' : 'void';
+      final reader = ConstantReader(weaverScopeAnnotation);
+      final scopeName = reader.read('name').stringValue;
+      final scopeClassName = '${scopeName.pascalCase.replaceAll('Scope', '')}Scope';
+      final scopeArgsClassName = params.length > 2 ? '${scopeClassName}Args' : 'void';
 
-        // create scope class
-        codeBuffer
-          ..writeln('class $scopeClassName extends Scope<$scopeArgsClassName> {')
-          ..writeln(" static const String scopeName = '$scopeName';\n")
-          ..writeln(" $scopeClassName($scopeArgsClassName args): super(name: '$scopeName', args: args);")
-          ..writeln('}');
+      // create scope class
+      codeBuffer
+        ..writeln('class $scopeClassName extends Scope<$scopeArgsClassName> {')
+        ..writeln(" static const String scopeName = '$scopeName';\n")
+        ..writeln(" $scopeClassName($scopeArgsClassName args): super(name: '$scopeName', args: args);")
+        ..writeln('}');
 
-        // create scope args class
-        if (params.length > 2) {
-          codeBuffer.writeln('class $scopeArgsClassName {');
-          final extraParams = params.sublist(2);
-          for (final param in extraParams) {
-            final paramType = param.type.displayNameWithNullability;
-            final paramName = param.displayName;
-            codeBuffer.writeln('final $paramType $paramName;');
-          }
-
-          codeBuffer.writeln('$scopeArgsClassName({');
-          for (final param in extraParams) {
-            final paramName = param.displayName;
-            final isRequired = !param.type.displayNameWithNullability!.endsWith('?');
-
-            codeBuffer.writeln('${isRequired ? "required" : ""} this.$paramName,');
-          }
-          codeBuffer.writeln('});');
-
-          codeBuffer.writeln('}');
+      // create scope args class
+      if (params.length > 2) {
+        codeBuffer.writeln('class $scopeArgsClassName {');
+        final extraParams = params.sublist(2);
+        for (final param in extraParams) {
+          final paramType = param.type.displayNameWithNullability;
+          final paramName = param.displayName;
+          codeBuffer.writeln('final $paramType $paramName;');
         }
 
-        // create scope-handler class
+        codeBuffer.writeln('$scopeArgsClassName({');
+        for (final param in extraParams) {
+          final paramName = param.displayName;
+          final isRequired = !param.type.displayNameWithNullability!.endsWith('?');
 
-        
+          codeBuffer.writeln('${isRequired ? "required" : ""} this.$paramName,');
+        }
+        codeBuffer.writeln('});');
+
+        codeBuffer.writeln('}');
       }
+
+      // create scope-handler class
     }
 
-    final out = AssetId(buildStep.inputId.package, 'lib/weaver.gen.dart');
+    final outputId = buildStep.inputId.changeExtension('.weaver.dart');
     var content =
         '''$generatedFileHeader
 
@@ -115,7 +100,7 @@ ${codeBuffer.toString()}
     ''';
 
     content = _dartFormatter.tryFormat(content);
-    await buildStep.writeAsString(out, content);
+    await buildStep.writeAsString(outputId, content);
   }
 
   /// Checks if the input source code is valid and as expected. Throws a [InvalidGenerationSource] if otherwise.

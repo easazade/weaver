@@ -5,7 +5,7 @@ builders:
     auto_apply: dependents
     build_to: source
     build_extensions:
-      "$lib": [".gen.dart"]
+      ".dart": [".weaver.dart"]
     applies_builders:
       - source_gen|combining_builder
     # defaults:
