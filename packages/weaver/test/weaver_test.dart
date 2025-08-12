@@ -114,7 +114,7 @@ void main() {
 
             weaverInstance.addScopeHandler(scopeHandler);
 
-            weaverInstance.enterScope(TestScope());
+            weaverInstance.enterScope(TestScope(args: 'WHAT'));
 
             expect(weaverInstance.get<String>(), 'ali');
             expect(weaverInstance.get<int>(), 9);
@@ -153,7 +153,7 @@ void main() {
 
             weaverInstance.addScopeHandler(scopeHandler);
 
-            weaverInstance.enterScope(TestScope());
+            weaverInstance.enterScope(TestScope(args: 'WHAT'));
 
             expect(weaverInstance.get<String>(), 'ali');
             expect(weaverInstance.get<int>(), 9);
@@ -181,7 +181,7 @@ void main() {
             expect(() => weaverInstance.get<String>(), throwsException);
             expect(() => weaverInstance.get<int>(), throwsException);
 
-            final testScope = TestScope();
+            final testScope = TestScope(args: 'WHAT');
             weaverInstance.enterScope(testScope);
 
             expect(weaverInstance.get<String>(), 'ali');
@@ -255,5 +255,5 @@ void main() {
 }
 
 class WrongArgTestScope extends Scope<int> {
-  WrongArgTestScope({super.args}) : super(name: 'test');
+  WrongArgTestScope({required super.args}) : super(name: 'test');
 }
