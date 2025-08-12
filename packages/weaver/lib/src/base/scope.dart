@@ -35,13 +35,12 @@ abstract class ScopeHandler<T> {
 
   var scopeState = ScopeState.left;
 
-  void handle(final Weaver weaver) {
+  Future<void> handle(final Weaver weaver) async{
     final scope = weaver.scopes
         .firstWhereOrNull((final scope) => scope.name == scopeName);
     final isInScope = scope != null;
 
     if (isInScope && scopeState == ScopeState.left) {
-      scopeState = ScopeState.entered;
       if (scope.argument != null && scope.argument is! T) {
         throw WeaverException(
           'Scope and ScopeHandler that use the same scope-name should '
@@ -51,9 +50,10 @@ abstract class ScopeHandler<T> {
         );
       }
 
-      onEnterScope(weaver, scope.argument as T?);
+      scopeState = ScopeState.entered;
+      await onEnterScope(weaver, scope.argument as T?);
     } else if (!isInScope && scopeState == ScopeState.entered) {
-      onLeaveScope(weaver);
+      await onLeaveScope(weaver);
       scopeState = ScopeState.left;
     }
   }

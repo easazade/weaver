@@ -100,7 +100,7 @@ class Weaver extends ChangeNotifier {
   bool isInScope(final String scopeName) =>
       scopes.firstWhereOrNull((final e) => e.name == scopeName) != null;
 
-  void enterScope(final Scope scope) {
+  Future<void> enterScope(final Scope scope) async {
     if (isInScope(scope.name)) {
       throw WeaverException(
         'Has already entered scope <${scope.name}>, '
@@ -109,18 +109,25 @@ class Weaver extends ChangeNotifier {
     }
 
     _scopes.add(scope);
+
+    // make scope handlers to handle the change in scopes (new scope added)
     for (final scopeHandler in _scopeHandlers) {
-      scopeHandler.handle(this);
+      await scopeHandler.handle(this);
     }
+
+    notifyListeners();
   }
 
-  void leaveScope(final String scopeName) {
+  Future<void> leaveScope(final String scopeName) async{
     if (isInScope(scopeName)) {
       _scopes.removeWhere((final e) => e.name == scopeName);
+      // make scope handlers to handle the change in scopes
       for (final scopeHandler in _scopeHandlers) {
-        scopeHandler.handle(this);
+        await scopeHandler.handle(this);
       }
     }
+
+    notifyListeners();
   }
 
   Future<void> addScopeHandler(final ScopeHandler handler) async {
@@ -135,7 +142,7 @@ class Weaver extends ChangeNotifier {
     }
 
     _scopeHandlers.add(handler);
-    handler.handle(this);
+    await handler.handle(this);
   }
 
   Future<void> removeScopeHandler(final String scopeName) async {
@@ -144,6 +151,8 @@ class Weaver extends ChangeNotifier {
 
     if (handler != null) {
       _scopeHandlers.removeWhere((final e) => e.scopeName == scopeName);
+
+      // not calling handler.handle since the scope might not be removed 
       await handler.onLeaveScope(this);
       handler.scopeState = ScopeState.left;
       handler.dispose();
