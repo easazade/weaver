@@ -1,8 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unnecessary_string_interpolations
 
-import 'package:weaver/weaver.dart';
-import 'package:example/src/scopes.dart';
+part of 'scopes.dart';
 
 class AdminScope extends Scope<AdminScopeArgs> {
   static const String scopeName = 'admin-scope';

@@ -25,8 +25,6 @@ class WeaverScopeBuilder implements Builder {
   Future<void> build(BuildStep buildStep) async {
     final codeBuffer = StringBuffer();
 
-    final imports = <String>{"import 'package:weaver/weaver.dart';"};
-
     // Compute a package: import for this library
     // input.path is like 'lib/src/foo.dart' → import 'package:pkg/src/foo.dart';
     final resolver = buildStep.resolver;
@@ -41,12 +39,7 @@ class WeaverScopeBuilder implements Builder {
 
       final methods = classElement.methods2;
       final onEnterScopeMethod = methods.firstWhere((method) => _onEnterScopeTypeChecker.hasAnnotationOfExact(method));
-
       final onLeaveScopeMethod = methods.firstWhere((method) => _onLeaveScopeTypeChecker.hasAnnotationOfExact(method));
-
-      final importLine = "import '${buildStep.inputId.uri.toString()}';";
-
-      imports.add(importLine);
 
       final functionName = onEnterScopeMethod.displayName;
       final params = onEnterScopeMethod.formalParameters;
@@ -82,6 +75,7 @@ class WeaverScopeBuilder implements Builder {
 
           codeBuffer.writeln('${isRequired ? "required" : ""} this.$paramName,');
         }
+
         codeBuffer.writeln('});');
 
         codeBuffer.writeln('}');
@@ -90,11 +84,13 @@ class WeaverScopeBuilder implements Builder {
       // create scope-handler class
     }
 
+    // add part of directive
+
     final outputId = buildStep.inputId.changeExtension('.weaver.dart');
     var content =
         '''$generatedFileHeader
-
-${imports.join('\n')}
+        
+part of '${buildStep.inputId.path.split('/').last}';
 
 ${codeBuffer.toString()}
     ''';
@@ -107,7 +103,7 @@ ${codeBuffer.toString()}
   void _validateSourceSyntaxForOnEnterScopeMethod(List<FormalParameterElement> params, String functionName) {
     if (params.length < 2) {
       throw InvalidGenerationSource(
-        'handler function annotated with @WeaverScope should have at least 2 parameters "Weaver" & "WeaverState". '
+        '❌ handler function annotated with @WeaverScope should have at least 2 parameters "Weaver" & "WeaverState". '
         'eg: $functionName(Weaver weaver, WeaverState state, ...)',
       );
     }
@@ -116,7 +112,7 @@ ${codeBuffer.toString()}
     final weaverParamType = weaverParam.type.element3?.displayName;
     if (weaverParamType != 'Weaver') {
       throw InvalidGenerationSource(
-        'First parameter of the scope handler function should be of type "Weaver" not "$weaverParamType". '
+        '❌ First parameter of the scope handler function should be of type "Weaver" not "$weaverParamType". '
         'eg: $functionName(Weaver weaver, WeaverState state, ...)',
       );
     }
@@ -124,7 +120,7 @@ ${codeBuffer.toString()}
     final stateParamType = stateParam.type.element3?.displayName;
     if (stateParamType != 'ScopeState') {
       throw InvalidGenerationSource(
-        'Second parameter of the scope handler function should be of type "ScopeState" not "$stateParamType". '
+        '❌ Second parameter of the scope handler function should be of type "ScopeState" not "$stateParamType". '
         'eg: $functionName(Weaver weaver, WeaverState state, ...)',
       );
     }
@@ -143,6 +139,20 @@ ${codeBuffer.toString()}
   /// Checks if the input source code for WeaverScope annotated class is valid and as expected.
   /// Throws a [InvalidGenerationSource] if otherwise.
   void _validateSourceSyntaxOnWeaverScopeClass(ClassElement2 classElement) {
+    final hasCustomConstructor = classElement.constructors2.firstWhereOrNull((e) => !e.isDefaultConstructor) != null;
+
+    if (hasCustomConstructor) {
+      throw InvalidGenerationSource(
+        '❌ class annotated with @WeaverScope must not have a constructor other that its default constructor',
+      );
+    }
+
+    if (!classElement.displayName.startsWith('_')) {
+      throw InvalidGenerationSource(
+        '❌ class annotated with @WeaverScope must be private eg: _${classElement.displayName}',
+      );
+    }
+
     final methods = classElement.methods2;
     final onEnterScopeMethod = methods.firstWhereOrNull(
       (method) => _onEnterScopeTypeChecker.hasAnnotationOfExact(method),
@@ -155,6 +165,7 @@ ${codeBuffer.toString()}
     if (onEnterScopeMethod == null || onLeaveScopeMethod == null) {
       throw InvalidGenerationSource(
         '''-------------------------------------------------------------------------------------
+❌
 scope classes annotated with @WeaverScope are required to have methods annotated with 
 @OnEnterScope and @OnLeaveScope to handle dependencies when entering and leaving the scope
 
