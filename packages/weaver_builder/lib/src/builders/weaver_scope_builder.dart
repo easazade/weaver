@@ -129,6 +129,13 @@ class WeaverScopeBuilder implements Builder {
       );
       buffer.writeln('  }');
       buffer.writeln('}');
+
+      // Create extension class on Weaver
+      buffer.writeln('extension ${scopeName.pascalCase}X on Weaver {');
+      buffer.writeln(
+        '  bool get isIn$scopeClassName => scopes.where((scope) => scope.name == "$scopeName").isNotEmpty;',
+      );
+      buffer.writeln('}');
     }
 
     // add part of directive

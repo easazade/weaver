@@ -41,3 +41,4 @@ class _ShoppingScope {
     // do nothing
   }
 }
+
