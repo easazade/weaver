@@ -1,3 +1,4 @@
+import 'package:analyzer/dart/element/element2.dart';
 import 'package:build/build.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:recase/recase.dart';
@@ -47,37 +48,63 @@ class WeaverScopeBuilder implements Builder {
       final scopeArgsClassName = params.length > 1 ? '${scopeClassName}Args' : 'void';
 
       // create scope class
-      buffer
-        ..writeln('class $scopeClassName extends Scope<$scopeArgsClassName> {')
-        ..writeln(" static const String scopeName = '$scopeName';\n")
-        ..writeln(" $scopeClassName($scopeArgsClassName args): super(name: '$scopeName', args: args);")
-        ..writeln('}');
-
-      // create scope args class
+      var scopeClassArgs = <FormalParameterElement>[];
       if (params.length > 1) {
+        scopeClassArgs = params.sublist(1);
+      }
+      buffer
+        ..writeln('class $scopeClassName extends Scope<$scopeArgsClassName> {') // scope class start
+        ..writeln(" static const String scopeName = '$scopeName';\n");
+      // ..writeln(" $scopeClassName($scopeArgsClassName args): super(name: '$scopeName', args: args);")
+      // ..writeln('}');
+
+      buffer.writeln(' $scopeClassName'); // constructor start
+      var constructorArguments = scopeClassArgs
+          .map((arg) {
+            final type = arg.type.displayNameWithNullability!;
+            final isRequired = !type.endsWith('?');
+            final name = arg.displayName;
+
+            return "${isRequired ? 'required' : ''} $type $name";
+          })
+          .join(',');
+
+      if (constructorArguments.trim().isNotEmpty) {
+        constructorArguments = '{ $constructorArguments }';
+      }
+      buffer.writeln(
+        '($constructorArguments)',
+      );
+
+      final argsValue = (constructorArguments.isNotEmpty)
+          ? "$scopeArgsClassName( ${scopeClassArgs.map((e) => e.displayName).join(',')})"
+          : "null";
+      buffer.writeln(
+        ':super(name: "$scopeName", args: $argsValue);',
+      ); // constructor end
+
+      buffer.writeln('}'); // scope class end
+
+      // create an args class for this scope if the scope requires argument to be created.
+      if (scopeClassArgs.isNotEmpty) {
         buffer.writeln('class $scopeArgsClassName {');
-        final extraParams = params.sublist(1);
-        for (final param in extraParams) {
+        for (final param in scopeClassArgs) {
           final paramType = param.type.displayNameWithNullability;
           final paramName = param.displayName;
           buffer.writeln('final $paramType $paramName;');
         }
 
-        buffer.writeln('$scopeArgsClassName({');
-        for (final param in extraParams) {
-          final paramName = param.displayName;
-          final isRequired = !param.type.displayNameWithNullability!.endsWith('?');
-
-          buffer.writeln('${isRequired ? "required" : ""} this.$paramName,');
+        buffer.writeln('\n$scopeArgsClassName(');
+        for (final param in scopeClassArgs) {
+          buffer.writeln('this.${param.displayName},');
         }
-
-        buffer.writeln('});');
+        buffer.writeln(');');
 
         buffer.writeln('}');
       }
 
       // create scope-handler class
-      final scopeHandlerClassName = '${classElement.displayName.pascalCase.replaceAll('Handler', '')}Handler';
+      final scopeHandlerClassName = '${scopeName.pascalCase.replaceAll('Handler', '')}Handler';
       buffer
         ..writeln('class $scopeHandlerClassName extends ScopeHandler<$scopeArgsClassName> {')
         ..writeln('final _scopeHandlerDelegate = ${classElement.displayName}();\n');
