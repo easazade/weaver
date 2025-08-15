@@ -8,6 +8,17 @@ Dependency Injection library, rethought and tailored specifically for Flutter.
 - Ability to both register an object where it can live globally or within the lifecycle of defined `Scope` that can be handled by a     `ScopeHandler`.
 - Register objects to be created lazily.
 
+## Install 
+Add following dependencies to pubspec.yaml
+```yaml
+dependencies:
+  weaver: ^x.y.z
+
+dev_dependencies:
+  build_runner:  
+  weaver_builder: ^x.y.z  
+```
+
 ## Getting started
 
 Register objects
@@ -23,7 +34,7 @@ And then get them any where in your code
 
 ```dart
 final userBloc = weaver.get<UserBloc>();
-userBloc.getUser();
+userBloc.doSomething();
 ```
 
 ## Usage
@@ -36,7 +47,7 @@ With `RequireDependencies` allows specifying only the type of dependency objects
 RequireDependencies(
     weaver: weaver,
     dependencies: const [UserBloc, ProductsBloc],
-    builder: (context, _, isReady) {
+    builder: (context, child, isReady) {
         if (isReady) {
             // UserBloc and ProductsBloc are used inside
             // build method of ProductsPage
@@ -57,7 +68,9 @@ With weaver it is possible to wait for registration of an object and then get it
 Future.delayed(const Duration(seconds: 2), (){
     weaver.register(UserBloc());
 });
+```
 
+```dart
 // below line will get userBloc as soon as it is registered.
 final userBloc = await weaver.getAsync<UserBloc>();
 ```
@@ -66,43 +79,29 @@ final userBloc = await weaver.getAsync<UserBloc>();
 
 #### Scoped Dependencies
 
-When it comes to dependency injection, usually dependency objects are required to exists as long as the app is running. But sometimes it is required for a dependency object to exist only in certain scenario. In short some dependencies only live in certain scopes.
+When it comes to dependency injection, usually dependency objects are required to exists as long as the app is running. But sometimes it is required for a dependency object to exist only in certain scenario or scope of a lifecycle. In short some dependencies only live in certain scopes.
 
-For example in an application it might make sense to only register some objects after user is authenticated and unregister them after user has logged out. Hence it can be said those dependency objects only live within the authentication scope.
+For example in an application it might make sense to only register some dependency objects after user is authenticated and unregister them after user has logged out. Hence it can be said those dependency objects only live within the authentication scope.
 
 With weaver it is possible to define a scope by extending `Scope` class and then define a `ScopeHandler` to handle creation and registering of objects that should exist when weaver enters that scope and unregistering them when weaver leaves that scope.
 
 ```dart
-class AuthenticatedScope extends Scope<AuthenticatedScopeArgs> {
-  AuthenticatedScope({required super.argument}) : super(name: 'authenticated');
-}
-
-class AuthenticatedScopeHandler extends ScopeHandler<AuthenticatedScopeArgs> {
-  @override
-  String get scopeName => 'authenticated';
-
-  @override
-  Future<void> onEnterScope(
-    final Weaver weaver,
-    final AuthenticatedScopeArgs? argument,
-  ) async {
-    if (argument != null) {
-      weaver.register(UserCubit(userId: argument.userId));
-    }
+@WeaverScope(name: 'my-scope')
+class _MyScope {
+  @OnEnterScope()
+  Future<void> onEnter(Weaver weaver, int argument1, String argument2) async {
+    weaver.register(MyDependency(argument1: argument1, argument2: argument2));
   }
 
-  @override
-  Future<void> onLeaveScope(final Weaver weaver) async {
-    weaver.unregister<UserCubit>();
+  @OnLeaveScope()
+  Future<void> onLeave(Weaver weaver) async {
+    weaver.unregister<MyDependency>();
   }
-}
-
-class AuthenticatedScopeArgs {
-  AuthenticatedScopeArgs({required this.userId});
-
-  final String userId;
 }
 ```
+Then run `dart run build_runner build -d` in your code. It will generate a `AuthScopeHandler` & `AuthScope` class.
+**NOTES:**
+1. In above code, in the method annotated with `@OnEnterScope` you can add as many arguments as you need.
 
 After defining the scope, it is required to register the handler to weaver.
 
@@ -115,21 +114,19 @@ Now whenever the user is authenticated, weaver can be signaled that application 
 ```dart
   // after user authenticated
   weaver.enterScope(
-    AuthenticatedScope(
-      argument: AuthenticatedScopeArgs(userId: id),
-    ),
+    MyScope(argument1: 12, argument2: 'value'),
   );
 ```
 
-Above call will trigger `AuthenticatedScopeHandler` to register objects.
+Above call will trigger `MyScopeHandler` that you registered that will register an instance of `MyDependency` with passed parameters.
 
 To leave a scope method `leaveScope()` should be used
 
 ```dart
-weaver.leaveScope('authenticated');
+weaver.leaveScope(MyScope.scopeName);
 ```
 
-#### Listen for changes in dependencies
+## Listen for changes in dependencies
 
 All registrations and un-registrations can be listened to by adding a listener on `weaver`
 
@@ -141,7 +138,7 @@ weaver.addListener() {
 }
 ```
 
-#### Testing
+## Testing
 
 For testing purposes it is possible to allow re-registration of objects by setting `allowReassignment` to true.
 

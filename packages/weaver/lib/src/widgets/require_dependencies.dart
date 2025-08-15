@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import '../base/weaver.dart';
 import '../utils/log.dart';
 
@@ -11,6 +12,7 @@ class RequireDependencies extends StatefulWidget {
     bool isReady,
   ) builder;
   final Widget? child;
+
   const RequireDependencies({
     super.key,
     required this.weaver,
