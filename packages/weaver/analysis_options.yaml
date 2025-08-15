@@ -16,6 +16,7 @@ linter:
     - file_names
     - package_names
     - sort_pub_dependencies
+    - unawaited_futures
 
 
 formatter:

@@ -11,3 +11,9 @@ class OnEnterScope {
 class OnLeaveScope {
   const OnLeaveScope();
 }
+
+class NamedDependency {
+  final String name;
+
+  const NamedDependency({required this.name});
+}

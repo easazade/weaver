@@ -7,6 +7,7 @@ import 'package:weaver/src/utils/log.dart';
 import 'dependency.dart';
 import 'scope.dart';
 
+/// default instance of [Weaver]
 final weaver = Weaver();
 
 /// [Weaver] stand for dependency injection. It is a class responsible for
@@ -74,8 +75,7 @@ class Weaver extends ChangeNotifier {
   T get<T extends Object>() {
     if (isRegistered<T>()) {
       final dependency = _dependencies[T]! as Dependency<T>;
-      if (dependency.value == null &&
-          dependency.lazyInstantiateCallback != null) {
+      if (dependency.value == null && dependency.lazyInstantiateCallback != null) {
         dependency.value = dependency.lazyInstantiateCallback!();
       }
 
@@ -97,8 +97,7 @@ class Weaver extends ChangeNotifier {
     }
   }
 
-  bool isInScope(final String scopeName) =>
-      scopes.firstWhereOrNull((final e) => e.name == scopeName) != null;
+  bool isInScope(final String scopeName) => scopes.firstWhereOrNull((final e) => e.name == scopeName) != null;
 
   Future<void> enterScope(final Scope scope) async {
     if (isInScope(scope.name)) {
@@ -132,9 +131,7 @@ class Weaver extends ChangeNotifier {
 
   /// Adds a [ScopeHandler] instance and weaver which will handle scope changes
   Future<void> addScopeHandler(final ScopeHandler handler) async {
-    final alreadyAdded = _scopeHandlers
-            .firstWhereOrNull((final e) => e.scopeName == handler.scopeName) !=
-        null;
+    final alreadyAdded = _scopeHandlers.firstWhereOrNull((final e) => e.scopeName == handler.scopeName) != null;
 
     if (alreadyAdded && !allowReassignment) {
       throw WeaverException(
@@ -150,8 +147,7 @@ class Weaver extends ChangeNotifier {
   /// NOTE: this method only removes the [ScopeHandler] but does not leaves the scope with name [scopeName]
   /// for that leaveScope method must be called.
   Future<void> removeScopeHandler(final String scopeName) async {
-    final handler = _scopeHandlers
-        .firstWhereOrNull((final handler) => handler.scopeName == scopeName);
+    final handler = _scopeHandlers.firstWhereOrNull((final handler) => handler.scopeName == scopeName);
 
     if (handler != null) {
       _scopeHandlers.removeWhere((final e) => e.scopeName == scopeName);

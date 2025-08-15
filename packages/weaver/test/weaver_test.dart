@@ -106,15 +106,15 @@ void main() {
         test(
           'When registered a new ScopeHandler which currently is in scope '
           'its dependencies should be registered and available to fetch',
-          () {
+          () async{
             final scopeHandler = TestScopeHandler(
               stringObject: 'ali',
               intObject: 9,
             );
 
-            weaverInstance.addScopeHandler(scopeHandler);
+            await weaverInstance.addScopeHandler(scopeHandler);
 
-            weaverInstance.enterScope(TestScope(args: 'WHAT'));
+            await weaverInstance.enterScope(TestScope(args: 'WHAT'));
 
             expect(weaverInstance.get<String>(), 'ali');
             expect(weaverInstance.get<int>(), 9);
@@ -137,30 +137,29 @@ void main() {
               scopeName: 'duplicate-scope-name',
             );
 
-            expect(() => weaverInstance.addScopeHandler(scopeHandler2),
-                throwsException);
+            expect(() => weaverInstance.addScopeHandler(scopeHandler2), throwsException);
           },
         );
 
         test(
           'When removed a ScopeHandler which currently is in scope '
           'its dependencies should not be available to fetch anymore',
-          () {
+          () async {
             final scopeHandler = TestScopeHandler(
               stringObject: 'ali',
               intObject: 9,
             );
 
-            weaverInstance.addScopeHandler(scopeHandler);
+            await weaverInstance.addScopeHandler(scopeHandler);
 
-            weaverInstance.enterScope(TestScope(args: 'WHAT'));
+            await weaverInstance.enterScope(TestScope(args: 'WHAT'));
 
             expect(weaverInstance.get<String>(), 'ali');
             expect(weaverInstance.get<int>(), 9);
 
             // remove scopeHandler
 
-            weaverInstance.removeScopeHandler(scopeHandler.scopeName);
+            await weaverInstance.removeScopeHandler(scopeHandler.scopeName);
             expect(() => weaverInstance.get<String>(), throwsException);
             expect(() => weaverInstance.get<int>(), throwsException);
           },
@@ -169,25 +168,25 @@ void main() {
         test(
           'Should register the dependencies of a registered ScopeHandler after it comes in scope. '
           'And unregister after weaver leaves the scope',
-          () {
+          () async {
             final scopeHandler = TestScopeHandler(
               stringObject: 'ali',
               intObject: 9,
               initialIsInScopeValue: false,
             );
 
-            weaverInstance.addScopeHandler(scopeHandler);
+            await weaverInstance.addScopeHandler(scopeHandler);
 
             expect(() => weaverInstance.get<String>(), throwsException);
             expect(() => weaverInstance.get<int>(), throwsException);
 
             final testScope = TestScope(args: 'WHAT');
-            weaverInstance.enterScope(testScope);
+            await weaverInstance.enterScope(testScope);
 
             expect(weaverInstance.get<String>(), 'ali');
             expect(weaverInstance.get<int>(), 9);
 
-            weaverInstance.leaveScope(testScope.name);
+            await weaverInstance.leaveScope(testScope.name);
 
             expect(() => weaverInstance.get<String>(), throwsException);
             expect(() => weaverInstance.get<int>(), throwsException);
@@ -231,14 +230,14 @@ void main() {
         test(
           'Should throw an error if scope handler registered and scope object used to enter scope '
           'have the same name but different argument types',
-          () {
+          () async{
             final scopeHandler = TestScopeHandler(
               stringObject: 'ali',
               intObject: 9,
               initialIsInScopeValue: false,
             );
 
-            weaverInstance.addScopeHandler(scopeHandler);
+            await weaverInstance.addScopeHandler(scopeHandler);
 
             expect(() => weaverInstance.get<String>(), throwsException);
             expect(() => weaverInstance.get<int>(), throwsException);
