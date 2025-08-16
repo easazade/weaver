@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
+import 'package:weaver/src/base/named.dart';
 import 'package:weaver/src/utils/log.dart';
 
 import 'dependency.dart';
@@ -18,6 +19,7 @@ class Weaver extends ChangeNotifier {
   final _dependencies = <DependencyKey, Dependency>{};
   final _scopeHandlers = <ScopeHandler>[];
   final _scopes = <Scope>{};
+  late final named = WeaverNamed(weaverInstance: this);
 
   Iterable<Scope> get scopes => _scopes;
   var allowReassignment = false;
@@ -26,7 +28,6 @@ class Weaver extends ChangeNotifier {
     final dependencyKey = DependencyKey(type: T, name: name);
 
     log('Registering object with $dependencyKey');
-
 
     if (isRegistered<T>() && !allowReassignment) {
       throw WeaverException(

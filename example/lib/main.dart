@@ -1,4 +1,6 @@
+import 'package:example/src/scopes.dart';
 import 'package:flutter/material.dart';
+import 'package:weaver/weaver.dart';
 
 void main() {
   runApp(const MyApp());
@@ -9,6 +11,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    weaver.named.userId;
+    weaver.named.privateKey;
+
     return MaterialApp(
       title: 'Flutter Demo',
       theme: ThemeData(colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple)),

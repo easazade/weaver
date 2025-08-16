@@ -1,11 +1,12 @@
 import 'package:analyzer/dart/element/element2.dart';
+import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:recase/recase.dart';
 import 'package:source_gen/source_gen.dart';
 // ignore: unused_import
 import 'package:weaver/annotations.dart';
-import 'package:weaver_builder/src/builders/check_weaver_scope.dart';
+import 'package:weaver_builder/src/builders/validate_annotations.dart';
 import 'package:weaver_builder/src/utils/extensions.dart';
 import 'package:weaver_builder/src/utils/file_header.dart';
 
@@ -136,13 +137,39 @@ class WeaverBuilder implements Builder {
         '  bool get isIn$scopeClassName => scopes.where((scope) => scope.name == "$scopeName").isNotEmpty;',
       );
       buffer.writeln('}');
+
+      buffer.writeln('\n'); // add space
     }
 
     // building named dependencies
     for (final function in library.topLevelFunctions) {
       if (!_namedDependencyTypeChecker.hasAnnotationOfExact(function)) continue;
 
-      buffer.writeln('// ${function.displayName}');
+      validateSourceSyntaxOnNamedDependencyFunction(function);
+
+      final annotation = _namedDependencyTypeChecker.firstAnnotationOfExact(function);
+      final reader = ConstantReader(annotation);
+      final dependencyName = reader.read('name').stringValue;
+      final getterName = dependencyName.camelCase;
+
+      final returnType = function.returnType;
+      final objectType = returnType.isDartAsyncFuture
+          ? (returnType as ParameterizedType).typeArguments.first.element3?.displayName
+          : function.returnType.element3?.displayName;
+
+      if (objectType?.isEmpty == true) {
+        continue;
+      }
+
+      // generate extension for named object on weaver.named
+      buffer.writeln('extension NamedDependency${getterName.pascalCase}X on WeaverNamed {');
+      buffer.writeln('  $objectType get $getterName {');
+      buffer.writeln('    if(!weaverInstance.isRegistered<$objectType>(name: "$dependencyName")){');
+      buffer.writeln('      weaverInstance.register<$objectType>(${function.displayName}());');
+      buffer.writeln('    }');
+      buffer.writeln('    return weaverInstance.get<$objectType>(name: "$dependencyName");');
+      buffer.writeln('  }');
+      buffer.writeln('}');
     }
 
     // add part of directive

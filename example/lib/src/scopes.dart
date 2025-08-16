@@ -43,4 +43,7 @@ class _ShoppingScope {
 }
 
 @NamedDependency(name: 'user-id')
-String userId() => '123677283';
+String _userId() => '123677283';
+
+@NamedDependency(name: 'private-key')
+String _privateKey() => 'iuigauywgdiuaw9-a8whdaio-aihwudi7wt7t72ueyfkmnvap';

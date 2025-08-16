@@ -96,3 +96,21 @@ class ShoppingHandler extends ScopeHandler<void> {
 extension ShoppingX on Weaver {
   bool get isInShoppingScope => scopes.where((scope) => scope.name == "shopping").isNotEmpty;
 }
+
+extension NamedDependencyUserIdX on WeaverNamed {
+  String get userId {
+    if (!weaverInstance.isRegistered<String>(name: "user-id")) {
+      weaverInstance.register<String>(_userId());
+    }
+    return weaverInstance.get<String>(name: "user-id");
+  }
+}
+
+extension NamedDependencyPrivateKeyX on WeaverNamed {
+  String get privateKey {
+    if (!weaverInstance.isRegistered<String>(name: "private-key")) {
+      weaverInstance.register<String>(_privateKey());
+    }
+    return weaverInstance.get<String>(name: "private-key");
+  }
+}

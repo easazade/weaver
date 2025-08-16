@@ -1,7 +1,9 @@
 import 'package:analyzer/dart/element/element2.dart';
+import 'package:analyzer/dart/element/type.dart';
 import 'package:collection/collection.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:weaver/annotations.dart';
+import 'package:weaver_builder/src/utils/extensions.dart';
 
 final _onEnterScopeTypeChecker = const TypeChecker.fromRuntime(OnEnterScope);
 final _onLeaveScopeTypeChecker = const TypeChecker.fromRuntime(OnLeaveScope);
@@ -102,6 +104,32 @@ Future<void> onLeaveScope(Weaver weaver) async {
 }
 
         ''',
+    );
+  }
+}
+
+void validateSourceSyntaxOnNamedDependencyFunction(TopLevelFunctionElement function) {
+  if (!function.displayName.startsWith('_')) {
+    throw InvalidGenerationSource(
+      '❌ The factory function for named dependencies should be private but ${function.displayName}() is not.',
+    );
+  }
+
+  final returnType = function.returnType;
+  final objectType = returnType.isDartAsyncFuture
+      ? (returnType as ParameterizedType).typeArguments.first.displayNameWithNullability
+      : function.returnType.displayNameWithNullability;
+
+  if (returnType.isDartAsyncFuture) {
+    throw InvalidGenerationSource(
+      '❌ The factory function for named dependencies with return type of Future is not currently '
+      'supported but ${function.displayName}() has a return type of Future.',
+    );
+  }
+
+  if (objectType?.endsWith('?') == true) {
+    throw InvalidGenerationSource(
+      '❌ The factory function for named dependencies cannot have a nullable return type but ${function.displayName}() does.',
     );
   }
 }

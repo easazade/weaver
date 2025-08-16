@@ -91,6 +91,20 @@ final authToken = weaver.get<String>(name: 'auth-token');
 final userId = weaver.get<String>(name: 'user-id');
 ```
 
+To make things simpler Weaver can code generate named dependency objects.
+
+```dart
+@NamedDependency(name: 'user-profile')
+Profile _userProfile() {
+  final profile = getProfile;
+  return profile;
+}
+```
+Above code will code generate a custom getter in Weaver for this object that can be accessed easier.
+```dart
+final profile = weaver.named.userProfile;
+```
+
 #### Scoped Dependencies
 
 When it comes to dependency injection, usually dependency objects are required to exists as long as the app is running. But sometimes it is required for a dependency object to exist only in certain scenario or scope of a lifecycle. In short some dependencies only live in certain scopes.
