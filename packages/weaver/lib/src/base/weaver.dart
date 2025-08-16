@@ -15,85 +15,95 @@ final weaver = Weaver();
 class Weaver extends ChangeNotifier {
   Weaver();
 
-  final _dependencies = <Type, Dependency>{};
+  final _dependencies = <DependencyKey, Dependency>{};
   final _scopeHandlers = <ScopeHandler>[];
   final _scopes = <Scope>{};
 
   Iterable<Scope> get scopes => _scopes;
   var allowReassignment = false;
 
-  void registerLazy<T extends Object>(final T Function() callback) {
-    log('Registering object of type $T');
+  void registerLazy<T extends Object>(final T Function() callback, {final String? name}) {
+    final dependencyKey = DependencyKey(type: T, name: name);
+
+    log('Registering object with $dependencyKey');
+
 
     if (isRegistered<T>() && !allowReassignment) {
       throw WeaverException(
-        'Cannot register object of type $T because there is an instance already registered',
+        'Cannot register object of $dependencyKey because there is an instance already registered',
       );
     }
 
-    if (_dependencies.containsKey(T)) {
-      final dependency = (_dependencies[T]! as Dependency<T>);
+    if (_dependencies.containsKey(dependencyKey)) {
+      final dependency = (_dependencies[dependencyKey]! as Dependency<T>);
       dependency.lazyInstantiateCallback = callback;
     } else {
-      _dependencies[T] = Dependency<T>.lazy(callback);
+      _dependencies[dependencyKey] = Dependency<T>.lazy(callback);
     }
 
     notifyListeners();
   }
 
-  void register<T extends Object>(final T instance) {
+  void register<T extends Object>(final T instance, {final String? name}) {
     log('Registering object of type $T');
+
+    final dependencyKey = DependencyKey(type: T, name: name);
 
     if (isRegistered<T>() && !allowReassignment) {
       throw WeaverException(
-        'Cannot register object of type $T because there is an instance already registered',
+        'Cannot register object of $dependencyKey because there is an instance already registered',
       );
     }
-    if (_dependencies.containsKey(T)) {
-      final dependency = (_dependencies[T]! as Dependency<T>);
+    if (_dependencies.containsKey(dependencyKey)) {
+      final dependency = (_dependencies[dependencyKey]! as Dependency<T>);
       dependency.value = instance;
     } else {
-      _dependencies[T] = Dependency<T>.value(instance);
+      _dependencies[dependencyKey] = Dependency<T>.value(instance);
     }
     notifyListeners();
   }
 
-  void unregister<T extends Object>() {
-    if (isRegistered<T>()) {
-      _dependencies.remove(T);
+  void unregister<T extends Object>({final String? name}) {
+    final dependencyKey = DependencyKey(type: T, name: name);
+    if (isRegistered<T>(name: name)) {
+      _dependencies.remove(dependencyKey);
     }
     notifyListeners();
   }
 
-  bool isRegistered<T extends Object>([final Type? t]) {
-    if (t != null) {
-      return _dependencies.containsKey(t) && _dependencies[t]!.hasValue;
+  bool isRegistered<T extends Object>({final Type? type, final String? name}) {
+    if (type != null) {
+      final dependencyKey = DependencyKey(type: type, name: name);
+      return _dependencies.containsKey(dependencyKey) && _dependencies[dependencyKey]!.hasValue;
     }
-    return _dependencies.containsKey(T) && _dependencies[T]!.hasValue;
+    final dependencyKey = DependencyKey(type: T, name: name);
+    return _dependencies.containsKey(dependencyKey) && _dependencies[dependencyKey]!.hasValue;
   }
 
-  T get<T extends Object>() {
-    if (isRegistered<T>()) {
-      final dependency = _dependencies[T]! as Dependency<T>;
+  T get<T extends Object>({final String? name}) {
+    final dependencyKey = DependencyKey(type: T, name: name);
+    if (isRegistered<T>(name: name)) {
+      final dependency = _dependencies[dependencyKey]! as Dependency<T>;
       if (dependency.value == null && dependency.lazyInstantiateCallback != null) {
         dependency.value = dependency.lazyInstantiateCallback!();
       }
 
       return dependency.value!;
     } else {
-      throw WeaverException('There is no instance of $T registered');
+      throw WeaverException('There is no instance of $dependencyKey registered');
     }
   }
 
-  Future<T> getAsync<T extends Object>() async {
-    if (isRegistered<T>()) {
-      return get<T>();
+  Future<T> getAsync<T extends Object>({final String? name}) async {
+    if (isRegistered<T>(name: name)) {
+      return get<T>(name: name);
     } else {
-      if (!_dependencies.containsKey(T)) {
-        _dependencies[T] = Dependency<T>.placeHolder();
+      final dependencyKey = DependencyKey(type: T, name: name);
+      if (!_dependencies.containsKey(dependencyKey)) {
+        _dependencies[dependencyKey] = Dependency<T>.placeHolder();
       }
 
-      return (_dependencies[T]! as Dependency<T>).completer.future;
+      return (_dependencies[dependencyKey]! as Dependency<T>).completer.future;
     }
   }
 

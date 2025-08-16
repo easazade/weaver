@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-
-import '../base/weaver.dart';
-import '../utils/log.dart';
+import 'package:weaver/src/utils/log.dart';
+import 'package:weaver/weaver.dart';
 
 class RequireDependencies extends StatefulWidget {
   final Weaver weaver;
-  final List<Type> dependencies;
+  final List<DependencyKey> dependencies;
   final Widget Function(
     BuildContext context,
     Widget? child,
@@ -48,22 +47,22 @@ class _State extends State<RequireDependencies> {
   }
 
   void _updateReadyState({final bool callSetState = true}) {
-    var newAreDependenciesReadyValue = true;
+    var areDependenciesReadyUpdated = true;
     for (final dependency in widget.dependencies) {
-      if (!widget.weaver.isRegistered(dependency)) {
-        newAreDependenciesReadyValue = false;
+      if (!widget.weaver.isRegistered(type: dependency.type, name: dependency.name)) {
+        areDependenciesReadyUpdated = false;
         break;
       }
     }
 
     // if ready state has changed
-    if (newAreDependenciesReadyValue != areDependenciesReady) {
-      areDependenciesReady = newAreDependenciesReadyValue;
+    if (areDependenciesReadyUpdated != areDependenciesReady) {
+      areDependenciesReady = areDependenciesReadyUpdated;
       if (areDependenciesReady) {
         log('👍 Required dependencies are ready : ${widget.dependencies}.');
       } else {
         log(
-          '⏳ Required dependencies are ready yet : ${widget.dependencies}, waiting for required dependencies.',
+          '⏳ Required dependencies are NOT ready yet : ${widget.dependencies}, waiting for required dependencies.',
         );
       }
       if (callSetState) {
