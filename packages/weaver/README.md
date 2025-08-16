@@ -57,7 +57,7 @@ RequireDependencies(
         }
     },
 )
-```
+``` 
 
 #### Get objects asynchronously
 
@@ -76,6 +76,20 @@ final userBloc = await weaver.getAsync<UserBloc>();
 ```
 
 **NOTE:** When building widgets there is no need to use `getAsync()` method. Please use `RequireDependencies` widget instead.
+
+#### Named dependencies
+Weaver allows registering named instances of the same type of object.
+
+```dart
+weaver.register<String>(token, name: 'auth-token');
+weaver.register<String>(userId, name: 'user-id');
+```
+
+```dart
+// fetch named objects using their name
+final authToken = weaver.get<String>(name: 'auth-token');
+final userId = weaver.get<String>(name: 'user-id');
+```
 
 #### Scoped Dependencies
 
