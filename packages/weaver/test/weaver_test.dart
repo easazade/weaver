@@ -106,7 +106,7 @@ void main() {
         test(
           'When registered a new ScopeHandler which currently is in scope '
           'its dependencies should be registered and available to fetch',
-          () async{
+          () async {
             final scopeHandler = TestScopeHandler(
               stringObject: 'ali',
               intObject: 9,
@@ -230,7 +230,7 @@ void main() {
         test(
           'Should throw an error if scope handler registered and scope object used to enter scope '
           'have the same name but different argument types',
-          () async{
+          () async {
             final scopeHandler = TestScopeHandler(
               stringObject: 'ali',
               intObject: 9,
@@ -246,6 +246,28 @@ void main() {
               () => weaverInstance.enterScope(WrongArgTestScope(args: 2)),
               throwsException,
             );
+          },
+        );
+
+        test(
+          'Should Register a named object and fetch it with name and type',
+          () async {
+            const userObject = 'ali';
+            expect(weaverInstance.isRegistered<String>(name: 'user'), isFalse);
+            weaverInstance.register<String>(userObject, name: 'user');
+            expect(weaverInstance.isRegistered<String>(name: 'user'), isTrue);
+            expect(weaverInstance.get<String>(name: 'user'), equals(userObject));
+          },
+        );
+
+        test(
+          'Should Register a named object lazily and fetch it with name and type',
+          () async {
+            const userObject = 'ali';
+            expect(weaverInstance.isRegistered<String>(name: 'user'), isFalse);
+            weaverInstance.registerLazy<String>(() => userObject, name: 'user');
+            expect(weaverInstance.isRegistered<String>(name: 'user'), isTrue);
+            expect(weaverInstance.get<String>(name: 'user'), equals(userObject));
           },
         );
       },
