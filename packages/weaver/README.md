@@ -96,13 +96,21 @@ To make things simpler Weaver can code generate named dependency objects.
 ```dart
 @NamedDependency(name: 'user-profile')
 Profile _userProfile() {
-  final profile = getProfile;
+  final profile = getUserProfile;
+  return profile;
+}
+
+@NamedDependency(name: 'admin-profile')
+Profile _adminProfile() {
+  final profile = getAdminProfile;
   return profile;
 }
 ```
-Above code will code generate a custom getter in Weaver for this object that can be accessed easier.
+Above code will code generate a custom getter in Weaver for this object that can be accessed easier. Also 
+the code will be more clear while fetching and using multiple dependencies of the same type.
 ```dart
 final profile = weaver.named.userProfile;
+final profile = weaver.named.adminProfile;
 ```
 
 #### Scoped Dependencies
