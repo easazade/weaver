@@ -15,6 +15,7 @@ class WeaverBuilder implements Builder {
   static final _weaverScopeTypeChecker = const TypeChecker.fromRuntime(WeaverScope);
   static final _onEnterScopeTypeChecker = const TypeChecker.fromRuntime(OnEnterScope);
   static final _onLeaveScopeTypeChecker = const TypeChecker.fromRuntime(OnLeaveScope);
+  static final _namedDependencyTypeChecker = const TypeChecker.fromRuntime(NamedDependency);
 
   @override
   Map<String, List<String>> get buildExtensions => const {
@@ -25,14 +26,13 @@ class WeaverBuilder implements Builder {
   Future<void> build(BuildStep buildStep) async {
     final buffer = StringBuffer();
 
-    // Compute a package: import for this library
-    // input.path is like 'lib/src/foo.dart' → import 'package:pkg/src/foo.dart';
     final resolver = buildStep.resolver;
     if (!await resolver.isLibrary(buildStep.inputId)) return;
     final library = await resolver.libraryFor(buildStep.inputId);
 
+    // building scope, scope-handler, scope-arg classes
     for (final classElement in library.classes) {
-      if (!_weaverScopeTypeChecker.hasAnnotationOfExact(classElement)) return;
+      if (!_weaverScopeTypeChecker.hasAnnotationOfExact(classElement)) continue;
       final weaverScopeAnnotation = _weaverScopeTypeChecker.firstAnnotationOfExact(classElement)!;
 
       validateSourceSyntaxOnWeaverScopeClass(classElement);
@@ -138,7 +138,18 @@ class WeaverBuilder implements Builder {
       buffer.writeln('}');
     }
 
+    // building named dependencies
+    for (final function in library.topLevelFunctions) {
+      if (!_namedDependencyTypeChecker.hasAnnotationOfExact(function)) continue;
+
+      buffer.writeln('// ${function.displayName}');
+    }
+
     // add part of directive
+
+    if (buffer.toString().isEmpty) {
+      return;
+    }
 
     final outputId = buildStep.inputId.changeExtension('.weaver.dart');
     var content =

@@ -42,3 +42,5 @@ class _ShoppingScope {
   }
 }
 
+@NamedDependency(name: 'user-id')
+String userId() => '123677283';
