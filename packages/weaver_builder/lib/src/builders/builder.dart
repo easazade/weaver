@@ -9,7 +9,7 @@ import 'package:weaver_builder/src/builders/check_weaver_scope.dart';
 import 'package:weaver_builder/src/utils/extensions.dart';
 import 'package:weaver_builder/src/utils/file_header.dart';
 
-class WeaverScopeBuilder implements Builder {
+class WeaverBuilder implements Builder {
   final _dartFormatter = DartFormatter(languageVersion: DartFormatter.latestLanguageVersion);
 
   static final _weaverScopeTypeChecker = const TypeChecker.fromRuntime(WeaverScope);

@@ -77,7 +77,7 @@ final userBloc = await weaver.getAsync<UserBloc>();
 
 **NOTE:** When building widgets there is no need to use `getAsync()` method. Please use `RequireDependencies` widget instead.
 
-#### Named dependencies
+#### Named Dependencies
 Weaver allows registering named instances of the same type of object.
 
 ```dart
