@@ -165,7 +165,7 @@ class WeaverBuilder implements Builder {
       buffer.writeln('extension NamedDependency${getterName.pascalCase}X on WeaverNamed {');
       buffer.writeln('  $objectType get $getterName {');
       buffer.writeln('    if(!weaverInstance.isRegistered<$objectType>(name: "$dependencyName")){');
-      buffer.writeln('      weaverInstance.register<$objectType>(${function.displayName}());');
+      buffer.writeln('      weaverInstance.register<$objectType>(${function.displayName}(), name: "$dependencyName");');
       buffer.writeln('    }');
       buffer.writeln('    return weaverInstance.get<$objectType>(name: "$dependencyName");');
       buffer.writeln('  }');
