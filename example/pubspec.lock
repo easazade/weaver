@@ -526,14 +526,14 @@ packages:
       path: "../packages/weaver"
       relative: true
     source: path
-    version: "0.3.0"
+    version: "0.4.0"
   weaver_builder:
     dependency: "direct dev"
     description:
       path: "../packages/weaver_builder"
       relative: true
     source: path
-    version: "1.0.0"
+    version: "0.4.0"
   web:
     dependency: transitive
     description:

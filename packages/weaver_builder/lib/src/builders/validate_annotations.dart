@@ -5,8 +5,50 @@ import 'package:source_gen/source_gen.dart';
 import 'package:weaver/annotations.dart';
 import 'package:weaver_builder/src/utils/extensions.dart';
 
-final _onEnterScopeTypeChecker = const TypeChecker.fromRuntime(OnEnterScope);
-final _onLeaveScopeTypeChecker = const TypeChecker.fromRuntime(OnLeaveScope);
+final _onEnterScopeTypeChecker = const TypeChecker.typeNamed(OnEnterScope);
+final _onLeaveScopeTypeChecker = const TypeChecker.typeNamed(OnLeaveScope);
+
+/// Checks if the annotated classes with [WeaverScope] annotation have duplicate names
+void checkForDuplicateScopeNames(List<ClassElement2> classes) {
+  final weaverScopeTypeChecker = const TypeChecker.typeNamed(WeaverScope);
+  final annotatedClasses = classes.where((cls) => weaverScopeTypeChecker.hasAnnotationOfExact(cls));
+  if (annotatedClasses.isNotEmpty) {
+    final scopeNamesList = annotatedClasses.map((annotatedClass) {
+      final reader = ConstantReader(weaverScopeTypeChecker.firstAnnotationOfExact(annotatedClass));
+      final scopeName = reader.read('name').stringValue;
+      return scopeName;
+    });
+
+    // there should be one scope name per annotated class
+    if (scopeNamesList.toSet().length != annotatedClasses.length) {
+      throw InvalidGenerationSource(
+        '❌ classes annotated with @WeaverScope(name: "name") annotation cannot have the same annotation name value. '
+        'Here are all the name values defined in all classes annotated with @WeaverScope: $scopeNamesList',
+      );
+    }
+  }
+}
+
+/// Checks if the annotated classes with [NamedDependency] annotation have duplicate names
+void checkForDuplicateNamedDependencyNames(List<TopLevelFunctionElement> classes) {
+  final namedDependencyTypeChecker = const TypeChecker.typeNamed(NamedDependency);
+  final annotatedFunctions = classes.where((function) => namedDependencyTypeChecker.hasAnnotationOfExact(function));
+  if (annotatedFunctions.isNotEmpty) {
+    final dependencyNames = annotatedFunctions.map((annotatedFunction) {
+      final reader = ConstantReader(namedDependencyTypeChecker.firstAnnotationOfExact(annotatedFunction));
+      final dependencyName = reader.read('name').stringValue;
+      return dependencyName;
+    });
+
+    // there should be one scope name per annotated class
+    if (dependencyNames.toSet().length != annotatedFunctions.length) {
+      throw InvalidGenerationSource(
+        '❌ functions annotated with @NamedDependency(name: "var-name") annotation cannot have the same annotation name value. '
+        'Here are all the name values defined in all functions annotated with @NamedDependency: $dependencyNames',
+      );
+    }
+  }
+}
 
 /// Checks if the input source code for WeaverScope annotated class is valid and as expected.
 /// Throws a [InvalidGenerationSource] if otherwise.

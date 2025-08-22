@@ -13,10 +13,10 @@ import 'package:weaver_builder/src/utils/file_header.dart';
 class WeaverBuilder implements Builder {
   final _dartFormatter = DartFormatter(languageVersion: DartFormatter.latestLanguageVersion);
 
-  static final _weaverScopeTypeChecker = const TypeChecker.fromRuntime(WeaverScope);
-  static final _onEnterScopeTypeChecker = const TypeChecker.fromRuntime(OnEnterScope);
-  static final _onLeaveScopeTypeChecker = const TypeChecker.fromRuntime(OnLeaveScope);
-  static final _namedDependencyTypeChecker = const TypeChecker.fromRuntime(NamedDependency);
+  static final _weaverScopeTypeChecker = const TypeChecker.typeNamed(WeaverScope);
+  static final _onEnterScopeTypeChecker = const TypeChecker.typeNamed(OnEnterScope);
+  static final _onLeaveScopeTypeChecker = const TypeChecker.typeNamed(OnLeaveScope);
+  static final _namedDependencyTypeChecker = const TypeChecker.typeNamed(NamedDependency);
 
   @override
   Map<String, List<String>> get buildExtensions => const {
@@ -36,6 +36,7 @@ class WeaverBuilder implements Builder {
       if (!_weaverScopeTypeChecker.hasAnnotationOfExact(classElement)) continue;
       final weaverScopeAnnotation = _weaverScopeTypeChecker.firstAnnotationOfExact(classElement)!;
 
+      checkForDuplicateScopeNames(library.classes);
       validateSourceSyntaxOnWeaverScopeClass(classElement);
 
       final methods = classElement.methods2;
@@ -145,6 +146,7 @@ class WeaverBuilder implements Builder {
     for (final function in library.topLevelFunctions) {
       if (!_namedDependencyTypeChecker.hasAnnotationOfExact(function)) continue;
 
+      checkForDuplicateNamedDependencyNames(library.topLevelFunctions);
       validateSourceSyntaxOnNamedDependencyFunction(function);
 
       final annotation = _namedDependencyTypeChecker.firstAnnotationOfExact(function);
