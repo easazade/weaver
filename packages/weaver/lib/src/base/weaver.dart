@@ -91,7 +91,23 @@ class Weaver extends ChangeNotifier {
 
       return dependency.value!;
     } else {
-      throw WeaverException('There is no instance of $dependencyKey registered');
+      var message = 'There is no instance of $dependencyKey registered.';
+
+      final matchKeyForOnlyType = _dependencies.entries.map((final entry) {
+        final key = entry.key;
+        final registeredValue = entry.value.value;
+        if (key.type == T && key.name != null && registeredValue != null) {
+          return key;
+        } else {
+          return null;
+        }
+      }).nonNulls;
+
+      if (matchKeyForOnlyType.isNotEmpty) {
+        message = '$message But there are named dependencies registered with this type: $matchKeyForOnlyType';
+      }
+
+      throw WeaverException(message);
     }
   }
 

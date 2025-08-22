@@ -270,6 +270,18 @@ void main() {
             expect(weaverInstance.get<String>(name: 'user'), equals(userObject));
           },
         );
+
+        test(
+          'Should Register a named object and fetch it with only its type if there is only '
+          'a single object of that type registered',
+          () async {
+            const userObject = 'ali';
+            weaverInstance.register<String>(userObject, name: 'user');
+            expect(weaverInstance.isRegistered<String>(name: 'user'), isTrue);
+            expect(weaverInstance.get<String>(name: 'user'), userObject);
+            expect(() => weaverInstance.get<String>(), throwsA(isA<WeaverException>()));
+          },
+        );
       },
     );
   }
