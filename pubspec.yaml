@@ -2,7 +2,35 @@ name: weaver_monorepo
 publish_to: none
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
+  sdk: ^3.9.0
+
+workspace:
+  - packages/weaver
+  - packages/weaver_builder
+  - example
 
 dependencies:
   melos: 7.1.0
+
+
+melos:
+
+  command:
+    bootstrap:
+      runPubGetInParallel: true
+    version:
+      linkToCommits: false     # disables commit links in generated changelog
+
+  scripts:
+    format:
+      run: dart format --set-exit-if-changed .
+      
+    analyze:
+      run: melos exec -c 1 -- "dart analyze"
+
+    test:
+      run: melos exec -c 1 -- "flutter test"
+
+    gen:
+      run: melos exec -c 1 --scope="example" -- "flutter pub run build_runner build -d"
+

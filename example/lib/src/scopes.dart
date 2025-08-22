@@ -10,6 +10,9 @@ class _AdminScope {
     weaver.register<String>('Hello I am $name, $age years old');
   }
 
+  @NamedDependency(name: 'admin-key')
+  String _adminKey() => 'key-of-admin-jhu8';
+
   @OnLeaveScope()
   Future<void> onLeave(Weaver weaverInstance) async {
     weaver.unregister<String>();

@@ -3,18 +3,19 @@ description: "Best dependency injection library for Flutter"
 version: 0.4.0
 homepage: https://pub.dev/packages/weaver
 issue_tracker: https://github.com/easazade/weaver/issues
+resolution: workspace
 
 
 environment:
-  sdk: ">=3.0.0 <4.0.0"
-  flutter: ">=3.0.0 <4.0.0"
+  sdk: ^3.9.0
+  flutter: ^3.35.1
 
 dependencies:
   collection: ^1.18.0  
   flutter:
     sdk: flutter
 
-dev_dependencies:
-  flutter_lints: ^4.0.0
+dev_dependencies:  
+  flutter_lints: ^5.0.0
   flutter_test:
     sdk: flutter

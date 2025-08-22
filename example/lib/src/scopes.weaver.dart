@@ -39,9 +39,21 @@ extension AdminScopeOnWeaverAddedToWeaver on Weaver {
 
 class AdminScopeOnWeaver {
   final Weaver weaverInstance;
+  final _scopeHandlerDelegate = _AdminScope();
   AdminScopeOnWeaver(this.weaverInstance);
 
   bool get inIn => weaverInstance.scopes.where((scope) => scope.name == "admin-scope").isNotEmpty;
+
+  String get adminKey {
+    if (!weaverInstance.isRegistered<String>(name: "admin-key")) {
+      weaverInstance.register<String>(
+        _scopeHandlerDelegate._adminKey(),
+        name: "admin-key",
+      );
+    }
+
+    return weaverInstance.get<String>(name: "admin-key");
+  }
 }
 
 class AuthScope extends Scope<AuthScopeArgs> {
@@ -79,6 +91,7 @@ extension AuthScopeOnWeaverAddedToWeaver on Weaver {
 
 class AuthScopeOnWeaver {
   final Weaver weaverInstance;
+  final _scopeHandlerDelegate = _AdminScope();
   AuthScopeOnWeaver(this.weaverInstance);
 
   bool get inIn => weaverInstance.scopes.where((scope) => scope.name == "auth-scope").isNotEmpty;
@@ -113,6 +126,7 @@ extension ShoppingScopeOnWeaverAddedToWeaver on Weaver {
 
 class ShoppingScopeOnWeaver {
   final Weaver weaverInstance;
+  final _scopeHandlerDelegate = _AdminScope();
   ShoppingScopeOnWeaver(this.weaverInstance);
 
   bool get inIn => weaverInstance.scopes.where((scope) => scope.name == "shopping").isNotEmpty;

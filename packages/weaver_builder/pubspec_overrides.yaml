@@ -1,4 +1,0 @@
-# melos_managed_dependency_overrides: weaver
-dependency_overrides:
-  weaver:
-    path: ../weaver
