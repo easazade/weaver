@@ -7,6 +7,8 @@ packages:
 command:
   bootstrap:
     runPubGetInParallel: true
+  version:
+    linkToCommits: false     # disables commit links in generated changelog
 
 scripts:
   format:
