@@ -132,6 +132,46 @@ class WeaverBuilder implements Builder {
       buffer.writeln('  }');
       buffer.writeln('}');
 
+      // Check if there are any @NamedDependency functions in the class
+
+      final namedDependenciesBuffer = StringBuffer();
+
+      for (var method in classElement.methods2) {
+        if (!_namedDependencyTypeChecker.hasAnnotationOfExact(method)) {
+          continue;
+        }
+
+        //TODO: Add these checks
+        // checkForDuplicateNamedDependencyNames(methods);
+        // validateSourceSyntaxOnNamedDependencyFunction(method);
+
+        final annotation = _namedDependencyTypeChecker.firstAnnotationOfExact(method);
+        final reader = ConstantReader(annotation);
+        final dependencyName = reader.read('name').stringValue;
+        final getterName = dependencyName.camelCase;
+
+        final returnType = method.returnType;
+        final objectType = returnType.isDartAsyncFuture
+            ? (returnType as ParameterizedType).typeArguments.first.element3?.displayName
+            : method.returnType.element3?.displayName;
+
+        if (objectType?.isEmpty == true) {
+          continue;
+        }
+
+        namedDependenciesBuffer.writeln(
+          '''
+            $objectType get $getterName {
+              if(!weaverInstance.isRegistered<$objectType>(name: "$dependencyName")){
+                weaverInstance.register<$objectType>(_scopeHandlerDelegate.${method.displayName}(), name: "$dependencyName");
+              }
+
+              return weaverInstance.get<$objectType>(name: "$dependencyName");
+            }
+          ''',
+        );
+      }
+
       // Create extension class on Weaver
 
       final scopeExtensionClassName = '${scopeClassName}OnWeaver';
@@ -143,11 +183,14 @@ class WeaverBuilder implements Builder {
 
         class $scopeExtensionClassName {
           final Weaver weaverInstance;
+          final _scopeHandlerDelegate = _AdminScope();
+          
           $scopeExtensionClassName(this.weaverInstance);
 
           bool get inIn => weaverInstance.scopes.where((scope) => scope.name == "$scopeName").isNotEmpty;
+
+          ${namedDependenciesBuffer.toString()}
         }
-        
       ''',
       );
 
@@ -176,17 +219,19 @@ class WeaverBuilder implements Builder {
       }
 
       // generate extension for named object on weaver.named
-      buffer.writeln('extension NamedDependency${getterName.pascalCase}X on WeaverNamed {');
-      buffer.writeln('  $objectType get $getterName {');
-      buffer.writeln('    if(!weaverInstance.isRegistered<$objectType>(name: "$dependencyName")){');
-      buffer.writeln('      weaverInstance.register<$objectType>(${function.displayName}(), name: "$dependencyName");');
-      buffer.writeln('    }');
-      buffer.writeln('    return weaverInstance.get<$objectType>(name: "$dependencyName");');
-      buffer.writeln('  }');
-      buffer.writeln('}');
+      buffer.writeln(
+        '''
+          extension NamedDependency${getterName.pascalCase}X on WeaverNamed {
+            $objectType get $getterName {
+              if(!weaverInstance.isRegistered<$objectType>(name: "$dependencyName")){
+                weaverInstance.register<$objectType>(${function.displayName}(), name: "$dependencyName");
+              }
+              return weaverInstance.get<$objectType>(name: "$dependencyName");
+            }
+          }
+        ''',
+      );
     }
-
-    // add part of directive
 
     if (buffer.toString().isEmpty) {
       return;
@@ -194,12 +239,11 @@ class WeaverBuilder implements Builder {
 
     final outputId = buildStep.inputId.changeExtension('.weaver.dart');
     var content =
-        '''$generatedFileHeader
-        
-part of '${buildStep.inputId.path.split('/').last}';
-
-${buffer.toString()}
-    ''';
+        '''
+          $generatedFileHeader        
+          part of '${buildStep.inputId.path.split('/').last}';
+          ${buffer.toString()}
+        ''';
 
     content = _dartFormatter.tryFormat(content);
     await buildStep.writeAsString(outputId, content);
