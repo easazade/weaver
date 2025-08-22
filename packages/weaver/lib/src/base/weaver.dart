@@ -104,7 +104,8 @@ class Weaver extends ChangeNotifier {
       }).nonNulls;
 
       if (matchKeyForOnlyType.isNotEmpty) {
-        message = '$message But there are named dependencies registered with this type: $matchKeyForOnlyType';
+        message = '$message But there are named dependencies registered with this type: $matchKeyForOnlyType. '
+            'To retrieve named registered named objects you must pass both type & name when calling weaver.get()';
       }
 
       throw WeaverException(message);

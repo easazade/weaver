@@ -133,11 +133,23 @@ class WeaverBuilder implements Builder {
       buffer.writeln('}');
 
       // Create extension class on Weaver
-      buffer.writeln('extension ${scopeName.pascalCase}X on Weaver {');
+
+      final scopeExtensionClassName = '${scopeClassName}OnWeaver';
       buffer.writeln(
-        '  bool get isIn$scopeClassName => scopes.where((scope) => scope.name == "$scopeName").isNotEmpty;',
+        '''
+        extension ${scopeExtensionClassName}AddedToWeaver on Weaver {
+          $scopeExtensionClassName get ${scopeName.camelCase} => $scopeExtensionClassName(this);
+        }
+
+        class $scopeExtensionClassName {
+          final Weaver weaverInstance;
+          $scopeExtensionClassName(this.weaverInstance);
+
+          bool get inIn => weaverInstance.scopes.where((scope) => scope.name == "$scopeName").isNotEmpty;
+        }
+        
+      ''',
       );
-      buffer.writeln('}');
 
       buffer.writeln('\n'); // add space
     }
