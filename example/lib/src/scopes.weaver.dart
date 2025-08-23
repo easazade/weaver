@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: unnecessary_string_interpolations
+// ignore_for_file: unnecessary_string_interpolations, unused_field
 
 part of 'scopes.dart';
 
@@ -40,6 +40,7 @@ extension AdminScopeOnWeaverAddedToWeaver on Weaver {
 class AdminScopeOnWeaver {
   final Weaver weaverInstance;
   final _scopeHandlerDelegate = _AdminScope();
+
   AdminScopeOnWeaver(this.weaverInstance);
 
   bool get inIn => weaverInstance.scopes.where((scope) => scope.name == "admin-scope").isNotEmpty;
@@ -92,6 +93,7 @@ extension AuthScopeOnWeaverAddedToWeaver on Weaver {
 class AuthScopeOnWeaver {
   final Weaver weaverInstance;
   final _scopeHandlerDelegate = _AdminScope();
+
   AuthScopeOnWeaver(this.weaverInstance);
 
   bool get inIn => weaverInstance.scopes.where((scope) => scope.name == "auth-scope").isNotEmpty;
@@ -127,6 +129,7 @@ extension ShoppingScopeOnWeaverAddedToWeaver on Weaver {
 class ShoppingScopeOnWeaver {
   final Weaver weaverInstance;
   final _scopeHandlerDelegate = _AdminScope();
+
   ShoppingScopeOnWeaver(this.weaverInstance);
 
   bool get inIn => weaverInstance.scopes.where((scope) => scope.name == "shopping").isNotEmpty;

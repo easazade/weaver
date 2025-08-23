@@ -8,7 +8,7 @@ environment:
   sdk: ^3.9.0
 
 dependencies:
-  weaver: ^0.5.0
+  weaver:
   analyzer: ^7.7.1
   source_gen: ^3.0.0
   build: ^3.0.0
