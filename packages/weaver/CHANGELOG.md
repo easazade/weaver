@@ -1,3 +1,9 @@
+## 0.5.0
+
+ - Update documentation
+ - Improve error message when user tries to retrieve a registered named object without passing the name
+ - Update builder to support generating named dependency getters on weaver for defined scopes
+
 ## 0.4.0
 
 - Add feature to generate custom getters on weaver.named for named dependency objects
