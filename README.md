@@ -135,23 +135,29 @@ class _MyScope {
   }
 }
 ```
-Then run `dart run build_runner build -d` in your code. It will generate a `AuthScopeHandler` & `AuthScope` class.
+Then run `dart run build_runner build -d` in your code. It will generate a `MyScopeHandler` & `MyScope` class.
 **NOTES:**
 1. In above code, in the method annotated with `@OnEnterScope` you can add as many arguments as you need.
 
 After defining the scope, it is required to register the handler to weaver.
 
 ```dart
-weaver.addScopeHandler(AuthenticatedScopeHandler());
+weaver.addScopeHandler(MyScopeHandler());
 ```
 
-Now whenever the user is authenticated, weaver can be signaled that application has entered the scope of authenticated. that can be done using the `enterScope()` method and the `AuthenticatedScope` class defined above.
+Now whenever the user is authenticated, weaver can be signaled that application has entered the scope of authenticated. that can be done using the `enterScope()` method and the `MyScope` class defined above.
 
 ```dart
   // after user authenticated
   weaver.enterScope(
     MyScope(argument1: 12, argument2: 'value'),
   );
+```
+
+It is possible to check whether application has entered a defined scope or not
+
+```dart
+final isInScope = weaver.myScope.isIn;
 ```
 
 Above call will trigger `MyScopeHandler` that you registered that will register an instance of `MyDependency` with passed parameters.
@@ -161,6 +167,46 @@ To leave a scope method `leaveScope()` should be used
 ```dart
 weaver.leaveScope(MyScope.scopeName);
 ```
+
+#### Define named dependencies for scopes
+
+In weaver it is possible to define named dependencies specific to a scope.
+
+```dart
+@WeaverScope(name: 'my-scope')
+class _MyScope {
+  @OnEnterScope()
+  Future<void> onEnter(Weaver weaver, int argument1, String argument2) async {
+    // if you register a dependency here no named getter will be generated for it.
+  }
+
+  // A getter will be generated for this dependency
+  @NamedDependency(name: 'my-component')
+  MyComponent1 _myComponent1() =>  MyComponent1(...);
+
+  // A getter will be generated for this dependency
+  @NamedDependency(name: 'my-component-2')
+  MyComponent2 _myComponent2() =>  MyComponent2(...);
+
+  @OnLeaveScope()
+  Future<void> onLeave(Weaver weaver) async {
+    // NOTE: you must still take care of unregistering the dependency
+    weaver.unregister<MyComponent1>();
+    weaver.unregister<MyComponent2>();
+  }
+}
+```
+**NOTE:** You must still take care of unregistering the named dependencies defined using inside method annotated with `@OnLeaveScope`
+
+To access the named dependencies generate for a scope:
+```dart
+if(weaver.myScope.isIn){
+  final component1 = weaver.myScope.myComponent1;
+  final component2 = weaver.myScope.myComponent2;
+}
+```
+
+
 
 ## Listen for changes in dependencies
 
