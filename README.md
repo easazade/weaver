@@ -191,8 +191,8 @@ class _MyScope {
   @OnLeaveScope()
   Future<void> onLeave(Weaver weaver) async {
     // NOTE: you must still take care of unregistering the dependency
-    weaver.unregister<MyComponent1>();
-    weaver.unregister<MyComponent2>();
+    weaver.unregister<MyComponent1>(name: 'my-component-1');
+    weaver.unregister<MyComponent2>(name: 'my-component-2');
   }
 }
 ```
