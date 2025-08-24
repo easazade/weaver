@@ -1,0 +1,25 @@
+name: weaver
+
+packages:
+  - packages/*
+  - example/
+
+command:
+  bootstrap:
+    runPubGetInParallel: true
+  version:
+    linkToCommits: false     # disables commit links in generated changelog
+
+scripts:
+  format:
+    run: dart format --set-exit-if-changed .
+    
+  analyze:
+    run: melos exec -c 1 -- "dart analyze"
+
+  test:
+    run: melos exec -c 1 -- "flutter test"
+
+  gen:
+    run: melos exec -c 1 --scope="example" -- "flutter pub run build_runner build -d"
+
