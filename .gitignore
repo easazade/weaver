@@ -7,3 +7,4 @@ build/
 *.iml
 ignored
 TODO
+pubspec.lock
