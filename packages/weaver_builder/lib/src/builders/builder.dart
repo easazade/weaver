@@ -141,9 +141,8 @@ class WeaverBuilder implements Builder {
           continue;
         }
 
-        //TODO: Add these checks
-        // checkForDuplicateNamedDependencyNames(methods);
-        // validateSourceSyntaxOnNamedDependencyFunction(method);
+        checkForDuplicateNamedDependencyNames(methods);
+        validateSourceSyntaxOnNamedDependencyFunction(method);
 
         final annotation = _namedDependencyTypeChecker.firstAnnotationOfExact(method);
         final reader = ConstantReader(annotation);

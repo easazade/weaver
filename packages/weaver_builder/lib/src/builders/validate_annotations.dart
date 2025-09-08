@@ -30,7 +30,7 @@ void checkForDuplicateScopeNames(List<ClassElement2> classes) {
 }
 
 /// Checks if the annotated classes with [NamedDependency] annotation have duplicate names
-void checkForDuplicateNamedDependencyNames(List<TopLevelFunctionElement> classes) {
+void checkForDuplicateNamedDependencyNames(List<ExecutableElement2> classes) {
   final namedDependencyTypeChecker = const TypeChecker.typeNamed(NamedDependency);
   final annotatedFunctions = classes.where((function) => namedDependencyTypeChecker.hasAnnotationOfExact(function));
   if (annotatedFunctions.isNotEmpty) {
@@ -150,7 +150,7 @@ Future<void> onLeaveScope(Weaver weaver) async {
   }
 }
 
-void validateSourceSyntaxOnNamedDependencyFunction(TopLevelFunctionElement function) {
+void validateSourceSyntaxOnNamedDependencyFunction(ExecutableElement2 function) {
   if (!function.displayName.startsWith('_')) {
     throw InvalidGenerationSource(
       '❌ The factory function for named dependencies should be private but ${function.displayName}() is not.',
