@@ -20,8 +20,8 @@ class WeaverBuilder implements Builder {
 
   @override
   Map<String, List<String>> get buildExtensions => const {
-    '.dart': ['.weaver.dart'],
-  };
+        '.dart': ['.weaver.dart'],
+      };
 
   @override
   Future<void> build(BuildStep buildStep) async {
@@ -61,15 +61,13 @@ class WeaverBuilder implements Builder {
       // ..writeln('}');
 
       buffer.writeln(' $scopeClassName'); // constructor start
-      var constructorArguments = scopeClassArgs
-          .map((arg) {
-            final type = arg.type.displayNameWithNullability!;
-            final isRequired = !type.endsWith('?');
-            final name = arg.displayName;
+      var constructorArguments = scopeClassArgs.map((arg) {
+        final type = arg.type.displayNameWithNullability!;
+        final isRequired = !type.endsWith('?');
+        final name = arg.displayName;
 
-            return "${isRequired ? 'required' : ''} $type $name";
-          })
-          .join(',');
+        return "${isRequired ? 'required' : ''} $type $name";
+      }).join(',');
 
       if (constructorArguments.trim().isNotEmpty) {
         constructorArguments = '{ $constructorArguments }';
@@ -182,11 +180,12 @@ class WeaverBuilder implements Builder {
 
         class $scopeExtensionClassName {
           final Weaver weaverInstance;
-          final _scopeHandlerDelegate = _AdminScope();
+
+          final _scopeHandlerDelegate = ${classElement.displayName}();
           
           $scopeExtensionClassName(this.weaverInstance);
 
-          bool get inIn => weaverInstance.scopes.where((scope) => scope.name == "$scopeName").isNotEmpty;
+          bool get isIn => weaverInstance.scopes.where((scope) => scope.name == "$scopeName").isNotEmpty;
 
           ${namedDependenciesBuffer.toString()}
         }
@@ -237,8 +236,7 @@ class WeaverBuilder implements Builder {
     }
 
     final outputId = buildStep.inputId.changeExtension('.weaver.dart');
-    var content =
-        '''
+    var content = '''
           $generatedFileHeader        
           part of '${buildStep.inputId.path.split('/').last}';
           ${buffer.toString()}
