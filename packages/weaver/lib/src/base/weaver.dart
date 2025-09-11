@@ -138,7 +138,7 @@ class Weaver extends ChangeNotifier {
     final noHandlerAvailableToHandle = _scopeHandlers.where((final e) => e.scopeName == scope.name).isEmpty;
     if (noHandlerAvailableToHandle) {
       throw WeaverException(
-        '⚠️ Warning: Entered scope ${scope.name} but there is no scope handler to handle this scope. '
+        'Entered scope ${scope.name} but there is no scope handler to handle this scope. '
         'please register a ScopeHandler class that handles scope: ${scope.name} using addScopeHandler() method.',
       );
     }
@@ -218,5 +218,5 @@ class WeaverException implements Exception {
   final String message;
 
   @override
-  String toString() => message;
+  String toString() => '\n\n⛔ $message';
 }
