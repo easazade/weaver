@@ -172,7 +172,6 @@ void main() {
             final scopeHandler = TestScopeHandler(
               stringObject: 'ali',
               intObject: 9,
-              initialIsInScopeValue: false,
             );
 
             await weaverInstance.addScopeHandler(scopeHandler);
@@ -234,7 +233,6 @@ void main() {
             final scopeHandler = TestScopeHandler(
               stringObject: 'ali',
               intObject: 9,
-              initialIsInScopeValue: false,
             );
 
             await weaverInstance.addScopeHandler(scopeHandler);
@@ -244,6 +242,16 @@ void main() {
 
             expect(
               () => weaverInstance.enterScope(WrongArgTestScope(args: 2)),
+              throwsException,
+            );
+          },
+        );
+
+        test(
+          'Should throw an exception if there is no ScopeHandler registered for entered scope',
+          () async {
+            expect(
+              () => weaverInstance.enterScope(TestScope(args: 'args')),
               throwsException,
             );
           },

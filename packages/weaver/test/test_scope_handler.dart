@@ -12,14 +12,12 @@ class TestScopeHandler extends ScopeHandler<String> {
     this.doubleObject,
     this.boolObject,
     this.scopeName = 'test',
-    this.initialIsInScopeValue = true,
   });
 
   final String? stringObject;
   final int? intObject;
   final double? doubleObject;
   final bool? boolObject;
-  final bool initialIsInScopeValue;
 
   @override
   final String scopeName;
