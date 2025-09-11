@@ -46,7 +46,7 @@ With `RequireDependencies` allows specifying only the type of dependency objects
 ```dart
 RequireDependencies(
     weaver: weaver,
-    dependencies: const [UserBloc, ProductsBloc],
+    dependencies: const [DependencyKey(type: UserBloc), DependencyKey(type: ProductsBloc)],
     builder: (context, child, isReady) {
         if (isReady) {
             // UserBloc and ProductsBloc are used inside
