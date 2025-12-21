@@ -148,7 +148,7 @@ class WeaverBuilder implements Builder {
       }
 
       // create scope-handler class
-      final scopeHandlerClassName = '${scopeName.pascalCase.replaceAll('Handler', '')}Handler';
+      final scopeHandlerClassName = '${scopeName.pascalCase.replaceAll('Scope', '').replaceAll('Handler', '')}ScopeHandler';
       buffer
         ..writeln('class $scopeHandlerClassName extends ScopeHandler<$scopeArgsClassName> {')
         ..writeln('final _scopeHandlerDelegate = ${classElement.displayName}();\n');

@@ -110,7 +110,7 @@ class ShoppingScope extends Scope<void> {
   ShoppingScope() : super(name: "shopping", args: null);
 }
 
-class ShoppingHandler extends ScopeHandler<void> {
+class ShoppingScopeHandler extends ScopeHandler<void> {
   final _scopeHandlerDelegate = _ShoppingScope();
 
   @override

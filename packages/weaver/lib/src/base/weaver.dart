@@ -46,6 +46,9 @@ class Weaver extends ChangeNotifier {
   }
 
   void register<T extends Object>(final T instance, {final String? name}) {
+    if (T.toString() == 'Object') {
+      throw WeaverException('T is Object. Cannot register object of the exact type of "Object"');
+    }
     log('Registering object of type $T');
 
     final dependencyKey = DependencyKey(type: T, name: name);
