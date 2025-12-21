@@ -191,13 +191,11 @@ class _MyScope {
 
   @OnLeaveScope()
   Future<void> onLeave(Weaver weaver) async {
-    // NOTE: you must still take care of unregistering the dependency
-    weaver.unregister<MyComponent1>(name: 'my-component-1');
-    weaver.unregister<MyComponent2>(name: 'my-component-2');
+    // no need to unregister dependencies annotated with @NamedDependencies. They will be automatically
+    // unregistered by scope handler when weaver has left this scope.
   }
 }
 ```
-**NOTE:** You must still take care of unregistering the named dependencies defined using inside method annotated with `@OnLeaveScope`
 
 To access the named dependencies generate for a scope:
 ```dart
