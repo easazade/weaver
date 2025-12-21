@@ -65,11 +65,24 @@ class Weaver extends ChangeNotifier {
   }
 
   void unregister<T extends Object>({final String? name}) {
-    final dependencyKey = DependencyKey(type: T, name: name);
-    if (isRegistered<T>(name: name)) {
-      _dependencies.remove(dependencyKey);
+    if (T.toString() == 'Object') {
+      if (name != null) {
+        _dependencies.removeWhere((final dependencyKey, final _) => dependencyKey.name == name);
+        notifyListeners();
+      } else {
+        throw WeaverException(
+          'When Unregistering an object using unregister method. at least either '
+          'name or type of the dependency object should be specified.\n'
+          'eg: weaver.unregister<TYPE>() | weaver.unregister(name: "dependency-name")\n',
+        );
+      }
+    } else {
+      final dependencyKey = DependencyKey(type: T, name: name);
+      if (isRegistered<T>(name: name)) {
+        _dependencies.remove(dependencyKey);
+      }
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   bool isRegistered<T extends Object>({final Type? type, final String? name}) {

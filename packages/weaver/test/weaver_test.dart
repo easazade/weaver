@@ -72,6 +72,37 @@ void main() {
         );
 
         test(
+          'isRegistered method should be able to tell whether a dependency object is registered or not only by its name '
+          'and without defining the type of the dependency object',
+          () {
+            weaverInstance.register('ali', name: 'user');
+            expect(weaverInstance.isRegistered(name: 'user'), true);
+            weaverInstance.unregister(name: 'user');
+            expect(weaverInstance.isRegistered(name: 'user'), false);
+          },
+        );
+
+        test(
+          'isRegistered method should be able to tell whether a dependency object is registered or not only by its name '
+          'and without defining the type of the dependency object',
+          () {
+            weaverInstance.register('ali', name: 'user');
+            expect(weaverInstance.isRegistered(name: 'user'), true);
+            weaverInstance.unregister(name: 'user');
+            expect(weaverInstance.isRegistered(name: 'user'), false);
+          },
+        );
+
+        test(
+          'isRegistered method should throw a WeaverException when trying to unregister a dependency without specifying type or name',
+          () {
+            weaverInstance.register('ali', name: 'user');
+            expect(weaverInstance.isRegistered(name: 'user'), true);
+            expect(() => weaverInstance.unregister(), throwsA(isA<WeaverException>()));
+          },
+        );
+
+        test(
           'When multiple objects registered should be able to fetch each',
           () {
             weaverInstance.register('ali');
