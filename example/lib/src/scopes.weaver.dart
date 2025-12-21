@@ -6,7 +6,8 @@ part of 'scopes.dart';
 class AdminScope extends Scope<AdminScopeArgs> {
   static const String scopeName = 'admin-scope';
 
-  AdminScope({String? name, required int age}) : super(name: "admin-scope", args: AdminScopeArgs(name, age));
+  AdminScope({String? name, required int age})
+    : super(name: "admin-scope", args: AdminScopeArgs(name, age));
 }
 
 class AdminScopeArgs {
@@ -23,13 +24,19 @@ class AdminScopeHandler extends ScopeHandler<AdminScopeArgs> {
   String get scopeName => 'admin-scope';
 
   @override
-  Future<void> onLeaveScope(Weaver weaver) async {
-    await _scopeHandlerDelegate.onLeave(weaver);
+  Future<void> onEnterScope(Weaver weaver, AdminScopeArgs args) async {
+    weaver.register<String>(
+      _scopeHandlerDelegate._adminKey(),
+      name: "admin-key",
+    );
+
+    await _scopeHandlerDelegate.onEnterScope(weaver, args.name, args.age);
   }
 
   @override
-  Future<void> onEnterScope(Weaver weaver, AdminScopeArgs args) async {
-    await _scopeHandlerDelegate.onEnterScope(weaver, args.name, args.age);
+  Future<void> onLeaveScope(Weaver weaver) async {
+    await _scopeHandlerDelegate.onLeave(weaver);
+    weaver.unregister<String>(name: "admin-key");
   }
 }
 
@@ -39,19 +46,19 @@ extension AdminScopeOnWeaverAddedToWeaver on Weaver {
 
 class AdminScopeOnWeaver {
   final Weaver weaverInstance;
+
   final _scopeHandlerDelegate = _AdminScope();
 
   AdminScopeOnWeaver(this.weaverInstance);
 
-  bool get inIn => weaverInstance.scopes.where((scope) => scope.name == "admin-scope").isNotEmpty;
+  bool get isIn => weaverInstance.scopes
+      .where((scope) => scope.name == "admin-scope")
+      .isNotEmpty;
 
   String get adminKey {
-    if (!weaverInstance.isRegistered<String>(name: "admin-key")) {
-      weaverInstance.register<String>(
-        _scopeHandlerDelegate._adminKey(),
-        name: "admin-key",
-      );
-    }
+    // if(!weaverInstance.isRegistered<String>(name: "admin-key")){
+    //  weaverInstance.register<String>(_scopeHandlerDelegate._adminKey(), name: "admin-key");
+    // }
 
     return weaverInstance.get<String>(name: "admin-key");
   }
@@ -60,7 +67,8 @@ class AdminScopeOnWeaver {
 class AuthScope extends Scope<AuthScopeArgs> {
   static const String scopeName = 'auth-scope';
 
-  AuthScope({required User user}) : super(name: "auth-scope", args: AuthScopeArgs(user));
+  AuthScope({required User user})
+    : super(name: "auth-scope", args: AuthScopeArgs(user));
 }
 
 class AuthScopeArgs {
@@ -76,13 +84,13 @@ class AuthScopeHandler extends ScopeHandler<AuthScopeArgs> {
   String get scopeName => 'auth-scope';
 
   @override
-  Future<void> onLeaveScope(Weaver weaver) async {
-    await _scopeHandlerDelegate.onLeaveScope(weaver);
+  Future<void> onEnterScope(Weaver weaver, AuthScopeArgs args) async {
+    await _scopeHandlerDelegate.onEnter(weaver, args.user);
   }
 
   @override
-  Future<void> onEnterScope(Weaver weaver, AuthScopeArgs args) async {
-    await _scopeHandlerDelegate.onEnter(weaver, args.user);
+  Future<void> onLeaveScope(Weaver weaver) async {
+    await _scopeHandlerDelegate.onLeaveScope(weaver);
   }
 }
 
@@ -92,11 +100,14 @@ extension AuthScopeOnWeaverAddedToWeaver on Weaver {
 
 class AuthScopeOnWeaver {
   final Weaver weaverInstance;
-  final _scopeHandlerDelegate = _AdminScope();
+
+  final _scopeHandlerDelegate = _AuthScope();
 
   AuthScopeOnWeaver(this.weaverInstance);
 
-  bool get inIn => weaverInstance.scopes.where((scope) => scope.name == "auth-scope").isNotEmpty;
+  bool get isIn => weaverInstance.scopes
+      .where((scope) => scope.name == "auth-scope")
+      .isNotEmpty;
 }
 
 class ShoppingScope extends Scope<void> {
@@ -112,13 +123,13 @@ class ShoppingHandler extends ScopeHandler<void> {
   String get scopeName => 'shopping';
 
   @override
-  Future<void> onLeaveScope(Weaver weaver) async {
-    await _scopeHandlerDelegate.onLeaveScope(weaver);
+  Future<void> onEnterScope(Weaver weaver, void args) async {
+    await _scopeHandlerDelegate.onEnterScope(weaver);
   }
 
   @override
-  Future<void> onEnterScope(Weaver weaver, void args) async {
-    await _scopeHandlerDelegate.onEnterScope(weaver);
+  Future<void> onLeaveScope(Weaver weaver) async {
+    await _scopeHandlerDelegate.onLeaveScope(weaver);
   }
 }
 
@@ -128,11 +139,14 @@ extension ShoppingScopeOnWeaverAddedToWeaver on Weaver {
 
 class ShoppingScopeOnWeaver {
   final Weaver weaverInstance;
-  final _scopeHandlerDelegate = _AdminScope();
+
+  final _scopeHandlerDelegate = _ShoppingScope();
 
   ShoppingScopeOnWeaver(this.weaverInstance);
 
-  bool get inIn => weaverInstance.scopes.where((scope) => scope.name == "shopping").isNotEmpty;
+  bool get isIn => weaverInstance.scopes
+      .where((scope) => scope.name == "shopping")
+      .isNotEmpty;
 }
 
 extension NamedDependencyUserIdX on WeaverNamed {

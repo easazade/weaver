@@ -166,11 +166,12 @@ To leave a scope method `leaveScope()` should be used
 
 ```dart
 weaver.leaveScope(MyScope.scopeName);
-```
+``` 
 
 #### Define named dependencies for scopes
 
 In weaver it is possible to define named dependencies specific to a scope.
+
 
 ```dart
 @WeaverScope(name: 'my-scope')

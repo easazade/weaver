@@ -103,36 +103,13 @@ class WeaverBuilder implements Builder {
         buffer.writeln('}');
       }
 
-      // create scope-handler class
-      final scopeHandlerClassName = '${scopeName.pascalCase.replaceAll('Handler', '')}Handler';
-      buffer
-        ..writeln('class $scopeHandlerClassName extends ScopeHandler<$scopeArgsClassName> {')
-        ..writeln('final _scopeHandlerDelegate = ${classElement.displayName}();\n');
+      // Check if there are any @NamedDependency functions in the scope-handler class first
+      // registering and unregistering of NamedDependencies need to be handled automatically
+      // also a quick access extension function needs to be created for it
 
-      buffer
-        ..writeln('@override')
-        ..writeln("String get scopeName => '$scopeName';\n");
-
-      buffer
-        ..writeln('@override')
-        ..writeln('Future<void> onLeaveScope(Weaver weaver) async {')
-        ..writeln(
-          ' await _scopeHandlerDelegate.${onLeaveScopeMethod.displayName}(weaver);',
-        )
-        ..writeln('}\n');
-
-      buffer
-        ..writeln('@override')
-        ..writeln('Future<void> onEnterScope(Weaver weaver, $scopeArgsClassName args) async {');
-      buffer.writeln(
-        'await _scopeHandlerDelegate.${onEnterScopeMethod.displayName}(weaver, ${onEnterScopeMethod.formalParameters.sublist(1).map((param) => 'args.${param.displayName}').join(',')});',
-      );
-      buffer.writeln('  }');
-      buffer.writeln('}');
-
-      // Check if there are any @NamedDependency functions in the class
-
-      final namedDependenciesBuffer = StringBuffer();
+      final namedDependenciesQuickAccessMethodsPart = StringBuffer();
+      final namedDependenciesAutoRegisterPart = StringBuffer();
+      final namedDependenciesAutoUnRegisterPart = StringBuffer();
 
       for (var method in classElement.methods2) {
         if (!_namedDependencyTypeChecker.hasAnnotationOfExact(method)) {
@@ -145,6 +122,7 @@ class WeaverBuilder implements Builder {
         final annotation = _namedDependencyTypeChecker.firstAnnotationOfExact(method);
         final reader = ConstantReader(annotation);
         final dependencyName = reader.read('name').stringValue;
+        final enabledAutoDispose = reader.read('autoDispose').boolValue;
         final getterName = dependencyName.camelCase;
 
         final returnType = method.returnType;
@@ -156,18 +134,55 @@ class WeaverBuilder implements Builder {
           continue;
         }
 
-        namedDependenciesBuffer.writeln(
+        namedDependenciesAutoRegisterPart.writeln(
+          'weaver.register<$objectType>(_scopeHandlerDelegate.${method.displayName}(), name: "$dependencyName");',
+        );
+
+        if (enabledAutoDispose) {
+          namedDependenciesAutoUnRegisterPart.writeln('weaver.unregister<$objectType>(name: "$dependencyName");');
+        }
+
+        namedDependenciesQuickAccessMethodsPart.writeln(
           '''
             $objectType get $getterName {
-              if(!weaverInstance.isRegistered<$objectType>(name: "$dependencyName")){
-                weaverInstance.register<$objectType>(_scopeHandlerDelegate.${method.displayName}(), name: "$dependencyName");
-              }
+              // if(!weaverInstance.isRegistered<$objectType>(name: "$dependencyName")){
+              //  weaverInstance.register<$objectType>(_scopeHandlerDelegate.${method.displayName}(), name: "$dependencyName");
+              // }
 
               return weaverInstance.get<$objectType>(name: "$dependencyName");
             }
           ''',
         );
       }
+
+      // create scope-handler class
+      final scopeHandlerClassName = '${scopeName.pascalCase.replaceAll('Handler', '')}Handler';
+      buffer
+        ..writeln('class $scopeHandlerClassName extends ScopeHandler<$scopeArgsClassName> {')
+        ..writeln('final _scopeHandlerDelegate = ${classElement.displayName}();\n');
+
+      buffer
+        ..writeln('@override')
+        ..writeln("String get scopeName => '$scopeName';\n");
+
+      buffer.writeln('''
+        @override
+        Future<void> onEnterScope(Weaver weaver, $scopeArgsClassName args) async {
+          ${namedDependenciesAutoRegisterPart.toString()}
+          await _scopeHandlerDelegate.${onEnterScopeMethod.displayName}(weaver, ${onEnterScopeMethod.formalParameters.sublist(1).map((param) => 'args.${param.displayName}').join(',')});
+        }  
+      ''');
+
+      buffer.writeln('''
+          @override
+          Future<void> onLeaveScope(Weaver weaver) async {
+            await _scopeHandlerDelegate.${onLeaveScopeMethod.displayName}(weaver);
+            ${namedDependenciesAutoUnRegisterPart.toString()}
+          }\n 
+      ''');
+
+
+      buffer.writeln('}');
 
       // Create extension class on Weaver
 
@@ -187,7 +202,7 @@ class WeaverBuilder implements Builder {
 
           bool get isIn => weaverInstance.scopes.where((scope) => scope.name == "$scopeName").isNotEmpty;
 
-          ${namedDependenciesBuffer.toString()}
+          ${namedDependenciesQuickAccessMethodsPart.toString()}
         }
       ''',
       );

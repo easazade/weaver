@@ -14,6 +14,10 @@ class OnLeaveScope {
 
 class NamedDependency {
   final String name;
+  final bool autoDispose;
 
-  const NamedDependency({required this.name});
+  const NamedDependency({
+    required this.name,
+    this.autoDispose = true,
+  });
 }
