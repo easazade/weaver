@@ -143,15 +143,7 @@ class WeaverBuilder implements Builder {
         }
 
         namedDependenciesQuickAccessMethodsPart.writeln(
-          '''
-            $objectType get $getterName {
-              // if(!weaverInstance.isRegistered<$objectType>(name: "$dependencyName")){
-              //  weaverInstance.register<$objectType>(_scopeHandlerDelegate.${method.displayName}(), name: "$dependencyName");
-              // }
-
-              return weaverInstance.get<$objectType>(name: "$dependencyName");
-            }
-          ''',
+          '$objectType get $getterName => weaverInstance.get<$objectType>(name: "$dependencyName");',
         );
       }
 
@@ -180,7 +172,6 @@ class WeaverBuilder implements Builder {
             ${namedDependenciesAutoUnRegisterPart.toString()}
           }\n 
       ''');
-
 
       buffer.writeln('}');
 

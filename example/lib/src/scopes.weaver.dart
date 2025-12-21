@@ -1,5 +1,5 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
-// ignore_for_file: unnecessary_string_interpolations, unused_field
+// ignore_for_file: unnecessary_string_interpolations, unused_field, prefer_final_parameters
 
 part of 'scopes.dart';
 
@@ -55,13 +55,7 @@ class AdminScopeOnWeaver {
       .where((scope) => scope.name == "admin-scope")
       .isNotEmpty;
 
-  String get adminKey {
-    // if(!weaverInstance.isRegistered<String>(name: "admin-key")){
-    //  weaverInstance.register<String>(_scopeHandlerDelegate._adminKey(), name: "admin-key");
-    // }
-
-    return weaverInstance.get<String>(name: "admin-key");
-  }
+  String get adminKey => weaverInstance.get<String>(name: "admin-key");
 }
 
 class AuthScope extends Scope<AuthScopeArgs> {

@@ -18,3 +18,5 @@ dev_dependencies:
   flutter_lints: ^4.0.0
   flutter_test:
     sdk: flutter
+  weaver_builder:
+  build_runner:  

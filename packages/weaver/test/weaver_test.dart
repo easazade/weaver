@@ -2,7 +2,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:weaver/src/base/scope.dart';
 import 'package:weaver/src/base/weaver.dart';
 
-import 'test_scope_handler.dart';
+import 'utils/test_scope_handler.dart';
 
 void main() {
   final weaverInstances = [

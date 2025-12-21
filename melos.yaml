@@ -20,6 +20,10 @@ scripts:
   test:
     run: melos exec -c 1 --ignore="example" -- "flutter test"
 
+
   gen:
-    run: melos exec -c 1 --scope="example" -- "flutter pub run build_runner build -d"
+    run: | 
+      melos exec -c 1 --scope="example" -- "flutter pub run build_runner build -d" &&
+      melos exec -c 1 --scope="weaver" -- "flutter pub run build_runner build -d"
+
 
