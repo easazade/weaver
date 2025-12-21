@@ -73,6 +73,10 @@ class Weaver extends ChangeNotifier {
   }
 
   bool isRegistered<T extends Object>({final Type? type, final String? name}) {
+    if (type == null && T.toString() == 'Object') {
+      return _dependencies.keys.firstWhereOrNull((final key) => key.name == name) != null;
+    }
+
     if (type != null) {
       final dependencyKey = DependencyKey(type: type, name: name);
       return _dependencies.containsKey(dependencyKey) && _dependencies[dependencyKey]!.hasValue;
