@@ -1,4 +1,4 @@
-library weaver;
+library;
 
 export 'src/annotations.dart';
 export 'src/base/dependency.dart';

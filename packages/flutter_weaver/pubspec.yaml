@@ -5,12 +5,13 @@ homepage: https://pub.dev/packages/weaver
 issue_tracker: https://github.com/easazade/weaver/issues
 
 environment:
-  sdk: ^3.9.0
-  flutter: ">=1.17.0"
+  sdk: ">=3.0.0 <4.0.0"
+  flutter: ">=3.0.0 <4.0.0"
 
 dependencies:
   flutter:
     sdk: flutter
+  weaver:  
 
 dev_dependencies:
   flutter_test:
