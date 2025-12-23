@@ -1,4 +1,4 @@
-Dependency Injection library, rethought and tailored specifically for Flutter.
+Dependency Injection library, rethought and tailored for Flutter.
 
 ## Features
 
@@ -12,11 +12,12 @@ Dependency Injection library, rethought and tailored specifically for Flutter.
 Add following dependencies to pubspec.yaml
 ```yaml
 dependencies:
-  weaver: ^x.y.z
+  weaver: ^x.y.z # for dart only projects
+  flutter_weaver: ^x.y.z # for flutter projects
 
 dev_dependencies:
   build_runner:  
-  weaver_builder: ^x.y.z  
+  weaver_builder: ^x.y.z
 ```
 
 ## Getting started
@@ -25,8 +26,7 @@ Register objects
 
 ```dart
 weaver.register(UserRepository());
-weaver.registerLazy(
-    () => UserBloc(userRepository: weaver.get())
+weaver.registerLazy(() => UserBloc(userRepository: weaver.get())
 );
 ```
 
@@ -91,23 +91,23 @@ final authToken = weaver.get<String>(name: 'auth-token');
 final userId = weaver.get<String>(name: 'user-id');
 ```
 
-To make things simpler Weaver can code generate named dependency objects.
+To make things simpler Weaver can code generate named dependency objects. This way it is possible to register multiple objects of the same type for different purposes. 
 
 ```dart
 @NamedDependency(name: 'user-profile')
 Profile _userProfile() {
-  final profile = getUserProfile;
+  // write code to return a user profile object
   return profile;
 }
 
 @NamedDependency(name: 'admin-profile')
 Profile _adminProfile() {
-  final profile = getAdminProfile;
+  // write code to return an admin profile object
   return profile;
 }
 ```
-Above code will code generate a custom getter in Weaver for this object that can be accessed easier. Also 
-the code will be more clear while fetching and using multiple dependencies of the same type.
+After running `dart run builder_runner build` above code will code generate a custom getter in Weaver for this object that allows easier access.
+Also the code will be more clear while fetching and using multiple dependencies of the same type.
 ```dart
 final profile = weaver.named.userProfile;
 final profile = weaver.named.adminProfile;
@@ -119,7 +119,9 @@ When it comes to dependency injection, usually dependency objects are required t
 
 For example in an application it might make sense to only register some dependency objects after user is authenticated and unregister them after user has logged out. Hence it can be said those dependency objects only live within the authentication scope.
 
-With weaver it is possible to define a scope by extending `Scope` class and then define a `ScopeHandler` to handle creation and registering of objects that should exist when weaver enters that scope and unregistering them when weaver leaves that scope.
+
+
+Weaver makes it easy to define scopes that have their own dependencies. These dependencies will become available when weaver enters that scope. 
 
 ```dart
 @WeaverScope(name: 'my-scope')
@@ -139,16 +141,17 @@ Then run `dart run build_runner build -d` in your code. It will generate a `MySc
 **NOTES:**
 1. In above code, in the method annotated with `@OnEnterScope` you can add as many arguments as you need.
 
-After defining the scope, it is required to register the handler to weaver.
+#### Entering and Leaving scope
+
+After defining the scope, it is required to first register the scope-handler class to weaver.
 
 ```dart
 weaver.addScopeHandler(MyScopeHandler());
 ```
 
-Now whenever the user is authenticated, weaver can be signaled that application has entered the scope of authenticated. that can be done using the `enterScope()` method and the `MyScope` class defined above.
+weaver can be signaled that application has entered the scope of authenticated. That can be done using the `enterScope()` method and the `MyScope` class defined above. when weaver enters that scope the method annotated with `@OnEnterScope` annotation will be called and dependencies will be registered.
 
 ```dart
-  // after user authenticated
   weaver.enterScope(
     MyScope(argument1: 12, argument2: 'value'),
   );
@@ -207,12 +210,12 @@ if(weaver.myScope.isIn){
 
 
 
-## Listen for changes in dependencies
+## Observer changes in dependencies
 
-All registrations and un-registrations can be listened to by adding a listener on `weaver`
+All registrations and un-registrations can be observed to by adding an observer on `weaver`
 
 ```dart
-weaver.addListener() {
+weaver.addObserver() {
     if(weaver.isRegistered<UserCubit>()){
         // ...
     }
@@ -223,4 +226,4 @@ weaver.addListener() {
 
 For testing purposes it is possible to allow re-registration of objects by setting `allowReassignment` to true.
 
-It is also possible to `weaver.reset()` to clear all registered dependencies and scopes.
+It is also possible to call `weaver.reset()` to clear all registered dependencies and scopes.
