@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
 import 'package:weaver/src/base/named.dart';
 import 'package:weaver/src/utils/log.dart';
+import 'package:weaver/src/utils/observable.dart';
 
 import 'dependency.dart';
 import 'scope.dart';
@@ -13,7 +13,7 @@ final weaver = Weaver();
 
 /// [Weaver] stand for dependency injection. It is a class responsible for
 /// managing dependencies and dependency scopes.
-class Weaver extends ChangeNotifier {
+class Weaver extends Observable {
   Weaver();
 
   final _dependencies = <DependencyKey, Dependency>{};
@@ -42,7 +42,7 @@ class Weaver extends ChangeNotifier {
       _dependencies[dependencyKey] = Dependency<T>.lazy(callback);
     }
 
-    notifyListeners();
+    notifyObservers();
   }
 
   void register<T extends Object>(final T instance, {final String? name}) {
@@ -64,14 +64,14 @@ class Weaver extends ChangeNotifier {
     } else {
       _dependencies[dependencyKey] = Dependency<T>.value(instance);
     }
-    notifyListeners();
+    notifyObservers();
   }
 
   void unregister<T extends Object>({final String? name}) {
     if (T.toString() == 'Object') {
       if (name != null) {
         _dependencies.removeWhere((final dependencyKey, final _) => dependencyKey.name == name);
-        notifyListeners();
+        notifyObservers();
       } else {
         throw WeaverException(
           'When Unregistering an object using unregister method. at least either '
@@ -84,7 +84,7 @@ class Weaver extends ChangeNotifier {
       if (isRegistered<T>(name: name)) {
         _dependencies.remove(dependencyKey);
       }
-      notifyListeners();
+      notifyObservers();
     }
   }
 
@@ -170,7 +170,7 @@ class Weaver extends ChangeNotifier {
       await scopeHandler.handle(this);
     }
 
-    notifyListeners();
+    notifyObservers();
   }
 
   Future<void> leaveScope(final String scopeName) async {
@@ -182,7 +182,7 @@ class Weaver extends ChangeNotifier {
       }
     }
 
-    notifyListeners();
+    notifyObservers();
   }
 
   /// Adds a [ScopeHandler] instance and weaver which will handle scope changes
@@ -230,9 +230,9 @@ class Weaver extends ChangeNotifier {
 class WeaverException implements Exception {
   WeaverException(this.message) {
     // Since in web sometimes uncaught exception do not get logged correctly
-    if (kIsWeb) {
-      log(message);
-    }
+    // if (kIsWeb) {
+    // log(message);
+    // }
   }
 
   final String message;

@@ -1,5 +1,5 @@
-import 'package:flutter/material.dart';
-import 'package:weaver/src/utils/log.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
 import 'package:weaver/weaver.dart';
 
 class RequireDependencies extends StatefulWidget {
@@ -30,7 +30,7 @@ class _State extends State<RequireDependencies> {
   @override
   void initState() {
     super.initState();
-    widget.weaver.addListener(_updateReadyState);
+    widget.weaver.addObserver(_updateReadyState);
     _updateReadyState(callSetState: false);
   }
 
@@ -38,8 +38,8 @@ class _State extends State<RequireDependencies> {
   void didUpdateWidget(covariant final RequireDependencies oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (widget.weaver != oldWidget.weaver) {
-      oldWidget.weaver.removeListener(_updateReadyState);
-      widget.weaver.addListener(_updateReadyState);
+      oldWidget.weaver.removeObserver(_updateReadyState);
+      widget.weaver.addObserver(_updateReadyState);
     }
     if (widget.dependencies != oldWidget.dependencies) {
       _updateReadyState(callSetState: false);
@@ -59,11 +59,15 @@ class _State extends State<RequireDependencies> {
     if (areDependenciesReadyUpdated != areDependenciesReady) {
       areDependenciesReady = areDependenciesReadyUpdated;
       if (areDependenciesReady) {
-        log('👍 Required dependencies are ready : ${widget.dependencies}.');
+        if (kDebugMode) {
+          print('👍 Required dependencies are ready : ${widget.dependencies}.');
+        }
       } else {
-        log(
-          '⏳ Required dependencies are NOT ready yet : ${widget.dependencies}, waiting for required dependencies.',
-        );
+        if (kDebugMode) {
+          print(
+            '⏳ Required dependencies are NOT ready yet : ${widget.dependencies}, waiting for required dependencies.',
+          );
+        }
       }
       if (callSetState) {
         setState(() {});
@@ -78,7 +82,7 @@ class _State extends State<RequireDependencies> {
 
   @override
   void dispose() {
-    widget.weaver.removeListener(_updateReadyState);
+    widget.weaver.removeObserver(_updateReadyState);
     super.dispose();
   }
 }
