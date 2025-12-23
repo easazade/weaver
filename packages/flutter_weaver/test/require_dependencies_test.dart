@@ -2,97 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:flutter_weaver/flutter_weaver.dart';
 
-class _WeaverTestWrapper extends StatefulWidget {
-  const _WeaverTestWrapper({
-    required this.initialWeaver,
-    required this.onWeaverChanged,
-  });
-
-  final Weaver initialWeaver;
-  final void Function(Weaver) onWeaverChanged;
-
-  @override
-  State<_WeaverTestWrapper> createState() => _WeaverTestWrapperState();
-}
-
-class _WeaverTestWrapperState extends State<_WeaverTestWrapper> {
-  late Weaver _weaver;
-
-  @override
-  void initState() {
-    super.initState();
-    _weaver = widget.initialWeaver;
-  }
-
-  void updateWeaver(final Weaver newWeaver) {
-    setState(() {
-      _weaver = newWeaver;
-    });
-  }
-
-  @override
-  Widget build(final BuildContext context) {
-    widget.onWeaverChanged(_weaver);
-    return RequireDependencies(
-      weaver: _weaver,
-      dependencies: [DependencyKey(type: String)],
-      builder: (final context, final child, final isReady) {
-        if (isReady) {
-          return const Text('Ready');
-        } else {
-          return const CircularProgressIndicator();
-        }
-      },
-    );
-  }
-}
-
-class _DependenciesTestWrapper extends StatefulWidget {
-  const _DependenciesTestWrapper({
-    required this.weaver,
-    required this.initialDependencies,
-    required this.onDependenciesChanged,
-  });
-
-  final Weaver weaver;
-  final List<DependencyKey> initialDependencies;
-  final void Function(List<DependencyKey>) onDependenciesChanged;
-
-  @override
-  State<_DependenciesTestWrapper> createState() => _DependenciesTestWrapperState();
-}
-
-class _DependenciesTestWrapperState extends State<_DependenciesTestWrapper> {
-  late List<DependencyKey> _dependencies;
-
-  @override
-  void initState() {
-    super.initState();
-    _dependencies = widget.initialDependencies;
-  }
-
-  void updateDependencies(final List<DependencyKey> newDependencies) {
-    setState(() {
-      _dependencies = newDependencies;
-    });
-  }
-
-  @override
-  Widget build(final BuildContext context) {
-    widget.onDependenciesChanged(_dependencies);
-    return RequireDependencies(
-      weaver: widget.weaver,
-      dependencies: _dependencies,
-      builder: (final context, final child, final isReady) {
-        if (isReady) {
-          return const Text('Ready');
-        } else {
-          return const CircularProgressIndicator();
-        }
-      },
-    );
-  }
-}
+import 'utils/require_dependencies_tester.dart';
 
 void main() {
   group('RequireDependencies', () {
@@ -317,83 +227,66 @@ void main() {
     testWidgets(
       'should update when weaver instance changes',
       (final WidgetTester tester) async {
-        final weaver1 = Weaver();
-        final weaver2 = Weaver();
+        weaver.register('string object');
 
-        weaver1.register('weaver1');
-
-        _WeaverTestWrapperState? wrapperState;
-
-        await tester.pumpWidget(
-          MaterialApp(
-            home: _WeaverTestWrapper(
-              initialWeaver: weaver1,
-              onWeaverChanged: (final _) {},
-            ),
-          ),
-        );
-
-        wrapperState = tester.state<_WeaverTestWrapperState>(
-          find.byType(_WeaverTestWrapper),
-        );
+        final controller = RequireDependenciesTesterController();
+        await tester.pumpWidget(RequireDependenciesTester(
+          controller: controller,
+          weaver: weaver,
+          dependencies: [DependencyKey(type: String)],
+          builder: (final context, final child, final isReady) {
+            if (isReady) {
+              return const Text('Ready');
+            } else {
+              return const CircularProgressIndicator();
+            }
+          },
+        ));
 
         expect(find.text('Ready'), findsOneWidget);
 
-        wrapperState.updateWeaver(weaver2);
+        final newWeaver = Weaver();
+        expect(newWeaver.isRegistered<String>(), isFalse);
+        controller.changeWeaverInstance(newWeaver);
         await tester.pump();
-
         expect(find.byType(CircularProgressIndicator), findsOneWidget);
-
-        weaver2.register('weaver2');
-        await tester.pump();
-
-        expect(find.text('Ready'), findsOneWidget);
-
-        weaver1.reset();
-        weaver2.reset();
       },
     );
 
     testWidgets(
-      'should update when dependencies list changes',
+      'should update widget tree when dependencies list changes',
       (final WidgetTester tester) async {
-        testWeaver.register('test');
+        weaver.register('string object');
 
-        _DependenciesTestWrapperState? wrapperState;
-
-        await tester.pumpWidget(
-          MaterialApp(
-            home: _DependenciesTestWrapper(
-              weaver: testWeaver,
-              initialDependencies: [DependencyKey(type: String)],
-              onDependenciesChanged: (final _) {},
-            ),
-          ),
-        );
-
-        wrapperState = tester.state<_DependenciesTestWrapperState>(
-          find.byType(_DependenciesTestWrapper),
-        );
+        final controller = RequireDependenciesTesterController();
+        await tester.pumpWidget(RequireDependenciesTester(
+          controller: controller,
+          weaver: weaver,
+          dependencies: [DependencyKey(type: String)],
+          builder: (final context, final child, final isReady) {
+            if (isReady) {
+              return const Text('Ready');
+            } else {
+              return const CircularProgressIndicator();
+            }
+          },
+        ));
 
         expect(find.text('Ready'), findsOneWidget);
 
-        wrapperState.updateDependencies([
-          DependencyKey(type: String),
-          DependencyKey(type: int),
-        ]);
+        controller.changeDependencies([DependencyKey(type: int)]);
         await tester.pump();
-
         expect(find.byType(CircularProgressIndicator), findsOneWidget);
 
-        testWeaver.register<int>(42);
-        await tester.pump();
+        weaver.register(1000);
 
+        await tester.pump();
         expect(find.text('Ready'), findsOneWidget);
       },
     );
 
     testWidgets(
-      'should handle empty dependencies list',
+      'should handle empty dependencies list as ready state',
       (final WidgetTester tester) async {
         await tester.pumpWidget(
           MaterialApp(

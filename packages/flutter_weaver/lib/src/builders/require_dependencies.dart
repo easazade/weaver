@@ -40,6 +40,7 @@ class _State extends State<RequireDependencies> {
     if (widget.weaver != oldWidget.weaver) {
       oldWidget.weaver.removeObserver(_updateReadyState);
       widget.weaver.addObserver(_updateReadyState);
+      _updateReadyState(callSetState: false);
     }
     if (widget.dependencies != oldWidget.dependencies) {
       _updateReadyState(callSetState: false);
