@@ -67,10 +67,8 @@ With weaver it is possible to wait for registration of an object and then get it
 Future.delayed(const Duration(seconds: 2), (){
     weaver.register(UserBloc());
 });
-```
 
-```dart
-// below line will get userBloc as soon as it is registered.
+// below line will get userBloc as soon as it is registered. In this case 2 seconds later
 final userBloc = await weaver.getAsync<UserBloc>();
 ```
 
@@ -124,19 +122,23 @@ Weaver makes it easy to define scopes that have their own dependencies. These de
 
 ```dart
 @WeaverScope(name: 'my-scope')
-class _MyScope {
+class _AdminScope {
+
+
   @OnEnterScope()
-  Future<void> onEnter(Weaver weaver, int argument1, String argument2) async {
-    weaver.register(MyDependency(argument1: argument1, argument2: argument2));
+  Future<void> onEnter(Weaver weaver, int adminId, String adminAccessLevel) async {
+    // register dependencies here
+    weaver.register(AdminBloc(id: adminId, accessLevel: adminAccessLevel));
   }
 
   @OnLeaveScope()
   Future<void> onLeave(Weaver weaver) async {
-    weaver.unregister<MyDependency>();
+    // remove registered dependencies that belong to this scope
+    weaver.unregister<AdminBloc>();
   }
 }
 ```
-Then run `dart run build_runner build -d` in your code. It will generate a `MyScopeHandler` & `MyScope` class.
+Then run `dart run build_runner build -d` in your code. It will generate a `AdminScopeHandler` & `AdminScope` class.
 **NOTES:**
 1. In above code, in the method annotated with `@OnEnterScope` you can add as many arguments as you need.
 
@@ -145,10 +147,10 @@ Then run `dart run build_runner build -d` in your code. It will generate a `MySc
 After defining the scope, it is required to first register the scope-handler class to weaver.
 
 ```dart
-weaver.addScopeHandler(MyScopeHandler());
+weaver.addScopeHandler(AdminScopeHandler());
 ```
 
-weaver can be signaled that application has entered the scope of authenticated. That can be done using the `enterScope()` method and the `MyScope` class defined above. when weaver enters that scope the method annotated with `@OnEnterScope` annotation will be called and dependencies will be registered.
+weaver can be signaled that application has entered the scope of authenticated. That can be done using the `enterScope()` method and the `AdminScope` class defined above. when weaver enters that scope the method annotated with `@OnEnterScope`in our defined `_AdminScope` class will be called and dependencies will be registered.
 
 ```dart
   weaver.enterScope(
@@ -156,19 +158,36 @@ weaver can be signaled that application has entered the scope of authenticated. 
   );
 ```
 
-It is possible to check whether application has entered a defined scope or not
+Above call will trigger `AdminScopeHandler` that was registered and annotated method @OnEnterScope will be called with the passed parameters.
 
+##### Check Scope:
+It is possible to check whether application has entered a defined scope or not
 ```dart
-final isInScope = weaver.myScope.isIn;
+final isInScope = weaver.adminScope.isIn;
+// will return true if weaver has entered AdminScope
 ```
 
-Above call will trigger `MyScopeHandler` that you registered that will register an instance of `MyDependency` with passed parameters.
-
-To leave a scope method `leaveScope()` should be used
+To leave a scope `leaveScope()` method should be used
 
 ```dart
 weaver.leaveScope(MyScope.scopeName);
 ``` 
+
+##### Example:
+Here is a practical example of how to enter a scope base on business logic of the application
+
+```dart
+weaver.get<AuthBloc>().stream.listen((state){
+  // check if should enter admin scope
+  if(state.authenticatedUser.isAdmin && !weaver.adminScope.isIn){
+    // entering admin scope
+    weaver.enterScope(AdminScope(id: 24, accessLevel: 'editor'));
+  }else{
+    // leaving admin scope
+    weaver.leaveScope(AdminScope.scopeName);
+  }
+})
+```
 
 #### Define named dependencies for scopes
 

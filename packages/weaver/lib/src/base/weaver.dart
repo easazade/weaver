@@ -180,9 +180,8 @@ class Weaver extends Observable {
       for (final scopeHandler in _scopeHandlers) {
         await scopeHandler.handle(this);
       }
+      notifyObservers();
     }
-
-    notifyObservers();
   }
 
   /// Adds a [ScopeHandler] instance and weaver which will handle scope changes
