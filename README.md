@@ -4,7 +4,7 @@ Dependency Injection library, rethought and tailored for Flutter.
 
 - Register objects and get them anywhere in your code by just calling `weaver.get()`.
 - Ability to wait for an creation of an object before it is even created and then get it as soon as it is created with `getAsync()`.
-- Build widgets without worrying about whether dependency objects are created or not by using `RequireDependencies` widget.
+- Build widgets without worrying about whether dependency objects are created or not by using `RequireDependencies` widget. No more ProviderNotFoundException
 - Ability to both register an object where it can live globally or within the lifecycle of defined `Scope` that can be handled by a     `ScopeHandler`.
 - Register objects to be created lazily.
 
@@ -34,14 +34,13 @@ And then get them any where in your code
 
 ```dart
 final userBloc = weaver.get<UserBloc>();
-userBloc.doSomething();
 ```
 
 ## Usage
 
 #### Safely build widget
 
-With `RequireDependencies` allows specifying only the type of dependency objects that are required, then build the widget as soon as those dependency objects are created. It's not like the provider or BlocProvider where it is required to first, create and provide the required object in order to be able to use it later. With `RequireDependencies` widget it doesn't matter whether the objects are created or going to be created. When they are ready it will rebuild.
+`RequireDependencies` widget allows specifying the type of dependency objects that are required, then build the widget as soon as those dependency objects are created. It's not like the provider or BlocProvider where it is required to first, create and provide the required object in order to be able to use it later. With `RequireDependencies` widget it doesn't matter whether the objects are created or going to be created. When they are ready `RequireDependencies` widget will rebuild. No more ProviderNotFoundException or worrying about where it makes sense to add a provider widget in the widget tree.
 
 ```dart
 RequireDependencies(
