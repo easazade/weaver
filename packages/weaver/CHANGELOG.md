@@ -9,6 +9,7 @@
 - Fix bugs in builder generating incorrect code and typos
 - Add validation check for NamedDependency annotations inside @WeaverScope annotation
 - Update file headers
+
 ## 0.5.0
 
  - Update documentation
