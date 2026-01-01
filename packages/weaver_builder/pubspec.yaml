@@ -7,7 +7,7 @@ environment:
   sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
-  weaver:
+  weaver: ^0.6.0
   analyzer: ^7.7.1
   source_gen: ^3.0.0
   build: ^3.0.0
