@@ -1,3 +1,5 @@
+![image](logo-banner.png)
+
 Dependency Injection library, rethought and tailored for Flutter.
 
 ## Features
