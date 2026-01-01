@@ -1,30 +1,32 @@
 ![image](logo-banner.png)
 
-Dependency Injection library, rethought and tailored for Flutter.
+Dependency Injection library, rethought and tailored for Flutter. ⚡️
 
-## Features
+## Features ✨
 
-- Register objects and get them anywhere in your code by just calling `weaver.get()`.
-- Ability to wait for an creation of an object before it is even created and then get it as soon as it is created with `getAsync()`.
-- Build widgets without worrying about whether dependency objects are created or not by using `RequireDependencies` widget. No more ProviderNotFoundException
-- Ability to both register an object where it can live globally or within the lifecycle of defined `Scope` that can be handled by a     `ScopeHandler`.
+- ✅ Register objects and get them anywhere in your code by just calling `weaver.get()`.
+- ⏳ Ability to wait for an creation of an object before it is even created and then get it as soon as it is created with `getAsync()`.
+- 🧠 Build widgets without worrying about whether dependency objects are created or not by using `RequireDependencies` widget. No more ProviderNotFoundException
+- Ability to both register an object where it can live globally or within the lifecycle of defined `Scope` that can be handled by a `ScopeHandler`.
 - Register objects to be created lazily.
 
-## Install 
-Add following dependencies to pubspec.yaml
+## Install 📦
+
+Add following dependencies to pubspec.yaml ⬇️
+
 ```yaml
 dependencies:
   weaver: ^x.y.z # for dart only projects
   flutter_weaver: ^x.y.z # for flutter projects
 
 dev_dependencies:
-  build_runner:  
+  build_runner:
   weaver_builder: ^x.y.z
 ```
 
-## Getting started
+## Getting started 🚀
 
-Register objects
+Register objects 🧰
 
 ```dart
 weaver.register(UserRepository());
@@ -32,15 +34,15 @@ weaver.registerLazy(() => UserBloc(userRepository: weaver.get())
 );
 ```
 
-And then get them any where in your code
+And then get them anywhere in your code 🔍
 
 ```dart
 final userBloc = weaver.get<UserBloc>();
 ```
 
-## Usage
+## Usage 🧭
 
-#### Safely build widget
+#### Safely build widget 🛠️
 
 `RequireDependencies` widget allows specifying the type of dependency objects that are required, then build the widget as soon as those dependency objects are created. It's not like the provider or BlocProvider where it is required to first, create and provide the required object in order to be able to use it later. With `RequireDependencies` widget it doesn't matter whether the objects are created or going to be created. When they are ready `RequireDependencies` widget will rebuild. No more ProviderNotFoundException or worrying about where it makes sense to add a provider widget in the widget tree.
 
@@ -58,9 +60,9 @@ RequireDependencies(
         }
     },
 )
-``` 
+```
 
-#### Get objects asynchronously
+#### Get objects asynchronously ⏱️
 
 With weaver it is possible to wait for registration of an object and then get it as soon as it is registered. using `getAsync()` method.
 
@@ -76,7 +78,8 @@ final userBloc = await weaver.getAsync<UserBloc>();
 
 **NOTE:** When building widgets there is no need to use `getAsync()` method. Please use `RequireDependencies` widget instead.
 
-#### Named Dependencies
+#### Named Dependencies 🏷️
+
 Weaver allows registering named instances of the same type of object.
 
 ```dart
@@ -90,7 +93,7 @@ final authToken = weaver.get<String>(name: 'auth-token');
 final userId = weaver.get<String>(name: 'user-id');
 ```
 
-To make things simpler Weaver can code generate named dependency objects. This way it is possible to register multiple objects of the same type for different purposes. 
+To make things simpler Weaver can code generate named dependency objects. This way it is possible to register multiple objects of the same type for different purposes.
 
 ```dart
 @NamedDependency(name: 'user-profile')
@@ -105,22 +108,22 @@ Profile _adminProfile() {
   return profile;
 }
 ```
+
 After running `dart run builder_runner build` above code will code generate a custom getter in Weaver for this object that allows easier access.
 Also the code will be more clear while fetching and using multiple dependencies of the same type.
+
 ```dart
 final profile = weaver.named.userProfile;
 final profile = weaver.named.adminProfile;
 ```
 
-#### Scoped Dependencies
+#### Scoped Dependencies 🧩
 
 When it comes to dependency injection, usually dependency objects are required to exists as long as the app is running. But sometimes it is required for a dependency object to exist only in certain scenario or scope of a lifecycle. In short some dependencies only live in certain scopes.
 
 For example in an application it might make sense to only register some dependency objects after user is authenticated and unregister them after user has logged out. Hence it can be said those dependency objects only live within the authentication scope.
 
-
-
-Weaver makes it easy to define scopes that have their own dependencies. These dependencies will become available when weaver enters that scope. 
+Weaver makes it easy to define scopes that have their own dependencies. These dependencies will become available when weaver enters that scope.
 
 ```dart
 @WeaverScope(name: 'my-scope')
@@ -140,11 +143,13 @@ class _AdminScope {
   }
 }
 ```
+
 Then run `dart run build_runner build -d` in your code. It will generate a `AdminScopeHandler` & `AdminScope` class.
 **NOTES:**
+
 1. In above code, in the method annotated with `@OnEnterScope` you can add as many arguments as you need.
 
-#### Entering and Leaving scope
+#### Entering and Leaving scope 🚪
 
 After defining the scope, it is required to first register the scope-handler class to weaver.
 
@@ -163,7 +168,9 @@ weaver can be signaled that application has entered the scope of authenticated. 
 Above call will trigger `AdminScopeHandler` that was registered and annotated method @OnEnterScope will be called with the passed parameters.
 
 ##### Check Scope:
+
 It is possible to check whether application has entered a defined scope or not
+
 ```dart
 final isInScope = weaver.adminScope.isIn;
 // will return true if weaver has entered AdminScope
@@ -173,9 +180,10 @@ To leave a scope `leaveScope()` method should be used
 
 ```dart
 weaver.leaveScope(MyScope.scopeName);
-``` 
+```
 
-##### Example:
+##### Example: 🎯
+
 Here is a practical example of how to enter a scope base on business logic of the application
 
 ```dart
@@ -191,10 +199,9 @@ weaver.get<AuthBloc>().stream.listen((state){
 })
 ```
 
-#### Define named dependencies for scopes
+#### Define named dependencies for scopes 🗂️
 
 In weaver it is possible to define named dependencies specific to a scope.
-
 
 ```dart
 @WeaverScope(name: 'my-scope')
@@ -221,6 +228,7 @@ class _MyScope {
 ```
 
 To access the named dependencies generate for a scope:
+
 ```dart
 if(weaver.myScope.isIn){
   final component1 = weaver.myScope.myComponent1;
@@ -228,9 +236,7 @@ if(weaver.myScope.isIn){
 }
 ```
 
-
-
-## Observer changes in dependencies
+## Observer changes in dependencies 👀
 
 All registrations and un-registrations can be observed to by adding an observer on `weaver`
 
@@ -242,7 +248,7 @@ weaver.addObserver() {
 }
 ```
 
-## Testing
+## Testing 🧪
 
 For testing purposes it is possible to allow re-registration of objects by setting `allowReassignment` to true.
 
