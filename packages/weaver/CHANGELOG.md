@@ -1,3 +1,14 @@
+## 0.6.0
+- Update & Fix Documentation
+- Move flutter code into flutter_weaver
+- Add more tests
+- Fix unregister method not unregistering only by name
+- Fix bug causing isRegistered method to return false sometimes when dependency was registered
+- Update exception logs
+- Update `weaver.enterScope()` method to throw exception if there is no scope-handler registered
+- Fix bugs in builder generating incorrect code and typos
+- Add validation check for NamedDependency annotations inside @WeaverScope annotation
+- Update file headers
 ## 0.5.0
 
  - Update documentation

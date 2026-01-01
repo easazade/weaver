@@ -1,3 +1,3 @@
-## 0.0.1
+## 0.6.0
 
-* TODO: Describe initial release.
+- Move Flutter code from weaver package to flutter_weaver package
