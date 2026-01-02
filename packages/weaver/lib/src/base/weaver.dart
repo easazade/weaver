@@ -24,27 +24,6 @@ class Weaver extends Observable {
   Iterable<Scope> get scopes => _scopes;
   var allowReassignment = false;
 
-  void registerLazy<T extends Object>(final T Function() callback, {final String? name}) {
-    final dependencyKey = DependencyKey(type: T, name: name);
-
-    log('Registering object with $dependencyKey');
-
-    if (isRegistered<T>() && !allowReassignment) {
-      throw WeaverException(
-        'Cannot register object of $dependencyKey because there is an instance already registered',
-      );
-    }
-
-    if (_dependencies.containsKey(dependencyKey)) {
-      final dependency = (_dependencies[dependencyKey]! as Dependency<T>);
-      dependency.lazyInstantiateCallback = callback;
-    } else {
-      _dependencies[dependencyKey] = Dependency<T>.lazy(callback);
-    }
-
-    notifyObservers();
-  }
-
   void register<T extends Object>(final T instance, {final String? name}) {
     if (T.toString() == 'Object') {
       throw WeaverException('T is Object. Cannot register object of the exact type of "Object"');
@@ -99,6 +78,27 @@ class Weaver extends Observable {
     }
     final dependencyKey = DependencyKey(type: T, name: name);
     return _dependencies.containsKey(dependencyKey) && _dependencies[dependencyKey]!.hasValue;
+  }
+
+  void registerLazy<T extends Object>(final T Function() callback, {final String? name}) {
+    final dependencyKey = DependencyKey(type: T, name: name);
+
+    log('Registering object with $dependencyKey');
+
+    if (isRegistered<T>() && !allowReassignment) {
+      throw WeaverException(
+        'Cannot register object of $dependencyKey because there is an instance already registered',
+      );
+    }
+
+    if (_dependencies.containsKey(dependencyKey)) {
+      final dependency = (_dependencies[dependencyKey]! as Dependency<T>);
+      dependency.lazyInstantiateCallback = callback;
+    } else {
+      _dependencies[dependencyKey] = Dependency<T>.lazy(callback);
+    }
+
+    notifyObservers();
   }
 
   T get<T extends Object>({final String? name}) {
