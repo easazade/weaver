@@ -1,7 +1,7 @@
 name: flutter_weaver
 description: "Best dependency injection library for Flutter"
 version: 0.6.0
-homepage: https://pub.dev/packages/weaver
+repository: https://github.com/easazade/weaver
 issue_tracker: https://github.com/easazade/weaver/issues
 
 environment:
