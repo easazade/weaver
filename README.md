@@ -1,4 +1,4 @@
-![image](logo-banner.png)
+<img src="https://raw.githubusercontent.com/easazade/weaver/903913b10f02494d4bf12326b1e279b55d0fb80f/logo-banner.png">
 
 Dependency Injection library, rethought and tailored for Flutter. ⚡️
 
@@ -7,8 +7,8 @@ Dependency Injection library, rethought and tailored for Flutter. ⚡️
 - ✅ Register objects and get them anywhere in your code by just calling `weaver.get()`.
 - ⏳ Ability to wait for an creation of an object before it is even created and then get it as soon as it is created with `getAsync()`.
 - 🧠 Build widgets without worrying about whether dependency objects are created or not by using `RequireDependencies` widget. No more ProviderNotFoundException
-- Ability to both register an object where it can live globally or within the lifecycle of defined `Scope` that can be handled by a `ScopeHandler`.
-- Register objects to be created lazily.
+- 📦 Ability to both register an object where it can live globally or within the lifecycle of defined `Scope` that can be handled by a `ScopeHandler`.
+- 📙 Named dependency with generated quick access extension methods on `weaver.named`
 
 ## Install 📦
 
