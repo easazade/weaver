@@ -1,3 +1,7 @@
+## 0.6.1
+
+- Fix repository links in pubspec.yaml file
+
 ## 0.6.0
 - Update & Fix Documentation
 - Move flutter code into flutter_weaver
