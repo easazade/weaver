@@ -1,3 +1,7 @@
+## 0.6.2
+
+- Fix docs
+
 ## 0.6.1
 
 - Fix repository links in pubspec.yaml file
