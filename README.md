@@ -12,7 +12,7 @@ Dependency injection logic often becomes intertwined with other types of code (s
 - ⏳ Ability to wait for an creation of an object before it is even created and then get it as soon as it is created with `getAsync()`.
 - 🧠 Build widgets without worrying about whether dependency objects are created or not by using `RequireDependencies` widget. No more ProviderNotFoundException
 - 📦 Ability to both register an object where it can live globally or within the lifecycle of defined `Scope` that can be handled by a `ScopeHandler`.
-- 📙 Named dependency with generated quick access extension methods on `weaver.named`
+- 🏷️ Named dependency with generated quick access extension methods on `weaver.named`
 
 ## Install 📦
 
