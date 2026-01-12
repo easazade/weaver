@@ -34,9 +34,8 @@ class Dependency<T> {
 class DependencyKey {
   final Type type;
   final String? name;
-  final String? session;
 
-  DependencyKey({required this.type, this.name, this.session});
+  DependencyKey({required this.type, this.name});
 
   @override
   String toString() {
@@ -45,9 +44,6 @@ class DependencyKey {
     buffer.write('{Type: $type');
     if (name != null) {
       buffer.write(', name: $name');
-    }
-    if (session != null) {
-      buffer.write(', session: $session');
     }
     buffer.write('}');
 
@@ -60,9 +56,9 @@ class DependencyKey {
       return false;
     }
 
-    return name == other.name && type == other.type && session == other.session;
+    return name == other.name && type == other.type;
   }
 
   @override
-  int get hashCode => name.hashCode + type.hashCode + session.hashCode + 97;
+  int get hashCode => name.hashCode + type.hashCode + 97;
 }
