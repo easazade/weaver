@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:collection/collection.dart';
+import 'package:weaver/src/base/dependency_map.dart';
 import 'package:weaver/src/base/named.dart';
 import 'package:weaver/src/utils/log.dart';
 import 'package:weaver/src/utils/observable.dart';
@@ -16,7 +17,7 @@ final weaver = Weaver();
 class Weaver extends Observable {
   Weaver();
 
-  final _dependencies = <DependencyKey, Dependency>{};
+  final _dependencies = DependencyMap();
   final _scopeHandlers = <ScopeHandler>[];
   final _scopes = <Scope>{};
   late final named = WeaverNamed(weaverInstance: this);
@@ -38,10 +39,10 @@ class Weaver extends Observable {
       );
     }
     if (_dependencies.containsKey(dependencyKey)) {
-      final dependency = (_dependencies[dependencyKey]! as Dependency<T>);
+      final dependency = (_dependencies.find(dependencyKey)! as Dependency<T>);
       dependency.value = instance;
     } else {
-      _dependencies[dependencyKey] = Dependency<T>.value(instance);
+      _dependencies.set(dependencyKey, Dependency<T>.value(instance));
     }
     notifyObservers();
   }
@@ -49,7 +50,7 @@ class Weaver extends Observable {
   void unregister<T extends Object>({final String? name}) {
     if (T.toString() == 'Object') {
       if (name != null) {
-        _dependencies.removeWhere((final dependencyKey, final _) => dependencyKey.name == name);
+        _dependencies.removeWhere((final dependencyKey) => dependencyKey.name == name);
         notifyObservers();
       } else {
         throw WeaverException(
@@ -74,10 +75,10 @@ class Weaver extends Observable {
 
     if (type != null) {
       final dependencyKey = DependencyKey(type: type, name: name);
-      return _dependencies.containsKey(dependencyKey) && _dependencies[dependencyKey]!.hasValue;
+      return _dependencies.containsKey(dependencyKey) && _dependencies.hasValue(dependencyKey);
     }
     final dependencyKey = DependencyKey(type: T, name: name);
-    return _dependencies.containsKey(dependencyKey) && _dependencies[dependencyKey]!.hasValue;
+    return _dependencies.containsKey(dependencyKey) && _dependencies.hasValue(dependencyKey);
   }
 
   void registerLazy<T extends Object>(final T Function() callback, {final String? name}) {
@@ -92,10 +93,10 @@ class Weaver extends Observable {
     }
 
     if (_dependencies.containsKey(dependencyKey)) {
-      final dependency = (_dependencies[dependencyKey]! as Dependency<T>);
+      final dependency = (_dependencies.find(dependencyKey)! as Dependency<T>);
       dependency.lazyInstantiateCallback = callback;
     } else {
-      _dependencies[dependencyKey] = Dependency<T>.lazy(callback);
+      _dependencies.set(dependencyKey, Dependency<T>.lazy(callback));
     }
 
     notifyObservers();
@@ -104,7 +105,7 @@ class Weaver extends Observable {
   T get<T extends Object>({final String? name}) {
     final dependencyKey = DependencyKey(type: T, name: name);
     if (isRegistered<T>(name: name)) {
-      final dependency = _dependencies[dependencyKey]! as Dependency<T>;
+      final dependency = _dependencies.find(dependencyKey)! as Dependency<T>;
       if (dependency.value == null && dependency.lazyInstantiateCallback != null) {
         dependency.value = dependency.lazyInstantiateCallback!();
       }
@@ -138,10 +139,10 @@ class Weaver extends Observable {
     } else {
       final dependencyKey = DependencyKey(type: T, name: name);
       if (!_dependencies.containsKey(dependencyKey)) {
-        _dependencies[dependencyKey] = Dependency<T>.placeHolder();
+        _dependencies.set(dependencyKey, Dependency<T>.placeHolder());
       }
 
-      return (_dependencies[dependencyKey]! as Dependency<T>).completer.future;
+      return (_dependencies.find(dependencyKey)! as Dependency<T>).completer.future;
     }
   }
 
