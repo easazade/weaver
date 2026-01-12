@@ -2,6 +2,10 @@
 
 Dependency Injection library, rethought and tailored for Flutter. ⚡️
 
+## Why Weaver? 🎯
+
+Dependency injection logic often becomes intertwined with other types of code (state management, UI, etc.), making it difficult to manage and maintain. Weaver isolates dependency injection into its own architectural layer. Object registration, lifecycle management, and dependency resolution live separately from other parts of your codebase. This separation keeps your DI logic clean, focused, and independent—making your architecture more maintainable and your code easier to test.
+
 ## Features ✨
 
 - ✅ Register objects and get them anywhere in your code by just calling `weaver.get()`.
