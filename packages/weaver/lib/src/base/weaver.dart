@@ -94,6 +94,7 @@ class Weaver extends Observable {
 
     if (_dependencies.containsKey(dependencyKey)) {
       final dependency = (_dependencies.find(dependencyKey)! as Dependency<T>);
+      dependency.value = null;
       dependency.lazyInstantiateCallback = callback;
     } else {
       _dependencies.set(dependencyKey, Dependency<T>.lazy(callback));
@@ -193,6 +194,8 @@ class Weaver extends Observable {
       throw WeaverException(
         'Cannot add ScopeHandler with name ${handler.scopeName}, since one is already added',
       );
+    } else if (allowReassignment) {
+      _scopeHandlers.removeWhere((final e) => e.scopeName == handler.scopeName);
     }
 
     _scopeHandlers.add(handler);

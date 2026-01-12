@@ -16,7 +16,9 @@ class Dependency<T> {
   set value(final T? instance) {
     _value = instance;
 
-    completer.complete(instance);
+    if (instance != null) {
+      completer.complete(instance);
+    }
   }
 
   T? get value => _value;
