@@ -16,7 +16,9 @@ class Dependency<T> {
   set value(final T? instance) {
     _value = instance;
 
-    completer.complete(instance);
+    if (instance != null) {
+      completer.complete(instance);
+    }
   }
 
   T? get value => _value;
@@ -38,7 +40,17 @@ class DependencyKey {
   DependencyKey({required this.type, this.name});
 
   @override
-  String toString() => name != null ? '{Type: $type, name: $name}' : 'Type: $type';
+  String toString() {
+    final buffer = StringBuffer();
+
+    buffer.write('{Type: $type');
+    if (name != null) {
+      buffer.write(', name: $name');
+    }
+    buffer.write('}');
+
+    return buffer.toString();
+  }
 
   @override
   bool operator ==(final Object other) {
