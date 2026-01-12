@@ -56,8 +56,8 @@ RequireDependencies(
     dependencies: const [DependencyKey(type: UserBloc), DependencyKey(type: ProductsBloc)],
     builder: (context, child, isReady) {
         if (isReady) {
-            // UserBloc and ProductsBloc are used inside
-            // build method of ProductsPage
+            // When isReady is true, both UserBloc & ProductsBloc are now registered and available
+            // ProductsPage can now safely call weaver.get<UserBloc>() & weaver.get<ProductsBloc>()
             return const ProductsPage();
         } else {
             return const CircularProgressIndicator();
