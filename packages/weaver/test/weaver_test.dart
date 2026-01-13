@@ -194,6 +194,63 @@ void main() {
               expect(weaverInstance.get<String>(name: 'user'), 'Hasan');
             },
           );
+
+          test(
+            'Should register an object with a session and be able to fetch it',
+            () {
+              weaverInstance.register('ali', session: 'test-session');
+              expect(weaverInstance.isRegistered<String>(), true);
+              expect(weaverInstance.get<String>(), 'ali');
+            },
+          );
+
+          test(
+            'Should register multiple objects with the same session',
+            () {
+              weaverInstance.register('ali', session: 'test-session');
+              weaverInstance.register(10, session: 'test-session');
+              weaverInstance.register(true, session: 'test-session');
+
+              expect(weaverInstance.get<String>(), 'ali');
+              expect(weaverInstance.get<int>(), 10);
+              expect(weaverInstance.get<bool>(), true);
+            },
+          );
+
+          test(
+            'Should register objects with different sessions',
+            () {
+              weaverInstance.register('ali', session: 'session-1');
+              weaverInstance.register(10, session: 'session-2');
+              weaverInstance.register(true, session: 'session-1');
+
+              expect(weaverInstance.get<String>(), 'ali');
+              expect(weaverInstance.get<int>(), 10);
+              expect(weaverInstance.get<bool>(), true);
+            },
+          );
+
+          test(
+            'Should register objects with and without sessions',
+            () {
+              weaverInstance.register('ali', session: 'test-session');
+              weaverInstance.register(10); // no session
+              weaverInstance.register(true, session: 'test-session');
+
+              expect(weaverInstance.get<String>(), 'ali');
+              expect(weaverInstance.get<int>(), 10);
+              expect(weaverInstance.get<bool>(), true);
+            },
+          );
+
+          test(
+            'Should register named objects with a session',
+            () {
+              weaverInstance.register('ali', name: 'user', session: 'test-session');
+              expect(weaverInstance.isRegistered<String>(name: 'user'), true);
+              expect(weaverInstance.get<String>(name: 'user'), 'ali');
+            },
+          );
         });
 
         group('unregister', () {
@@ -759,6 +816,113 @@ void main() {
               weaverInstance.reset();
 
               expect(scopeHandler.disposed, true);
+            },
+          );
+        });
+
+        group('clearSession', () {
+          test(
+            'Should remove all dependencies registered under a session',
+            () {
+              weaverInstance.register('ali', session: 'test-session');
+              weaverInstance.register(10, session: 'test-session');
+              weaverInstance.register(true, session: 'test-session');
+
+              expect(weaverInstance.isRegistered<String>(), true);
+              expect(weaverInstance.isRegistered<int>(), true);
+              expect(weaverInstance.isRegistered<bool>(), true);
+
+              weaverInstance.clearSession('test-session');
+
+              expect(weaverInstance.isRegistered<String>(), false);
+              expect(weaverInstance.isRegistered<int>(), false);
+              expect(weaverInstance.isRegistered<bool>(), false);
+            },
+          );
+
+          test(
+            'Should only remove dependencies from the specified session',
+            () {
+              weaverInstance.register('ali', session: 'session-1');
+              weaverInstance.register(10, session: 'session-2');
+              weaverInstance.register(true, session: 'session-1');
+
+              weaverInstance.clearSession('session-1');
+
+              expect(weaverInstance.isRegistered<String>(), false);
+              expect(weaverInstance.isRegistered<int>(), true);
+              expect(weaverInstance.isRegistered<bool>(), false);
+              expect(weaverInstance.get<int>(), 10);
+            },
+          );
+
+          test(
+            'Should not remove dependencies registered without a session',
+            () {
+              weaverInstance.register('ali', session: 'test-session');
+              weaverInstance.register(10); // no session
+              weaverInstance.register(true, session: 'test-session');
+
+              weaverInstance.clearSession('test-session');
+
+              expect(weaverInstance.isRegistered<String>(), false);
+              expect(weaverInstance.isRegistered<int>(), true);
+              expect(weaverInstance.isRegistered<bool>(), false);
+              expect(weaverInstance.get<int>(), 10);
+            },
+          );
+
+          test(
+            'Should remove named dependencies registered under a session',
+            () {
+              weaverInstance.register('ali', name: 'user', session: 'test-session');
+              weaverInstance.register(10, name: 'count', session: 'test-session');
+              weaverInstance.register(true, session: 'test-session');
+
+              expect(weaverInstance.isRegistered<String>(name: 'user'), true);
+              expect(weaverInstance.isRegistered<int>(name: 'count'), true);
+              expect(weaverInstance.isRegistered<bool>(), true);
+
+              weaverInstance.clearSession('test-session');
+
+              expect(weaverInstance.isRegistered<String>(name: 'user'), false);
+              expect(weaverInstance.isRegistered<int>(name: 'count'), false);
+              expect(weaverInstance.isRegistered<bool>(), false);
+            },
+          );
+
+          test(
+            'Should not throw when clearing a non-existent session',
+            () {
+              weaverInstance.register('ali', session: 'test-session');
+              expect(() => weaverInstance.clearSession('non-existent-session'), returnsNormally);
+              expect(weaverInstance.isRegistered<String>(), true);
+            },
+          );
+
+          test(
+            'Should not throw when clearing a session with no dependencies',
+            () {
+              expect(() => weaverInstance.clearSession('empty-session'), returnsNormally);
+            },
+          );
+
+          test(
+            'Should work correctly with multiple sessions and partial clearing',
+            () {
+              weaverInstance.register(10, session: 'session-1');
+              weaverInstance.register(true, session: 'session-2');
+              weaverInstance.register(20.0, session: 'session-2');
+              weaverInstance.register('test'); // no session
+
+              weaverInstance.clearSession('session-1');
+
+              expect(weaverInstance.isRegistered<int>(), false);
+              expect(weaverInstance.isRegistered<bool>(), true);
+              expect(weaverInstance.isRegistered<double>(), true);
+              expect(weaverInstance.get<bool>(), true);
+              expect(weaverInstance.get<double>(), 20.0);
+              expect(weaverInstance.get<String>(), 'test');
             },
           );
         });
