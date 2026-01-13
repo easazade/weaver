@@ -12,8 +12,10 @@ import 'scope.dart';
 /// default instance of [Weaver]
 final weaver = Weaver();
 
-/// [Weaver] stand for dependency injection. It is a class responsible for
-/// managing dependencies and dependency scopes.
+/// [Weaver] is the main class of this library. Manages all dependency objects,
+/// scopes, scope-handlers, sessions and so on
+///
+/// All changes can be observer by adding an observer using [addObserver] method.
 class Weaver extends Observable {
   Weaver();
 
