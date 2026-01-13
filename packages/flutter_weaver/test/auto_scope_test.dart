@@ -317,6 +317,97 @@ void main() {
             weaver2.reset();
           },
         );
+
+        testWidgets(
+          'should make RequiredDependencies ready when AutoScope enters scope and registers dependency',
+          (final WidgetTester tester) async {
+            await weaverInstance.addScopeHandler(Test1ScopeHandler());
+
+            // First, verify dependency is not registered
+            expect(weaverInstance.isRegistered<String>(), isFalse);
+
+            await tester.pumpWidget(
+              MaterialApp(
+                home: AutoScope(
+                  weaver: weaverInstance,
+                  scope: Test1Scope(objects: ['test-value']),
+                  child: RequireDependencies(
+                    weaver: weaverInstance,
+                    dependencies: [DependencyKey(type: String)],
+                    builder: (final context, final child, final isReady) {
+                      if (isReady) {
+                        return const Text('Ready');
+                      } else {
+                        return const CircularProgressIndicator();
+                      }
+                    },
+                  ),
+                ),
+              ),
+            );
+
+            // Wait for async scope entry to complete
+            await tester.pump();
+
+            // After scope entry, dependency should be registered and RequireDependencies should show ready
+            expect(weaverInstance.isInScope(Test1Scope.scopeName), isTrue);
+            expect(weaverInstance.isRegistered<String>(), isTrue);
+            expect(weaverInstance.get<String>(), equals('test-value'));
+            expect(find.text('Ready'), findsOneWidget);
+            expect(find.byType(CircularProgressIndicator), findsNothing);
+          },
+        );
+
+        testWidgets(
+          'should make RequiredDependencies show loading again when AutoScope leaves scope and unregisters dependency',
+          (final WidgetTester tester) async {
+            await weaverInstance.addScopeHandler(Test1ScopeHandler());
+
+            await tester.pumpWidget(
+              MaterialApp(
+                home: AutoScope(
+                  weaver: weaverInstance,
+                  scope: Test1Scope(objects: ['test-value']),
+                  child: RequireDependencies(
+                    weaver: weaverInstance,
+                    dependencies: [DependencyKey(type: String)],
+                    builder: (final context, final child, final isReady) {
+                      if (isReady) {
+                        return const Text('Ready');
+                      } else {
+                        return const CircularProgressIndicator();
+                      }
+                    },
+                  ),
+                ),
+              ),
+            );
+
+            // Wait for async scope entry
+            await tester.pump();
+
+            // Verify scope is entered and RequireDependencies shows ready
+            expect(weaverInstance.isInScope(Test1Scope.scopeName), isTrue);
+            expect(weaverInstance.isRegistered<String>(), isTrue);
+            expect(find.text('Ready'), findsOneWidget);
+            expect(find.byType(CircularProgressIndicator), findsNothing);
+
+            // Manually leave the scope (simulating AutoScope disposal)
+            // This avoids the setState during disposal issue
+            await weaverInstance.leaveScope(Test1Scope.scopeName);
+
+            // Wait for async operations and widget rebuilds
+            await tester.pump();
+            await tester.pump();
+
+            // Verify scope is left and dependency is unregistered
+            expect(weaverInstance.isInScope(Test1Scope.scopeName), isFalse);
+            expect(weaverInstance.isRegistered<String>(), isFalse);
+            // RequireDependencies should show loading again since dependency is no longer registered
+            expect(find.byType(CircularProgressIndicator), findsOneWidget);
+            expect(find.text('Ready'), findsNothing);
+          },
+        );
       },
     );
   }
