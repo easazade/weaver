@@ -17,7 +17,7 @@ final weaver = Weaver();
 class Weaver extends Observable {
   Weaver();
 
-  final _dependencies = DependencyMap();
+  final _dependencyMap = DependencyMap();
   final _scopeHandlers = <ScopeHandler>[];
   final _scopes = <Scope>{};
   late final named = WeaverNamed(weaverInstance: this);
@@ -25,7 +25,7 @@ class Weaver extends Observable {
   Iterable<Scope> get scopes => _scopes;
   var allowReassignment = false;
 
-  void register<T extends Object>(final T instance, {final String? name}) {
+  void register<T extends Object>(final T instance, {final String? name, final String? session}) {
     if (T.toString() == 'Object') {
       throw WeaverException('T is Object. Cannot register object of the exact type of "Object"');
     }
@@ -38,11 +38,11 @@ class Weaver extends Observable {
         'Cannot register object of $dependencyKey because there is an instance already registered',
       );
     }
-    if (_dependencies.containsKey(dependencyKey)) {
-      final dependency = (_dependencies.find(dependencyKey)! as Dependency<T>);
+    if (_dependencyMap.containsKey(dependencyKey)) {
+      final dependency = (_dependencyMap.find(dependencyKey)! as Dependency<T>);
       dependency.value = instance;
     } else {
-      _dependencies.set(dependencyKey, Dependency<T>.value(instance));
+      _dependencyMap.set(dependencyKey, Dependency<T>.value(instance), session: session);
     }
     notifyObservers();
   }
@@ -50,7 +50,7 @@ class Weaver extends Observable {
   void unregister<T extends Object>({final String? name}) {
     if (T.toString() == 'Object') {
       if (name != null) {
-        _dependencies.removeWhere((final dependencyKey) => dependencyKey.name == name);
+        _dependencyMap.removeWhere((final dependencyKey) => dependencyKey.name == name);
         notifyObservers();
       } else {
         throw WeaverException(
@@ -62,7 +62,7 @@ class Weaver extends Observable {
     } else {
       final dependencyKey = DependencyKey(type: T, name: name);
       if (isRegistered<T>(name: name)) {
-        _dependencies.remove(dependencyKey);
+        _dependencyMap.remove(dependencyKey);
       }
       notifyObservers();
     }
@@ -70,15 +70,15 @@ class Weaver extends Observable {
 
   bool isRegistered<T extends Object>({final Type? type, final String? name}) {
     if (type == null && T.toString() == 'Object') {
-      return _dependencies.keys.firstWhereOrNull((final key) => key.name == name) != null;
+      return _dependencyMap.keys.firstWhereOrNull((final key) => key.name == name) != null;
     }
 
     if (type != null) {
       final dependencyKey = DependencyKey(type: type, name: name);
-      return _dependencies.containsKey(dependencyKey) && _dependencies.hasValue(dependencyKey);
+      return _dependencyMap.containsKey(dependencyKey) && _dependencyMap.hasValue(dependencyKey);
     }
     final dependencyKey = DependencyKey(type: T, name: name);
-    return _dependencies.containsKey(dependencyKey) && _dependencies.hasValue(dependencyKey);
+    return _dependencyMap.containsKey(dependencyKey) && _dependencyMap.hasValue(dependencyKey);
   }
 
   void registerLazy<T extends Object>(final T Function() callback, {final String? name}) {
@@ -92,12 +92,12 @@ class Weaver extends Observable {
       );
     }
 
-    if (_dependencies.containsKey(dependencyKey)) {
-      final dependency = (_dependencies.find(dependencyKey)! as Dependency<T>);
+    if (_dependencyMap.containsKey(dependencyKey)) {
+      final dependency = (_dependencyMap.find(dependencyKey)! as Dependency<T>);
       dependency.value = null;
       dependency.lazyInstantiateCallback = callback;
     } else {
-      _dependencies.set(dependencyKey, Dependency<T>.lazy(callback));
+      _dependencyMap.set(dependencyKey, Dependency<T>.lazy(callback));
     }
 
     notifyObservers();
@@ -106,7 +106,7 @@ class Weaver extends Observable {
   T get<T extends Object>({final String? name}) {
     final dependencyKey = DependencyKey(type: T, name: name);
     if (isRegistered<T>(name: name)) {
-      final dependency = _dependencies.find(dependencyKey)! as Dependency<T>;
+      final dependency = _dependencyMap.find(dependencyKey)! as Dependency<T>;
       if (dependency.value == null && dependency.lazyInstantiateCallback != null) {
         dependency.value = dependency.lazyInstantiateCallback!();
       }
@@ -115,7 +115,7 @@ class Weaver extends Observable {
     } else {
       var message = 'There is no instance of $dependencyKey registered.';
 
-      final matchKeyForOnlyType = _dependencies.entries.map((final entry) {
+      final matchKeyForOnlyType = _dependencyMap.entries.map((final entry) {
         final key = entry.key;
         final registeredValue = entry.value.value;
         if (key.type == T && key.name != null && registeredValue != null) {
@@ -139,12 +139,17 @@ class Weaver extends Observable {
       return get<T>(name: name);
     } else {
       final dependencyKey = DependencyKey(type: T, name: name);
-      if (!_dependencies.containsKey(dependencyKey)) {
-        _dependencies.set(dependencyKey, Dependency<T>.placeHolder());
+      if (!_dependencyMap.containsKey(dependencyKey)) {
+        _dependencyMap.set(dependencyKey, Dependency<T>.placeHolder());
       }
 
-      return (_dependencies.find(dependencyKey)! as Dependency<T>).completer.future;
+      return (_dependencyMap.find(dependencyKey)! as Dependency<T>).completer.future;
     }
+  }
+
+  /// Removes all dependency objects registered under given [session] name.
+  void clearSession(final String session) {
+    _dependencyMap.removeBySession(session);
   }
 
   bool isInScope(final String scopeName) => scopes.firstWhereOrNull((final e) => e.name == scopeName) != null;
@@ -221,7 +226,7 @@ class Weaver extends Observable {
   /// Deletes all registered dependencies and Removes all current scopes.
   /// Deletes and disposes all scope handlers.
   void reset() {
-    _dependencies.clear();
+    _dependencyMap.clear();
     _scopes.clear();
     for (final handler in _scopeHandlers) {
       handler.dispose();
