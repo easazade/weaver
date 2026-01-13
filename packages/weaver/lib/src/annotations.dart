@@ -21,3 +21,9 @@ class NamedDependency {
     this.autoDispose = true,
   });
 }
+
+class WeaverSession {
+  final String name;
+
+  const WeaverSession({required this.name});
+}

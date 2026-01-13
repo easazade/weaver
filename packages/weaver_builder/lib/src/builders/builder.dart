@@ -14,6 +14,7 @@ class WeaverBuilder implements Builder {
   final _dartFormatter = DartFormatter(languageVersion: DartFormatter.latestLanguageVersion);
 
   static final _weaverScopeTypeChecker = const TypeChecker.typeNamed(WeaverScope);
+  static final _weaverSessionTypeChecker = const TypeChecker.typeNamed(WeaverSession);
   static final _onEnterScopeTypeChecker = const TypeChecker.typeNamed(OnEnterScope);
   static final _onLeaveScopeTypeChecker = const TypeChecker.typeNamed(OnLeaveScope);
   static final _namedDependencyTypeChecker = const TypeChecker.typeNamed(NamedDependency);
@@ -148,7 +149,8 @@ class WeaverBuilder implements Builder {
       }
 
       // create scope-handler class
-      final scopeHandlerClassName = '${scopeName.pascalCase.replaceAll('Scope', '').replaceAll('Handler', '')}ScopeHandler';
+      final scopeHandlerClassName =
+          '${scopeName.pascalCase.replaceAll('Scope', '').replaceAll('Handler', '')}ScopeHandler';
       buffer
         ..writeln('class $scopeHandlerClassName extends ScopeHandler<$scopeArgsClassName> {')
         ..writeln('final _scopeHandlerDelegate = ${classElement.displayName}();\n');
@@ -233,8 +235,50 @@ class WeaverBuilder implements Builder {
               return weaverInstance.get<$objectType>(name: "$dependencyName");
             }
           }
+
         ''',
       );
+    }
+
+    for (final classElement in library.classes) {
+      if (!_weaverSessionTypeChecker.hasAnnotationOfExact(classElement)) continue;
+
+      // checkForDuplicateSessionNames(library.classes);
+      final annotation = _weaverSessionTypeChecker.firstAnnotationOfExact(classElement);
+      final reader = ConstantReader(annotation);
+      final rawSessionName = reader.read('name').stringValue;
+      final sessionName = rawSessionName.replaceAll('Session', '').replaceAll('session', '').replaceAll(' ', '');
+
+      if (sessionName.isEmpty) {
+        throw InvalidGenerationSource(
+            'Session name "$rawSessionName" is invalid, nor can it be "session" or "Session"');
+      }
+      final sessionClassName = '${sessionName.pascalCase}OnWeaver';
+
+      final sessionExtensionGetterName = '${sessionName.camelCase}Session';
+
+      buffer.writeln('''
+        class $sessionClassName {
+          final Weaver weaverInstance;
+          $sessionClassName(this.weaverInstance);
+
+          /// Registers given [instance] of object under given [name] under session: "$sessionName" 
+          void register<T extends Object>(final T instance, {final String? name}) {
+            weaverInstance.register<T>(instance, name: name, session: '$sessionName');
+          }
+
+          /// Removes all dependency objects registered under given [session] name.
+          void clear(){
+            weaverInstance.clearSession('$sessionName');
+          }
+        }
+      ''');
+
+      buffer.writeln('''
+        extension Session${sessionClassName}X on Weaver{
+          $sessionClassName get $sessionExtensionGetterName => $sessionClassName(this);
+        }
+      ''');
     }
 
     if (buffer.toString().isEmpty) {

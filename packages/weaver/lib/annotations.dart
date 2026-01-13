@@ -1,3 +1,3 @@
-library weaver_annotations;
+library;
 
 export 'src/annotations.dart';
