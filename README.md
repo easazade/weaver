@@ -240,6 +240,88 @@ if(weaver.myScope.isIn){
 }
 ```
 
+#### Sessions 📦
+
+While scopes manage dependencies based on application lifecycle (entering and leaving specific states), sessions provide a way to group related dependencies that are created dynamically as your code executes. Sessions are particularly useful when you have a collection of objects that belong together and need to be cleared all at once when a particular operation or workflow completes.
+
+Unlike scopes, which are tied to lifecycle events, sessions allow you to register dependencies incrementally as your application logic progresses, and then remove them collectively when they're no longer needed. This makes sessions ideal for managing temporary dependencies that are related to a specific user action, workflow, or operation.
+
+For example, imagine a shopping cart checkout workflow where state management components and services are created incrementally as the user progresses. When the user adds items to their cart and proceeds to checkout, you might need to register a `ShippingBloc` to handle shipping option selection, a `DiscountApi` to manage discount code validation, or a `CheckoutBloc` to orchestrate the checkout process. These components are related to this specific checkout session and should be cleared together when the checkout is completed or abandoned. This is where sessions shine.
+
+##### Using Sessions
+
+You can register dependencies with a session name using the `session` parameter:
+
+```dart
+// Register state management components and services under a session as workflow progresses
+// User adds item to cart and proceeds to shipping selection
+weaver.register(ShippingBloc(shippingApi: weaver.get()), session: 'checkout');
+
+// User applies a discount code
+weaver.register(DiscountApi(discountService: weaver.get()), session: 'checkout');
+
+// User proceeds to final checkout step
+weaver.register(CheckoutBloc(
+  shippingBloc: weaver.get(),
+  discountApi: weaver.get(),
+), session: 'checkout');
+
+// Later, clear all dependencies belonging to the 'checkout' session
+weaver.clearSession('checkout');
+```
+
+When you call `clearSession()`, all dependencies registered under that session name will be removed, while dependencies registered without a session or under different sessions remain untouched.
+
+```dart
+// Register some components with a session
+weaver.register(ShippingBloc(shippingApi: weaver.get()), session: 'checkout');
+weaver.register(DiscountApi(discountService: weaver.get()), session: 'checkout');
+
+// Register other dependencies without a session (or with a different session)
+weaver.register(UserProfileBloc());
+weaver.register(SettingsBloc(), session: 'user-settings');
+
+// Clear only the checkout session
+weaver.clearSession('checkout');
+
+// ShippingBloc and DiscountApi are now removed
+// UserProfileBloc and SettingsBloc remain registered
+```
+
+##### Session Extensions (Code Generation)
+
+To make working with sessions more convenient and type-safe, Weaver can generate extension methods for your sessions. This provides a cleaner API for registering and clearing session-specific dependencies.
+
+Define a session using the `@WeaverSession` annotation:
+
+```dart
+@WeaverSession(name: 'checkout')
+// ignore: unused_element
+class _CheckoutSession {}
+```
+
+After running `dart run build_runner build`, Weaver will generate extension methods that provide easy access to session operations:
+
+```dart
+// Register state management components using the generated extension
+// As the user progresses through checkout workflow
+weaver.checkoutSession.register(ShippingBloc(shippingApi: weaver.get()));
+weaver.checkoutSession.register(DiscountApi(discountService: weaver.get()));
+weaver.checkoutSession.register(CheckoutBloc(
+  shippingBloc: weaver.get(),
+  discountApi: weaver.get(),
+));
+
+// Clear all dependencies in the checkout session
+weaver.checkoutSession.clear();
+```
+
+The generated extension provides:
+- A `register<T>()` method that automatically associates dependencies with the session
+- A `clear()` method that removes all dependency objects belonging to that session
+
+This approach makes your code more readable and less error-prone, as you don't need to remember session names as strings. The generated code ensures type safety and provides a consistent API for managing session-based dependencies.
+
 ## Observer changes in dependencies 👀
 
 All registrations and un-registrations can be observed to by adding an observer on `weaver`
