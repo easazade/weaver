@@ -240,6 +240,97 @@ if(weaver.myScope.isIn){
 }
 ```
 
+#### AutoScope Widget 🎯
+
+When you need a scope tied to a specific route or widget subtree, `AutoScope` automatically manages the scope lifecycle. It enters the scope when the widget mounts and leaves it when the widget is disposed, ensuring dependencies are available only within that widget tree.
+
+This provides similar functionality to Provider's `Provider` widget—making dependencies available to a widget subtree—but with a key architectural advantage: the logic for creating and configuring those dependencies stays outside the widget tree, in your scope handler.
+
+##### Simple Example
+
+```dart
+AutoScope(
+  weaver: weaver,
+  scope: ProductDetailScope(productId: 123),
+  child: ProductDetailPage(),
+)
+```
+
+When `ProductDetailPage` mounts, `ProductDetailScope` is entered automatically. When the page is removed, the scope is left and its dependencies are cleaned up.
+
+##### Using AutoScope with RequireDependencies
+
+Combine `AutoScope` with `RequireDependencies` to create a clean separation between scope management and widget implementation. Define the scope in your route configuration, then use `RequireDependencies` in your widgets to safely access scoped dependencies.
+
+Here's how they work together: The **scope** defines which dependencies to register when entered and unregister when left. The **AutoScope widget** manages the scope lifecycle for a widget subtree. It enters the scope when mounted and leaves it when disposed, triggering dependency registration and cleanup automatically for that subtree/route. The **RequireDependencies widget** waits for those dependencies to become available before building its child, ensuring your widgets never try to access dependencies that aren't ready yet. Each component has its own responsibility and is decoupled from the others.
+
+Here's a practical example:
+
+```dart
+// Scope definition
+@WeaverScope(name: 'product-detail')
+class _ProductDetailScope {
+  @OnEnterScope()
+  Future<void> onEnter(Weaver weaver, int productId) async {
+    weaver.register(ProductBloc(productId: productId));
+    weaver.register(CommentBloc(productId: productId));
+  }
+
+  @OnLeaveScope()
+  Future<void> onLeave(Weaver weaver) async {
+    weaver.unregister<ProductBloc>();
+    weaver.unregister<CommentBloc>();
+  }
+}
+
+// Route definition
+class Routes {
+  static Route<dynamic> productDetailRoute(int productId) {
+    return MaterialPageRoute(
+      builder: (context) => AutoScope(
+        weaver: weaver,
+        scope: ProductDetailScope(productId: productId), // registers ProductBloc, CommentBloc 
+        child: const ProductDetailPage(),
+      ),
+    );
+  }
+}
+
+// Page widget
+class ProductDetailPage extends StatelessWidget {
+  const ProductDetailPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return RequireDependencies(
+      weaver: weaver,
+      dependencies: const [
+        DependencyKey(type: ProductBloc),
+        DependencyKey(type: CommentBloc),
+      ],
+      builder: (context, child, isReady) {
+        if (isReady) {
+          // ProductBloc and CommentBloc are now available
+          // They were registered when ProductDetailScope was entered
+          final productBloc = weaver.get<ProductBloc>();
+          return ProductDetailView(bloc: productBloc);
+        } else {
+          return const CircularProgressIndicator();
+        }
+      },
+    );
+  }
+}
+```
+
+With this approach, you can:
+- Automatically manage scope lifecycle based on widget mount/unmount
+- Access scoped dependencies safely using `RequireDependencies` without worrying about registration timing
+- Keep dependency creation logic separate from your widget tree—unlike Provider where you create dependencies inline, Weaver keeps this logic in scope handlers, maintaining cleaner architecture
+- Define scopes independently and compose them with any widget tree
+
+This separation keeps your dependency injection logic isolated from UI code, making your architecture more maintainable and testable.
+
 #### Sessions 📦
 
 While scopes manage dependencies based on application lifecycle (entering and leaving specific states), sessions provide a way to group related dependencies that are created dynamically as your code executes. Sessions are particularly useful when you have a collection of objects that belong together and need to be cleared all at once when a particular operation or workflow completes.
