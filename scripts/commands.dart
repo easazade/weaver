@@ -10,8 +10,8 @@ void main(List<String> arguments) async {
       'type',
       abbr: 't',
       allowed: ['major', 'minor', 'patch'],
-      mandatory: true,
-      help: 'Version bump type: major, minor, or patch (required)',
+      help:
+          'Version bump type: major, minor, or patch (optional - will prompt if not provided)',
     )
     ..addFlag(
       'help',
@@ -100,13 +100,11 @@ void main(List<String> arguments) async {
 
   if (command.name == 'bump') {
     String bumpType;
-    try {
-      bumpType = command['type'] as String;
-    } catch (e) {
-      print('Error: --type option is required');
-      print('\nUsage: versions.dart bump --type <major|minor|patch>');
-      print('Run "versions.dart bump --help" for more information.');
-      exit(1);
+    final providedType = command['type'] as String?;
+    if (providedType != null) {
+      bumpType = providedType;
+    } else {
+      bumpType = await promptForBumpType();
     }
     await bumpVersions(bumpType);
   } else if (command.name == 'show') {
@@ -118,6 +116,41 @@ void main(List<String> arguments) async {
     print('Unknown command: ${command.name}');
     print('\nAvailable commands: bump, show, publish');
     exit(1);
+  }
+}
+
+Future<String> promptForBumpType() async {
+  print('Select version bump type:');
+  print('  1. major');
+  print('  2. minor');
+  print('  3. patch');
+  print('\nEnter your choice (1-3):');
+
+  final input = stdin.readLineSync();
+  if (input == null || input.trim().isEmpty) {
+    print('No selection made. Exiting.');
+    exit(0);
+  }
+
+  final choice = input.trim();
+  switch (choice) {
+    case '1':
+      return 'major';
+    case '2':
+      return 'minor';
+    case '3':
+      return 'patch';
+    default:
+      // Try to parse as direct name
+      final lowerChoice = choice.toLowerCase();
+      if (lowerChoice == 'major' ||
+          lowerChoice == 'minor' ||
+          lowerChoice == 'patch') {
+        return lowerChoice;
+      }
+      print('Invalid choice: $choice');
+      print('Please enter 1, 2, 3, or major, minor, patch');
+      exit(1);
   }
 }
 
