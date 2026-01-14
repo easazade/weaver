@@ -1,6 +1,6 @@
 name: weaver_builder
 description: Builder for weaver package
-version: 0.6.0
+version: 0.7.1
 repository: https://github.com/easazade/weaver
 issue_tracker: https://github.com/easazade/weaver/issues
 
@@ -8,7 +8,7 @@ environment:
   sdk: ">=3.0.0 <4.0.0"
 
 dependencies:
-  weaver: ^0.6.0
+  weaver: ^0.7.1
   analyzer: ^7.7.1
   source_gen: ^3.0.0
   build: ^3.0.0

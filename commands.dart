@@ -260,6 +260,19 @@ Future<void> bumpVersions(String bumpType) async {
 
   print('Bumping $bumpType version to unified version: $newVersionString\n');
 
+  // Get all local package names for dependency checking
+  final localPackageNames = <String>{};
+  for (final package in packages) {
+    final pubspecFile = File('${package.path}/pubspec.yaml');
+    if (await pubspecFile.exists()) {
+      final content = await pubspecFile.readAsString();
+      final packageName = extractPackageName(content);
+      if (packageName != null) {
+        localPackageNames.add(packageName);
+      }
+    }
+  }
+
   // Update all packages to the unified version
   final updatedPackages = <Directory>[];
   for (final package in packages) {
@@ -270,12 +283,22 @@ Future<void> bumpVersions(String bumpType) async {
 
     final content = await pubspecFile.readAsString();
     final oldVersion = extractVersion(content);
-    final updatedContent = setVersion(content, newVersionString);
+    var updatedContent = setVersion(content, newVersionString);
+
+    // Update local dependencies
+    final dependencyUpdates = <String>[];
+    updatedContent = updateLocalDependencies(
+        updatedContent, localPackageNames, newVersionString, dependencyUpdates);
 
     if (updatedContent != content) {
       await pubspecFile.writeAsString(updatedContent);
       final packageName = package.path.split(Platform.pathSeparator).last;
       print('✓ $packageName: $oldVersion → $newVersionString');
+      if (dependencyUpdates.isNotEmpty) {
+        for (final depUpdate in dependencyUpdates) {
+          print('  → Updated dependency: $depUpdate');
+        }
+      }
       updatedPackages.add(package);
     }
   }
@@ -284,9 +307,14 @@ Future<void> bumpVersions(String bumpType) async {
   if (updatedPackages.isNotEmpty) {
     print('\nUpdating CHANGELOG.md files...');
     for (final package in updatedPackages) {
-      await updateChangelog(package, newVersionString);
       final packageName = package.path.split(Platform.pathSeparator).last;
-      print('✓ Updated CHANGELOG.md for $packageName');
+      final wasUpdated = await updateChangelog(package, newVersionString);
+      if (wasUpdated) {
+        print('✓ Updated CHANGELOG.md for $packageName');
+      } else {
+        print(
+            '⊘ Skipped CHANGELOG.md for $packageName (entry for $newVersionString already exists)');
+      }
     }
   }
 
@@ -391,7 +419,7 @@ Future<void> createGitTag(String version) async {
   }
 }
 
-Future<void> updateChangelog(Directory package, String newVersion) async {
+Future<bool> updateChangelog(Directory package, String newVersion) async {
   final changelogFile = File('${package.path}/CHANGELOG.md');
 
   String changelogContent;
@@ -401,18 +429,27 @@ Future<void> updateChangelog(Directory package, String newVersion) async {
     changelogContent = '';
   }
 
+  // Check if changelog entry for this version already exists
+  final versionHeaderRegex =
+      RegExp(r'^##\s+' + RegExp.escape(newVersion) + r'\s*$', multiLine: true);
+  if (versionHeaderRegex.hasMatch(changelogContent)) {
+    // Version entry already exists, skip updating
+    return false;
+  }
+
   // Create the new changelog entry
   final newEntry = '## $newVersion\n\n@@TODO\n\n';
 
   // If changelog is empty, just write the new entry
   if (changelogContent.isEmpty) {
     await changelogFile.writeAsString(newEntry);
-    return;
+    return true;
   }
 
   // Otherwise, prepend the new entry to the existing content
   final updatedContent = newEntry + changelogContent;
   await changelogFile.writeAsString(updatedContent);
+  return true;
 }
 
 Future<List<Directory>> getPackages() async {
@@ -488,6 +525,114 @@ String extractVersion(String pubspecContent) {
   final versionRegex = RegExp(r'^version:\s*(\d+\.\d+\.\d+)', multiLine: true);
   final match = versionRegex.firstMatch(pubspecContent);
   return match?.group(1) ?? 'unknown';
+}
+
+String? extractPackageName(String pubspecContent) {
+  final nameRegex = RegExp(r'^name:\s*(\S+)', multiLine: true);
+  final match = nameRegex.firstMatch(pubspecContent);
+  return match?.group(1);
+}
+
+String updateLocalDependencies(String pubspecContent,
+    Set<String> localPackageNames, String newVersion, List<String> updates) {
+  // Update dependencies section
+  pubspecContent = updateDependenciesSection(
+      pubspecContent, 'dependencies:', localPackageNames, newVersion, updates);
+
+  // Update dev_dependencies section
+  pubspecContent = updateDependenciesSection(pubspecContent,
+      'dev_dependencies:', localPackageNames, newVersion, updates);
+
+  return pubspecContent;
+}
+
+String updateDependenciesSection(String pubspecContent, String sectionName,
+    Set<String> localPackageNames, String newVersion, List<String> updates) {
+  final lines = pubspecContent.split('\n');
+  final updatedLines = <String>[];
+  bool inSection = false;
+  int indentLevel = -1;
+
+  for (int i = 0; i < lines.length; i++) {
+    final line = lines[i];
+    final trimmed = line.trim();
+
+    // Check if we're entering the dependencies section
+    if (trimmed.toLowerCase().startsWith(sectionName.toLowerCase())) {
+      inSection = true;
+      indentLevel = line.length - line.trimLeft().length;
+      updatedLines.add(line);
+      continue;
+    }
+
+    // Check if we've left the section (found a top-level key at same or less indentation)
+    if (inSection && trimmed.isNotEmpty) {
+      final currentIndent = line.length - line.trimLeft().length;
+      if (currentIndent <= indentLevel && trimmed.contains(':')) {
+        inSection = false;
+        indentLevel = -1;
+      }
+    }
+
+    // If we're in the section, check for local dependencies
+    if (inSection && trimmed.isNotEmpty && trimmed.contains(':')) {
+      final colonIndex = trimmed.indexOf(':');
+      if (colonIndex > 0) {
+        final packageName = trimmed.substring(0, colonIndex).trim();
+        final afterColon = trimmed.substring(colonIndex + 1).trim();
+
+        // Check if this is a local package and has a simple version constraint
+        if (localPackageNames.contains(packageName) &&
+            !afterColon.contains('\n') &&
+            !afterColon.startsWith('path:') &&
+            !afterColon.startsWith('git:') &&
+            !afterColon.startsWith('sdk:')) {
+          // Check if next line is indented (nested dependency like sdk: flutter)
+          bool isNested = false;
+          if (i + 1 < lines.length) {
+            final nextLine = lines[i + 1];
+            final nextTrimmed = nextLine.trim();
+            if (nextTrimmed.isNotEmpty &&
+                nextLine.length - nextLine.trimLeft().length >
+                    line.length - line.trimLeft().length) {
+              isNested = true;
+            }
+          }
+
+          if (!isNested) {
+            // Update the version constraint
+            final indent =
+                line.substring(0, line.length - line.trimLeft().length);
+            String newConstraint;
+
+            // Handle different version constraint formats
+            if (afterColon.isEmpty || afterColon == 'any') {
+              newConstraint = '^$newVersion';
+            } else if (afterColon.startsWith('^')) {
+              newConstraint = '^$newVersion';
+            } else if (afterColon.startsWith('>=')) {
+              newConstraint = '^$newVersion';
+            } else if (RegExp(r'^\d+\.\d+\.\d+').hasMatch(afterColon)) {
+              newConstraint = '^$newVersion';
+            } else {
+              // Unknown format, skip
+              updatedLines.add(line);
+              continue;
+            }
+
+            final oldConstraint = afterColon.isEmpty ? '(none)' : afterColon;
+            updates.add('$packageName: $oldConstraint → $newConstraint');
+            updatedLines.add('$indent$packageName: $newConstraint');
+            continue;
+          }
+        }
+      }
+    }
+
+    updatedLines.add(line);
+  }
+
+  return updatedLines.join('\n');
 }
 
 Future<void> publishPackages(bool dryRun) async {

@@ -1,3 +1,10 @@
+## 0.7.1
+
+- Update documents
+- Add session feature
+- Add ability for code generated session objects on weaver using @WeaverSession annotation
+- Clean up weaver and Fix bugs, Add more tests
+
 ## 0.6.2
 
 - Fix docs
