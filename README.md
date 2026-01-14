@@ -1,3 +1,21 @@
+<p align="center">
+  <img alt="Pub Points" src="https://img.shields.io/pub/points/weaver?style=flat-square">
+  <img alt="Pub Likes" src="https://img.shields.io/pub/likes/weaver?style=flat-square">
+  <img alt="Dart SDK" src="https://img.shields.io/badge/dart-%3E%3D3.0.0-blue?style=flat-square&logo=dart">
+  <img alt="Flutter" src="https://img.shields.io/badge/flutter-%3E%3D3.0.0-blue?style=flat-square&logo=flutter">
+  <img alt="GitHub Repo stars" src="https://img.shields.io/github/stars/easazade/weaver?style=flat-square">
+  <img alt="GitHub Forks" src="https://img.shields.io/github/forks/easazade/weaver?style=flat-square">
+  <img alt="GitHub Watchers" src="https://img.shields.io/github/watchers/easazade/weaver?style=flat-square">
+  <img alt="GitHub contributors" src="https://img.shields.io/github/contributors/easazade/weaver?style=flat-square">
+  <img alt="GitHub Issues" src="https://img.shields.io/github/issues/easazade/weaver?style=flat-square">
+  <img alt="GitHub Pull Requests" src="https://img.shields.io/github/issues-pr/easazade/weaver?style=flat-square">
+  <img alt="GitHub Last Commit" src="https://img.shields.io/github/last-commit/easazade/weaver?style=flat-square">
+  <img alt="Pub Publisher" src="https://img.shields.io/pub/publisher/weaver?style=flat-square">
+  <img alt="GitHub License" src="https://img.shields.io/github/license/easazade/weaver?style=flat-square">
+  <img alt="GitHub Language" src="https://img.shields.io/github/languages/top/easazade/weaver?style=flat-square">
+  <img alt="GitHub Code Size" src="https://img.shields.io/github/languages/code-size/easazade/weaver?style=flat-square">
+</p>
+
 <img src="https://raw.githubusercontent.com/easazade/weaver/903913b10f02494d4bf12326b1e279b55d0fb80f/logo-banner.png">
 
 Dependency Injection library, rethought and tailored for Flutter. ⚡️
