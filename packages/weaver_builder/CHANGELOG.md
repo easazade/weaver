@@ -1,3 +1,7 @@
+## 0.7.0
+
+- Add ability for code generated session objects on weaver using @WeaverSession annotation
+
 ## 0.6.0
 
 - Fix bugs in builder generating incorrect code and typos
