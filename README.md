@@ -9,7 +9,7 @@ Dependency injection logic often becomes intertwined with other types of code (s
 ## Features ✨
 
 - ✅ Register objects and get them anywhere in your code by just calling `weaver.get()`.
-- ⏳ Ability to wait for an creation of an object before it is even created and then get it as soon as it is created with `getAsync()`.
+- ⏳ Ability to wait for the creation of an object before it is even created and then get it as soon as it is created with `getAsync()`.
 - 🧠 Build widgets without worrying about whether dependency objects are created or not by using `RequireDependencies` widget. No more ProviderNotFoundException
 - 📦 Ability to both register an object where it can live globally or within the lifecycle of defined `Scope` that can be handled by a `ScopeHandler`.
 - 🏷️ Named dependency with generated quick access extension methods on `weaver.named`
@@ -34,8 +34,7 @@ Register objects 🧰
 
 ```dart
 weaver.register(UserRepository());
-weaver.registerLazy(() => UserBloc(userRepository: weaver.get())
-);
+weaver.registerLazy(() => UserBloc(userRepository: weaver.get()));
 ```
 
 And then get them anywhere in your code 🔍
@@ -113,12 +112,12 @@ Profile _adminProfile() {
 }
 ```
 
-After running `dart run builder_runner build` above code will code generate a custom getter in Weaver for this object that allows easier access.
+After running `dart run build_runner build` above code will code generate a custom getter in Weaver for this object that allows easier access.
 Also the code will be more clear while fetching and using multiple dependencies of the same type.
 
 ```dart
-final profile = weaver.named.userProfile;
-final profile = weaver.named.adminProfile;
+final userProfile = weaver.named.userProfile;
+final adminProfile = weaver.named.adminProfile;
 ```
 
 #### Scoped Dependencies 🧩
@@ -161,11 +160,11 @@ After defining the scope, it is required to first register the scope-handler cla
 weaver.addScopeHandler(AdminScopeHandler());
 ```
 
-weaver can be signaled that application has entered the scope of authenticated. That can be done using the `enterScope()` method and the `AdminScope` class defined above. when weaver enters that scope the method annotated with `@OnEnterScope`in our defined `_AdminScope` class will be called and dependencies will be registered.
+Weaver can be signaled that application has entered the scope of authenticated. That can be done using the `enterScope()` method and the `AdminScope` class defined above. When weaver enters that scope the method annotated with `@OnEnterScope` in our defined `_AdminScope` class will be called and dependencies will be registered.
 
 ```dart
   weaver.enterScope(
-    MyScope(argument1: 12, argument2: 'value'),
+    AdminScope(adminId: 24, adminAccessLevel: 'editor'),
   );
 ```
 
@@ -183,7 +182,7 @@ final isInScope = weaver.adminScope.isIn;
 To leave a scope `leaveScope()` method should be used
 
 ```dart
-weaver.leaveScope(MyScope.scopeName);
+weaver.leaveScope(AdminScope.scopeName);
 ```
 
 ##### Example: 🎯
@@ -231,7 +230,7 @@ class _MyScope {
 }
 ```
 
-To access the named dependencies generate for a scope:
+To access the named dependencies generated for a scope:
 
 ```dart
 if(weaver.myScope.isIn){
@@ -289,7 +288,7 @@ class Routes {
     return MaterialPageRoute(
       builder: (context) => AutoScope(
         weaver: weaver,
-        scope: ProductDetailScope(productId: productId), // registers ProductBloc, CommentBloc 
+        scope: ProductDetailScope(productId: productId), // registers ProductBloc, CommentBloc
         child: const ProductDetailPage(),
       ),
     );
@@ -418,11 +417,11 @@ This approach makes your code more readable and less error-prone, as you don't n
 All registrations and un-registrations can be observed to by adding an observer on `weaver`
 
 ```dart
-weaver.addObserver() {
+weaver.addObserver(() {
     if(weaver.isRegistered<UserCubit>()){
         // ...
     }
-}
+});
 ```
 
 ## Testing 🧪
