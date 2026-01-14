@@ -42,10 +42,19 @@ void main(List<String> arguments) async {
       help: 'Show this help message',
     );
 
+  final tagCommandParser = ArgParser()
+    ..addFlag(
+      'help',
+      abbr: 'h',
+      negatable: false,
+      help: 'Show this help message',
+    );
+
   final parser = ArgParser()
     ..addCommand('bump', bumpCommandParser)
     ..addCommand('show', showCommandParser)
     ..addCommand('publish', publishCommandParser)
+    ..addCommand('tag', tagCommandParser)
     ..addFlag(
       'help',
       abbr: 'h',
@@ -63,6 +72,7 @@ void main(List<String> arguments) async {
     print('  bump     Bump version for all packages');
     print('  show     Show versions for all packages');
     print('  publish  Publish packages to pub.dev');
+    print('  tag      Tag the last commit with the latest unified version');
     print('\nRun "versions.dart <command> --help" for more information.');
     exit(1);
   }
@@ -73,6 +83,7 @@ void main(List<String> arguments) async {
     print('  bump     Bump version for all packages');
     print('  show     Show versions for all packages');
     print('  publish  Publish packages to pub.dev');
+    print('  tag      Tag the last commit with the latest unified version');
     exit(0);
   }
 
@@ -82,7 +93,8 @@ void main(List<String> arguments) async {
     print('Commands:');
     print('  bump     Bump version for all packages');
     print('  show     Show versions for all packages');
-    print('  publish  Publish packages to pub.dev\n');
+    print('  publish  Publish packages to pub.dev');
+    print('  tag      Tag the last commit with the latest unified version\n');
     print('Run "versions.dart <command> --help" for more information.');
     exit(1);
   }
@@ -94,6 +106,8 @@ void main(List<String> arguments) async {
       print(showCommandParser.usage);
     } else if (command.name == 'publish') {
       print(publishCommandParser.usage);
+    } else if (command.name == 'tag') {
+      print(tagCommandParser.usage);
     }
     exit(0);
   }
@@ -112,9 +126,11 @@ void main(List<String> arguments) async {
   } else if (command.name == 'publish') {
     final dryRun = command['dry-run'] == true;
     await publishPackages(dryRun);
+  } else if (command.name == 'tag') {
+    await tagLatestVersion();
   } else {
     print('Unknown command: ${command.name}');
-    print('\nAvailable commands: bump, show, publish');
+    print('\nAvailable commands: bump, show, publish, tag');
     exit(1);
   }
 }
@@ -276,21 +292,53 @@ Future<void> bumpVersions(String bumpType) async {
 
   print(
       '\nVersion bump completed! All packages now at unified version: $newVersionString');
+}
 
-  // Ask user if they want to create a git tag
-  print(
-      '\nDo you want to create a git tag for version $newVersionString? (y/n):');
-  final input = stdin.readLineSync();
-  if (input != null &&
-      (input.toLowerCase().trim() == 'y' ||
-          input.toLowerCase().trim() == 'yes')) {
-    await createGitTag(newVersionString);
+Future<void> tagLatestVersion() async {
+  final packages = await getPackages();
+  if (packages.isEmpty) {
+    print('No packages found in packages directory');
+    exit(0);
   }
+
+  // Collect all versions and find the highest one
+  print('Collecting current versions...\n');
+  Version? highestVersion;
+
+  for (final package in packages) {
+    final pubspecFile = File('${package.path}/pubspec.yaml');
+    if (!await pubspecFile.exists()) {
+      continue;
+    }
+
+    final content = await pubspecFile.readAsString();
+    final version = extractVersion(content);
+    if (version != 'unknown') {
+      final versionObj = parseVersion(version);
+      if (versionObj != null) {
+        if (highestVersion == null ||
+            isVersionHigher(versionObj, highestVersion)) {
+          highestVersion = versionObj;
+        }
+      }
+    }
+  }
+
+  if (highestVersion == null) {
+    print('Error: No valid versions found in packages');
+    exit(1);
+  }
+
+  final versionString =
+      '${highestVersion.major}.${highestVersion.minor}.${highestVersion.patch}';
+  print('Latest unified version: $versionString\n');
+
+  await createGitTag(versionString);
 }
 
 Future<void> createGitTag(String version) async {
   final tagName = 'v$version';
-  print('\nCreating git tag: $tagName...');
+  print('Creating git tag: $tagName...');
 
   // Check if git is available
   try {
@@ -327,7 +375,7 @@ Future<void> createGitTag(String version) async {
     // Continue if check fails
   }
 
-  // Create the tag
+  // Create the tag on the last commit
   try {
     final process = await Process.run('git', ['tag', tagName]);
     if (process.exitCode == 0) {
