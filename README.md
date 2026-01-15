@@ -147,10 +147,25 @@ For example in an application it might make sense to only register some dependen
 Weaver makes it easy to define scopes that have their own dependencies. These dependencies will become available when weaver enters that scope.
 
 ```dart
-@WeaverScope(name: 'my-scope')
+@WeaverScope(name: 'admin-scope')
 class _AdminScope {
+  @OnEnterScope()
+  Future<void> onEnter(Weaver weaver, int adminId, String adminAccessLevel) async {
+    // register dependencies here
+    weaver.register(AdminBloc(id: adminId, accessLevel: adminAccessLevel));
+  }
+}
+```
 
+Then run `dart run build_runner build -d` in your code. It will generate a `AdminScopeHandler` & `AdminScope` class.
 
+**NOTE:** 
+1. In above code, in the method annotated with `@OnEnterScope` you can add as many arguments as you need after the first argument (which always should be of type `Weaver`)
+2. Unregistering of objects is automatically handled by the generated `AdminScopeHandler`. But there is the option to do it manually by adding a method annotated with `@OnLeaveScope`. If you need to perform custom disposal or actions before unregistering dependency objects registered in this scope, you can optionally add an `@OnLeaveScope` method:
+
+```dart
+@WeaverScope(name: 'admin-scope')
+class _AdminScope {
   @OnEnterScope()
   Future<void> onEnter(Weaver weaver, int adminId, String adminAccessLevel) async {
     // register dependencies here
@@ -159,16 +174,12 @@ class _AdminScope {
 
   @OnLeaveScope()
   Future<void> onLeave(Weaver weaver) async {
-    // remove registered dependencies that belong to this scope
+    // Optional: perform custom disposal or actions before unregistering
+    // If you don't add this method, Weaver automatically handles unregistering
     weaver.unregister<AdminBloc>();
   }
 }
 ```
-
-Then run `dart run build_runner build -d` in your code. It will generate a `AdminScopeHandler` & `AdminScope` class.
-**NOTES:**
-
-1. In above code, in the method annotated with `@OnEnterScope` you can add as many arguments as you need.
 
 ### Entering and Leaving scope 🚪
 
@@ -233,19 +244,21 @@ class _MyScope {
   }
 
   // A getter will be generated for this dependency
+  // Registration and unregistration are handled automatically by Weaver
   @NamedDependency(name: 'my-component')
   MyComponent1 _myComponent1() =>  MyComponent1(...);
 
   // A getter will be generated for this dependency
+  // Registration and unregistration are handled automatically by Weaver
   @NamedDependency(name: 'my-component-2')
   MyComponent2 _myComponent2() =>  MyComponent2(...);
 
-  @OnLeaveScope()
-  Future<void> onLeave(Weaver weaver) async {
-    // no need to unregister dependencies annotated with @NamedDependencies. They will be automatically
-    // unregistered by scope handler when weaver has left this scope.
-  }
+  // @OnLeaveScope is optional - if you don't add it, Weaver automatically handles unregistering
+  // all named dependencies when the scope is left
 }
+
+**Important:** All named dependencies defined in the scope, their register and unregister are always handled automatically by Weaver's generated code. You don't need to manually register or unregister them. Though there is an option to do it manually if you need to by setting `autoDispose: false`
+in `@NamedDependency` annotation
 ```
 
 To access the named dependencies generated for a scope:
@@ -291,12 +304,6 @@ class _ProductDetailScope {
   Future<void> onEnter(Weaver weaver, int productId) async {
     weaver.register(ProductBloc(productId: productId));
     weaver.register(CommentBloc(productId: productId));
-  }
-
-  @OnLeaveScope()
-  Future<void> onLeave(Weaver weaver) async {
-    weaver.unregister<ProductBloc>();
-    weaver.unregister<CommentBloc>();
   }
 }
 
