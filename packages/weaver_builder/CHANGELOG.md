@@ -1,3 +1,8 @@
+## 0.8.0
+
+- Update builder to make `@OnLeaveScope` annotation optional
+- Make unregistering of objects automatically handled by generated scope handlers
+
 ## 0.7.1
 
 - Add ability for code generated session objects on weaver using @WeaverSession annotation

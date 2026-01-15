@@ -1,3 +1,7 @@
+## 0.8.0
+
+- Bump [weaver](https://pub.dev/packages/weaver) to 0.8.0
+
 ## 0.7.1
 
 - Update documents

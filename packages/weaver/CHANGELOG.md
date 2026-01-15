@@ -1,3 +1,9 @@
+## 0.8.0
+
+- Add feature to make @OnLeaveScope annotation optional & make generated scope handlers to automatically unregister objects when scope is left
+- Fix bugs in unregister & isRegistered methods & add more tests
+- Fix errors, typos in and update README
+
 ## 0.7.1
 
 - Update documents
