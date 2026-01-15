@@ -9,6 +9,8 @@ const namedKey1 = 'named-key-1';
 const namedValue1 = 'named-value-1';
 const namedKey2 = 'named-key-2';
 const namedValue2 = 'named-value-2';
+const namedKey3 = 'named-key-3';
+const namedValue3 = 'named-value-3';
 
 @WeaverScope(name: 'generated-test')
 class _GeneratedTestScope {
@@ -35,10 +37,22 @@ class _GeneratedTestScope {
   }
 }
 
+@WeaverScope(name: 'generated-test-2')
+class _GeneratedTestScope2 {
+  @OnEnterScope()
+  Future<void> onEnterScope(final Weaver weaver) async {
+    weaver.register<bool>(true);
+  }
+
+  @NamedDependency(name: namedKey3)
+  String _namedValue3() => namedValue3;
+}
+
 void main() {
   setUp(() async {
     weaver.allowReassignment = true;
-    await weaver.addScopeHandler(GeneratedTestScopeHandler());
+    await weaver.addScopeHandler(GeneratedTestScopeHandler(weaver));
+    await weaver.addScopeHandler(GeneratedTest2ScopeHandler(weaver));
   });
 
   tearDown(() async {
@@ -93,4 +107,24 @@ void main() {
     // should not be unregistered after leaving scope since this named value has set autoDispose to false
     expect(weaver.isRegistered(name: namedKey2), isTrue);
   });
+
+  test(
+    'Should create auto unregister values registered when no custom method is annotated with @OnLeaveScope'
+    'inside the scope class defined ',
+    () async {
+      expect(weaver.isRegistered(name: namedKey3), isFalse);
+      expect(weaver.isRegistered<bool>(), isFalse);
+
+      await weaver.enterScope(GeneratedTest2Scope());
+
+      expect(weaver.isRegistered<bool>(), isTrue);
+      expect(weaver.isRegistered(name: namedKey3), isTrue);
+      expect(weaver.generatedTest2.namedKey3, namedValue3);
+
+      await weaver.leaveScope(GeneratedTest2Scope.scopeName);
+
+      expect(weaver.isRegistered<bool>(), false);
+      expect(weaver.isRegistered(name: namedKey3), isFalse);
+    },
+  );
 }

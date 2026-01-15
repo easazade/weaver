@@ -1,10 +1,10 @@
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:build/build.dart';
+import 'package:collection/collection.dart';
 import 'package:dart_style/dart_style.dart';
 import 'package:recase/recase.dart';
 import 'package:source_gen/source_gen.dart';
-// ignore: unused_import
 import 'package:weaver/annotations.dart';
 import 'package:weaver_builder/src/builders/validate_annotations.dart';
 import 'package:weaver_builder/src/utils/extensions.dart';
@@ -42,7 +42,8 @@ class WeaverBuilder implements Builder {
 
       final methods = classElement.methods2;
       final onEnterScopeMethod = methods.firstWhere((method) => _onEnterScopeTypeChecker.hasAnnotationOfExact(method));
-      final onLeaveScopeMethod = methods.firstWhere((method) => _onLeaveScopeTypeChecker.hasAnnotationOfExact(method));
+      final onLeaveScopeMethod =
+          methods.firstWhereOrNull((method) => _onLeaveScopeTypeChecker.hasAnnotationOfExact(method));
       final params = onEnterScopeMethod.formalParameters;
 
       final reader = ConstantReader(weaverScopeAnnotation);
@@ -151,15 +152,16 @@ class WeaverBuilder implements Builder {
       // create scope-handler class
       final scopeHandlerClassName =
           '${scopeName.pascalCase.replaceAll('Scope', '').replaceAll('Handler', '')}ScopeHandler';
-      buffer
-        ..writeln('class $scopeHandlerClassName extends ScopeHandler<$scopeArgsClassName> {')
-        ..writeln('final _scopeHandlerDelegate = ${classElement.displayName}();\n');
-
-      buffer
-        ..writeln('@override')
-        ..writeln("String get scopeName => '$scopeName';\n");
 
       buffer.writeln('''
+        class $scopeHandlerClassName extends ScopeHandler<$scopeArgsClassName> {
+        $scopeHandlerClassName(super.weaver);
+
+        final _scopeHandlerDelegate = ${classElement.displayName}();
+
+        @override
+        String get scopeName => '$scopeName';
+
         @override
         Future<void> onEnterScope(Weaver weaver, $scopeArgsClassName args) async {
           ${namedDependenciesAutoRegisterPart.toString()}
@@ -167,15 +169,27 @@ class WeaverBuilder implements Builder {
         }  
       ''');
 
-      buffer.writeln('''
+      if (onLeaveScopeMethod != null) {
+        buffer.writeln('''
           @override
           Future<void> onLeaveScope(Weaver weaver) async {
             await _scopeHandlerDelegate.${onLeaveScopeMethod.displayName}(weaver);
             ${namedDependenciesAutoUnRegisterPart.toString()}
           }\n 
-      ''');
+        ''');
+      } else {
+        buffer.writeln('''
+          @override
+          Future<void> onLeaveScope(Weaver weaver) async {
+            // no methods are annotated with @OnLeaveScope in the scope handler delegate for 
+            // custom disposal and unregistering of the dependencies registered for this scope
+            (weaver as ScopeHandlerWeaverProxy).unregisterDependencies();
+            ${namedDependenciesAutoUnRegisterPart.toString()}
+          }
+        ''');
+      }
 
-      buffer.writeln('}');
+      buffer.writeln('}'); // end of scope handler class
 
       // Create extension class on Weaver
 
@@ -183,11 +197,11 @@ class WeaverBuilder implements Builder {
       buffer.writeln(
         '''
         extension ${scopeExtensionClassName}AddedToWeaver on Weaver {
-          $scopeExtensionClassName get ${scopeName.camelCase} => $scopeExtensionClassName(this);
+          $scopeExtensionClassName get ${scopeName.camelCase} => $scopeExtensionClassName(ScopeHandlerWeaverProxy(this));
         }
 
         class $scopeExtensionClassName {
-          final Weaver weaverInstance;
+          final ScopeHandlerWeaverProxy weaverInstance;
 
           final _scopeHandlerDelegate = ${classElement.displayName}();
           

@@ -6,7 +6,8 @@ class TestScope extends Scope<String> {
 }
 
 class TestScopeHandler extends ScopeHandler<String> {
-  TestScopeHandler({
+  TestScopeHandler(
+    super.weaver, {
     this.stringObject,
     this.intObject,
     this.doubleObject,

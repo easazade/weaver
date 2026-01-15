@@ -25,7 +25,7 @@ void main() {
         testWidgets(
           'should enter scope when widget is mounted',
           (final WidgetTester tester) async {
-            await weaverInstance.addScopeHandler(Test1ScopeHandler());
+            await weaverInstance.addScopeHandler(Test1ScopeHandler(weaverInstance));
 
             await tester.pumpWidget(
               MaterialApp(
@@ -52,7 +52,7 @@ void main() {
         testWidgets(
           'should leave scope when widget is disposed',
           (final WidgetTester tester) async {
-            await weaverInstance.addScopeHandler(Test1ScopeHandler());
+            await weaverInstance.addScopeHandler(Test1ScopeHandler(weaverInstance));
 
             await tester.pumpWidget(
               MaterialApp(
@@ -85,7 +85,7 @@ void main() {
         testWidgets(
           'All registered objects should be registered and available',
           (final WidgetTester tester) async {
-            await weaverInstance.addScopeHandler(Test1ScopeHandler());
+            await weaverInstance.addScopeHandler(Test1ScopeHandler(weaverInstance));
 
             await tester.pumpWidget(
               MaterialApp(
@@ -115,7 +115,7 @@ void main() {
         testWidgets(
           'should unregister all objects when scope is left',
           (final WidgetTester tester) async {
-            await weaverInstance.addScopeHandler(Test1ScopeHandler());
+            await weaverInstance.addScopeHandler(Test1ScopeHandler(weaverInstance));
 
             await tester.pumpWidget(
               MaterialApp(
@@ -147,7 +147,7 @@ void main() {
         testWidgets(
           'should render child widget correctly',
           (final WidgetTester tester) async {
-            await weaverInstance.addScopeHandler(Test1ScopeHandler());
+            await weaverInstance.addScopeHandler(Test1ScopeHandler(weaverInstance));
 
             const childWidget = Text('Child Widget Content');
 
@@ -168,8 +168,8 @@ void main() {
         testWidgets(
           'should handle nested AutoScope widgets with different scopes',
           (final WidgetTester tester) async {
-            await weaverInstance.addScopeHandler(Test1ScopeHandler());
-            await weaverInstance.addScopeHandler(Test2ScopeHandler());
+            await weaverInstance.addScopeHandler(Test1ScopeHandler(weaverInstance));
+            await weaverInstance.addScopeHandler(Test2ScopeHandler(weaverInstance));
 
             await tester.pumpWidget(
               MaterialApp(
@@ -204,7 +204,7 @@ void main() {
         testWidgets(
           'should handle scope re-entry when widget is rebuilt',
           (final WidgetTester tester) async {
-            await weaverInstance.addScopeHandler(Test1ScopeHandler());
+            await weaverInstance.addScopeHandler(Test1ScopeHandler(weaverInstance));
 
             await tester.pumpWidget(
               MaterialApp(
@@ -250,7 +250,7 @@ void main() {
         testWidgets(
           'should enter scope but if scope does not register any object, none should be registered.',
           (final WidgetTester tester) async {
-            await weaverInstance.addScopeHandler(Test1ScopeHandler());
+            await weaverInstance.addScopeHandler(Test1ScopeHandler(weaverInstance));
 
             await tester.pumpWidget(
               MaterialApp(
@@ -278,8 +278,8 @@ void main() {
             final weaver1 = Weaver();
             final weaver2 = Weaver();
 
-            await weaver1.addScopeHandler(Test1ScopeHandler());
-            await weaver2.addScopeHandler(Test1ScopeHandler());
+            await weaver1.addScopeHandler(Test1ScopeHandler(weaver1));
+            await weaver2.addScopeHandler(Test1ScopeHandler(weaver2));
 
             await tester.pumpWidget(
               MaterialApp(
@@ -321,7 +321,7 @@ void main() {
         testWidgets(
           'should make RequiredDependencies ready when AutoScope enters scope and registers dependency',
           (final WidgetTester tester) async {
-            await weaverInstance.addScopeHandler(Test1ScopeHandler());
+            await weaverInstance.addScopeHandler(Test1ScopeHandler(weaverInstance));
 
             // First, verify dependency is not registered
             expect(weaverInstance.isRegistered<String>(), isFalse);
@@ -361,7 +361,7 @@ void main() {
         testWidgets(
           'should make RequiredDependencies show loading again when AutoScope leaves scope and unregisters dependency',
           (final WidgetTester tester) async {
-            await weaverInstance.addScopeHandler(Test1ScopeHandler());
+            await weaverInstance.addScopeHandler(Test1ScopeHandler(weaverInstance));
 
             await tester.pumpWidget(
               MaterialApp(

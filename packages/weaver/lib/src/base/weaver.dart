@@ -187,7 +187,7 @@ class Weaver extends Observable {
 
     // make scope handlers to handle the change in scopes (new scope added)
     for (final scopeHandler in _scopeHandlers) {
-      await scopeHandler.handle(this);
+      await scopeHandler.handle();
     }
 
     notifyObservers();
@@ -198,7 +198,7 @@ class Weaver extends Observable {
       _scopes.removeWhere((final e) => e.name == scopeName);
       // make scope handlers to handle the change in scopes
       for (final scopeHandler in _scopeHandlers) {
-        await scopeHandler.handle(this);
+        await scopeHandler.handle();
       }
       notifyObservers();
     }
@@ -217,7 +217,7 @@ class Weaver extends Observable {
     }
 
     _scopeHandlers.add(handler);
-    await handler.handle(this);
+    await handler.handle();
   }
 
   /// Removes the [ScopeHandler] instance that handles the scope with name [scopeName].

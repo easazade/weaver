@@ -710,6 +710,7 @@ void main() {
             'its dependencies should be registered and available to fetch',
             () async {
               final scopeHandler = TestScopeHandler(
+                weaverInstance,
                 stringObject: 'ali',
                 intObject: 9,
               );
@@ -727,6 +728,7 @@ void main() {
             'Should not allow registering ScopeHandlers with duplicate names',
             () {
               final scopeHandler = TestScopeHandler(
+                weaverInstance,
                 stringObject: 'ali',
                 intObject: 9,
                 scopeName: 'duplicate-scope-name',
@@ -735,6 +737,7 @@ void main() {
               weaverInstance.addScopeHandler(scopeHandler);
 
               final scopeHandler2 = TestScopeHandler(
+                weaverInstance,
                 intObject: 90,
                 scopeName: 'duplicate-scope-name',
               );
@@ -748,6 +751,7 @@ void main() {
             'have the same name but different argument types',
             () async {
               final scopeHandler = TestScopeHandler(
+                weaverInstance,
                 stringObject: 'ali',
                 intObject: 9,
               );
@@ -770,12 +774,14 @@ void main() {
               weaverInstance.allowReassignment = true;
 
               final scopeHandler1 = TestScopeHandler(
+                weaverInstance,
                 stringObject: 'ali',
                 intObject: 9,
                 scopeName: 'test',
               );
 
               final scopeHandler2 = TestScopeHandler(
+                weaverInstance,
                 stringObject: 'Hasan',
                 intObject: 90,
                 scopeName: 'test',
@@ -799,6 +805,7 @@ void main() {
             'its dependencies should not be available to fetch anymore',
             () async {
               final scopeHandler = TestScopeHandler(
+                weaverInstance,
                 stringObject: 'ali',
                 intObject: 9,
               );
@@ -844,6 +851,7 @@ void main() {
             'Should throw an exception when entering the same scope twice',
             () async {
               final scopeHandler = TestScopeHandler(
+                weaverInstance,
                 stringObject: 'ali',
                 intObject: 9,
               );
@@ -864,6 +872,7 @@ void main() {
             'Should successfully enter scope when handler is registered',
             () async {
               final scopeHandler = TestScopeHandler(
+                weaverInstance,
                 stringObject: 'ali',
                 intObject: 9,
               );
@@ -883,6 +892,7 @@ void main() {
             'And unregister after weaver leaves the scope',
             () async {
               final scopeHandler = TestScopeHandler(
+                weaverInstance,
                 stringObject: 'ali',
                 intObject: 9,
               );
@@ -919,6 +929,7 @@ void main() {
             'Should not throw when leaving the same scope multiple times',
             () async {
               final scopeHandler = TestScopeHandler(
+                weaverInstance,
                 stringObject: 'ali',
                 intObject: 9,
               );
@@ -948,6 +959,7 @@ void main() {
             'Should return true when scope is entered',
             () async {
               final scopeHandler = TestScopeHandler(
+                weaverInstance,
                 stringObject: 'ali',
                 intObject: 9,
               );
@@ -964,6 +976,7 @@ void main() {
             'Should return false after leaving scope',
             () async {
               final scopeHandler = TestScopeHandler(
+                weaverInstance,
                 stringObject: 'ali',
                 intObject: 9,
               );
@@ -991,11 +1004,13 @@ void main() {
             'Should return all entered scopes',
             () async {
               final scopeHandler1 = TestScopeHandler(
+                weaverInstance,
                 stringObject: 'ali',
                 intObject: 9,
                 scopeName: 'test',
               );
               final scopeHandler2 = TestScopeHandler(
+                weaverInstance,
                 doubleObject: 90.0,
                 boolObject: true,
                 scopeName: 'another-scope',
@@ -1041,6 +1056,7 @@ void main() {
             'Should clear all scopes',
             () async {
               final scopeHandler = TestScopeHandler(
+                weaverInstance,
                 stringObject: 'ali',
                 intObject: 9,
               );
@@ -1061,6 +1077,7 @@ void main() {
             'Should remove and dispose all scope handlers',
             () async {
               final scopeHandler = DisposableTestScopeHandler(
+                weaverInstance,
                 stringObject: 'ali',
                 intObject: 9,
               );
@@ -1203,7 +1220,8 @@ class AnotherTestScope extends Scope<String> {
 }
 
 class DisposableTestScopeHandler extends TestScopeHandler {
-  DisposableTestScopeHandler({
+  DisposableTestScopeHandler(
+    super.weaver, {
     super.stringObject,
     super.intObject,
     super.doubleObject,

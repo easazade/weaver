@@ -29,27 +29,6 @@ void checkForDuplicateScopeNames(List<ClassElement2> classes) {
   }
 }
 
-// /// Checks if the annotated classes with [WeaverSession] annotation have duplicate names
-// void checkForDuplicateSessionNames(List<ClassElement2> classes) {
-//   final weaverSessionTypeChecker = const TypeChecker.typeNamed(WeaverSession);
-//   final annotatedClasses = classes.where((cls) => weaverSessionTypeChecker.hasAnnotationOfExact(cls));
-//   if (annotatedClasses.isNotEmpty) {
-//     final sessionNamesList = annotatedClasses.map((annotatedClass) {
-//       final reader = ConstantReader(weaverSessionTypeChecker.firstAnnotationOfExact(annotatedClass));
-//       final sessionName = reader.read('name').stringValue;
-//       return sessionName;
-//     });
-
-//     // there should be one session name per annotated class
-//     if (sessionNamesList.toSet().length != annotatedClasses.length) {
-//       throw InvalidGenerationSource(
-//         '❌ classes annotated with @WeaverScope(name: "name") annotation cannot have the same annotation name value. '
-//         'Here are all the name values defined in all classes annotated with @WeaverScope: $sessionNamesList',
-//       );
-//     }
-//   }
-// }
-
 /// Checks if the annotated classes with [NamedDependency] annotation have duplicate names
 void checkForDuplicateNamedDependencyNames(List<ExecutableElement2> classes) {
   final namedDependencyTypeChecker = const TypeChecker.typeNamed(NamedDependency);
@@ -97,7 +76,7 @@ void validateSourceSyntaxOnWeaverScopeClass(ClassElement2 classElement) {
     (method) => _onLeaveScopeTypeChecker.hasAnnotationOfExact(method),
   );
 
-  if (onEnterScopeMethod == null || onLeaveScopeMethod == null) {
+  if (onEnterScopeMethod == null) {
     throw InvalidGenerationSource(
       '''-------------------------------------------------------------------------------------
 ❌
@@ -114,6 +93,10 @@ class MyScope {
     weaver.register(MyDependency(arg1, arg2));
   }
 
+  // OPTIONAL: @OnLeaveScope is optional and should only be used when it is required 
+  // to dispose or do something before unregistering the dependency objects. Otherwise when omitted 
+  // weaver will automatically unregister the dependency objects that have been registered in method
+  // annotated with onEnterScope.
   @OnLeaveScope()
   Future<void> onLeaveScope(Weaver weaver) async {
     weaver.unregister<MyDependency>();
@@ -154,10 +137,11 @@ class MyScope {
 
   // validating the syntax of @onLeaveScope method
 
-  final onLeaveMethodParamType = onLeaveScopeMethod.formalParameters.first.type.element3?.displayName;
-  if (onLeaveScopeMethod.formalParameters.length != 1 || onLeaveMethodParamType != 'Weaver') {
-    throw InvalidGenerationSource(
-      '''❌ method onLeaveScope() should have a single argument of type Weaver. 
+  if (onLeaveScopeMethod != null) {
+    final onLeaveMethodParamType = onLeaveScopeMethod.formalParameters.first.type.element3?.displayName;
+    if (onLeaveScopeMethod.formalParameters.length != 1 || onLeaveMethodParamType != 'Weaver') {
+      throw InvalidGenerationSource(
+        '''❌ method onLeaveScope() should have a single argument of type Weaver. 
 
 Example: 
 
@@ -167,7 +151,8 @@ Future<void> onLeaveScope(Weaver weaver) async {
 }
 
         ''',
-    );
+      );
+    }
   }
 }
 

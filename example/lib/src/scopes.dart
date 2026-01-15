@@ -45,6 +45,17 @@ class _ShoppingScope {
   }
 }
 
+@WeaverScope(name: 'edit')
+class _EditScope {
+  @OnEnterScope()
+  Future<void> onEnterScope(Weaver weaver) async {
+    weaver.register('Ali');
+    weaver.register('Reza', name: 'admin');
+    weaver.register<int>(2);
+    weaver.register<double>(3.14);
+  }
+}
+
 @NamedDependency(name: 'user-id')
 String _userId() => '123677283';
 

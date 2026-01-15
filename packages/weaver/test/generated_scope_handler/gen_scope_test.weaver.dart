@@ -21,6 +21,8 @@ class GeneratedTestScopeArgs {
 }
 
 class GeneratedTestScopeHandler extends ScopeHandler<GeneratedTestScopeArgs> {
+  GeneratedTestScopeHandler(super.weaver);
+
   final _scopeHandlerDelegate = _GeneratedTestScope();
 
   @override
@@ -53,11 +55,11 @@ class GeneratedTestScopeHandler extends ScopeHandler<GeneratedTestScopeArgs> {
 
 extension GeneratedTestScopeOnWeaverAddedToWeaver on Weaver {
   GeneratedTestScopeOnWeaver get generatedTest =>
-      GeneratedTestScopeOnWeaver(this);
+      GeneratedTestScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
 class GeneratedTestScopeOnWeaver {
-  final Weaver weaverInstance;
+  final ScopeHandlerWeaverProxy weaverInstance;
 
   final _scopeHandlerDelegate = _GeneratedTestScope();
 
@@ -69,4 +71,56 @@ class GeneratedTestScopeOnWeaver {
 
   String get namedKey1 => weaverInstance.get<String>(name: "named-key-1");
   String get namedKey2 => weaverInstance.get<String>(name: "named-key-2");
+}
+
+class GeneratedTest2Scope extends Scope<void> {
+  static const String scopeName = 'generated-test-2';
+
+  GeneratedTest2Scope() : super(name: "generated-test-2", args: null);
+}
+
+class GeneratedTest2ScopeHandler extends ScopeHandler<void> {
+  GeneratedTest2ScopeHandler(super.weaver);
+
+  final _scopeHandlerDelegate = _GeneratedTestScope2();
+
+  @override
+  String get scopeName => 'generated-test-2';
+
+  @override
+  Future<void> onEnterScope(Weaver weaver, void args) async {
+    weaver.register<String>(
+      _scopeHandlerDelegate._namedValue3(),
+      name: "named-key-3",
+    );
+
+    await _scopeHandlerDelegate.onEnterScope(weaver);
+  }
+
+  @override
+  Future<void> onLeaveScope(Weaver weaver) async {
+    // no methods are annotated with @OnLeaveScope in the scope handler delegate for
+    // custom disposal and unregistering of the dependencies registered for this scope
+    (weaver as ScopeHandlerWeaverProxy).unregisterDependencies();
+    weaver.unregister<String>(name: "named-key-3");
+  }
+}
+
+extension GeneratedTest2ScopeOnWeaverAddedToWeaver on Weaver {
+  GeneratedTest2ScopeOnWeaver get generatedTest2 =>
+      GeneratedTest2ScopeOnWeaver(ScopeHandlerWeaverProxy(this));
+}
+
+class GeneratedTest2ScopeOnWeaver {
+  final ScopeHandlerWeaverProxy weaverInstance;
+
+  final _scopeHandlerDelegate = _GeneratedTestScope2();
+
+  GeneratedTest2ScopeOnWeaver(this.weaverInstance);
+
+  bool get isIn => weaverInstance.scopes
+      .where((scope) => scope.name == "generated-test-2")
+      .isNotEmpty;
+
+  String get namedKey3 => weaverInstance.get<String>(name: "named-key-3");
 }

@@ -17,6 +17,8 @@ class Test1ScopeArgs {
 }
 
 class Test1ScopeHandler extends ScopeHandler<Test1ScopeArgs> {
+  Test1ScopeHandler(super.weaver);
+
   final _scopeHandlerDelegate = _TestScope1();
 
   @override
@@ -34,11 +36,12 @@ class Test1ScopeHandler extends ScopeHandler<Test1ScopeArgs> {
 }
 
 extension Test1ScopeOnWeaverAddedToWeaver on Weaver {
-  Test1ScopeOnWeaver get testScope1 => Test1ScopeOnWeaver(this);
+  Test1ScopeOnWeaver get testScope1 =>
+      Test1ScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
 class Test1ScopeOnWeaver {
-  final Weaver weaverInstance;
+  final ScopeHandlerWeaverProxy weaverInstance;
 
   final _scopeHandlerDelegate = _TestScope1();
 
@@ -63,6 +66,8 @@ class Test2ScopeArgs {
 }
 
 class Test2ScopeHandler extends ScopeHandler<Test2ScopeArgs> {
+  Test2ScopeHandler(super.weaver);
+
   final _scopeHandlerDelegate = _TestScope2();
 
   @override
@@ -80,11 +85,12 @@ class Test2ScopeHandler extends ScopeHandler<Test2ScopeArgs> {
 }
 
 extension Test2ScopeOnWeaverAddedToWeaver on Weaver {
-  Test2ScopeOnWeaver get testScope2 => Test2ScopeOnWeaver(this);
+  Test2ScopeOnWeaver get testScope2 =>
+      Test2ScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
 class Test2ScopeOnWeaver {
-  final Weaver weaverInstance;
+  final ScopeHandlerWeaverProxy weaverInstance;
 
   final _scopeHandlerDelegate = _TestScope2();
 

@@ -1,5 +1,4 @@
 import 'package:collection/collection.dart';
-import 'package:weaver/src/utils/scope_change_stream.dart';
 import 'package:weaver/weaver.dart';
 
 enum ScopeState { entered, left }
@@ -32,21 +31,15 @@ abstract class Scope<T> {
 /// It will be called by [Weaver] class when this [ScopeHandler] instance is being
 /// removed from [Weaver] class.
 abstract class ScopeHandler<T> {
-  ScopeHandler() {
-    scopeChangeStream?.stream.listen((final scopeState) {
-      if(scopeState != this.scopeState){
-        
-      }
-    });
-  }
+  final ScopeHandlerWeaverProxy weaver;
+
+  ScopeHandler(final Weaver weaver) : weaver = ScopeHandlerWeaverProxy(weaver);
 
   String get scopeName;
 
-  ScopeChangeStream? scopeChangeStream;
-
   var scopeState = ScopeState.left;
 
-  Future<void> handle(final Weaver weaver) async {
+  Future<void> handle() async {
     final scope = weaver.scopes.firstWhereOrNull((final scope) => scope.name == scopeName);
     final isInScope = scope != null;
 

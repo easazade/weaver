@@ -18,6 +18,8 @@ class AdminScopeArgs {
 }
 
 class AdminScopeHandler extends ScopeHandler<AdminScopeArgs> {
+  AdminScopeHandler(super.weaver);
+
   final _scopeHandlerDelegate = _AdminScope();
 
   @override
@@ -41,11 +43,12 @@ class AdminScopeHandler extends ScopeHandler<AdminScopeArgs> {
 }
 
 extension AdminScopeOnWeaverAddedToWeaver on Weaver {
-  AdminScopeOnWeaver get adminScope => AdminScopeOnWeaver(this);
+  AdminScopeOnWeaver get adminScope =>
+      AdminScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
 class AdminScopeOnWeaver {
-  final Weaver weaverInstance;
+  final ScopeHandlerWeaverProxy weaverInstance;
 
   final _scopeHandlerDelegate = _AdminScope();
 
@@ -72,6 +75,8 @@ class AuthScopeArgs {
 }
 
 class AuthScopeHandler extends ScopeHandler<AuthScopeArgs> {
+  AuthScopeHandler(super.weaver);
+
   final _scopeHandlerDelegate = _AuthScope();
 
   @override
@@ -89,11 +94,12 @@ class AuthScopeHandler extends ScopeHandler<AuthScopeArgs> {
 }
 
 extension AuthScopeOnWeaverAddedToWeaver on Weaver {
-  AuthScopeOnWeaver get authScope => AuthScopeOnWeaver(this);
+  AuthScopeOnWeaver get authScope =>
+      AuthScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
 class AuthScopeOnWeaver {
-  final Weaver weaverInstance;
+  final ScopeHandlerWeaverProxy weaverInstance;
 
   final _scopeHandlerDelegate = _AuthScope();
 
@@ -111,6 +117,8 @@ class ShoppingScope extends Scope<void> {
 }
 
 class ShoppingScopeHandler extends ScopeHandler<void> {
+  ShoppingScopeHandler(super.weaver);
+
   final _scopeHandlerDelegate = _ShoppingScope();
 
   @override
@@ -128,11 +136,12 @@ class ShoppingScopeHandler extends ScopeHandler<void> {
 }
 
 extension ShoppingScopeOnWeaverAddedToWeaver on Weaver {
-  ShoppingScopeOnWeaver get shopping => ShoppingScopeOnWeaver(this);
+  ShoppingScopeOnWeaver get shopping =>
+      ShoppingScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
 class ShoppingScopeOnWeaver {
-  final Weaver weaverInstance;
+  final ScopeHandlerWeaverProxy weaverInstance;
 
   final _scopeHandlerDelegate = _ShoppingScope();
 
@@ -141,6 +150,49 @@ class ShoppingScopeOnWeaver {
   bool get isIn => weaverInstance.scopes
       .where((scope) => scope.name == "shopping")
       .isNotEmpty;
+}
+
+class EditScope extends Scope<void> {
+  static const String scopeName = 'edit';
+
+  EditScope() : super(name: "edit", args: null);
+}
+
+class EditScopeHandler extends ScopeHandler<void> {
+  EditScopeHandler(super.weaver);
+
+  final _scopeHandlerDelegate = _EditScope();
+
+  @override
+  String get scopeName => 'edit';
+
+  @override
+  Future<void> onEnterScope(Weaver weaver, void args) async {
+    await _scopeHandlerDelegate.onEnterScope(weaver);
+  }
+
+  @override
+  Future<void> onLeaveScope(Weaver weaver) async {
+    // no methods are annotated with @OnLeaveScope in the scope handler delegate for
+    // custom disposal and unregistering of the dependencies registered for this scope
+    (weaver as ScopeHandlerWeaverProxy).unregisterDependencies();
+  }
+}
+
+extension EditScopeOnWeaverAddedToWeaver on Weaver {
+  EditScopeOnWeaver get edit =>
+      EditScopeOnWeaver(ScopeHandlerWeaverProxy(this));
+}
+
+class EditScopeOnWeaver {
+  final ScopeHandlerWeaverProxy weaverInstance;
+
+  final _scopeHandlerDelegate = _EditScope();
+
+  EditScopeOnWeaver(this.weaverInstance);
+
+  bool get isIn =>
+      weaverInstance.scopes.where((scope) => scope.name == "edit").isNotEmpty;
 }
 
 extension NamedDependencyUserIdX on WeaverNamed {
