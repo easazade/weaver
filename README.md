@@ -63,7 +63,7 @@ final userBloc = weaver.get<UserBloc>();
 
 ## Usage 🧭
 
-#### Safely build widget 🛠️
+### Safely build widget 🛠️
 
 `RequireDependencies` widget allows specifying the type of dependency objects that are required, then build the widget as soon as those dependency objects are created. It's not like the provider or BlocProvider where it is required to first, create and provide the required object in order to be able to use it later. With `RequireDependencies` widget it doesn't matter whether the objects are created or going to be created. When they are ready `RequireDependencies` widget will rebuild. No more ProviderNotFoundException or worrying about where it makes sense to add a provider widget in the widget tree.
 
@@ -83,7 +83,7 @@ RequireDependencies(
 )
 ```
 
-#### Get objects asynchronously ⏱️
+### Get objects asynchronously ⏱️
 
 With weaver it is possible to wait for registration of an object and then get it as soon as it is registered. using `getAsync()` method.
 
@@ -99,7 +99,7 @@ final userBloc = await weaver.getAsync<UserBloc>();
 
 **NOTE:** When building widgets there is no need to use `getAsync()` method. Please use `RequireDependencies` widget instead.
 
-#### Named Dependencies 🏷️
+### Named Dependencies 🏷️
 
 Weaver allows registering named instances of the same type of object.
 
@@ -138,7 +138,7 @@ final userProfile = weaver.named.userProfile;
 final adminProfile = weaver.named.adminProfile;
 ```
 
-#### Scoped Dependencies 🧩
+### Scoped Dependencies 🧩
 
 When it comes to dependency injection, usually dependency objects are required to exists as long as the app is running. But sometimes it is required for a dependency object to exist only in certain scenario or scope of a lifecycle. In short some dependencies only live in certain scopes.
 
@@ -170,7 +170,7 @@ Then run `dart run build_runner build -d` in your code. It will generate a `Admi
 
 1. In above code, in the method annotated with `@OnEnterScope` you can add as many arguments as you need.
 
-#### Entering and Leaving scope 🚪
+### Entering and Leaving scope 🚪
 
 After defining the scope, it is required to first register the scope-handler class to weaver.
 
@@ -188,7 +188,7 @@ Weaver can be signaled that application has entered the scope of authenticated. 
 
 Above call will trigger `AdminScopeHandler` that was registered and annotated method @OnEnterScope will be called with the passed parameters.
 
-##### Check Scope:
+#### Check Scope:
 
 It is possible to check whether application has entered a defined scope or not
 
@@ -203,7 +203,7 @@ To leave a scope `leaveScope()` method should be used
 weaver.leaveScope(AdminScope.scopeName);
 ```
 
-##### Example: 🎯
+#### Example: 🎯
 
 Here is a practical example of how to enter a scope base on business logic of the application
 
@@ -220,7 +220,7 @@ weaver.get<AuthBloc>().stream.listen((state){
 })
 ```
 
-#### Define named dependencies for scopes 🗂️
+### Define named dependencies for scopes 🗂️
 
 In weaver it is possible to define named dependencies specific to a scope.
 
@@ -257,13 +257,13 @@ if(weaver.myScope.isIn){
 }
 ```
 
-#### AutoScope Widget 🎯
+### AutoScope Widget 🎯
 
 When you need a scope tied to a specific route or widget subtree, `AutoScope` automatically manages the scope lifecycle. It enters the scope when the widget mounts and leaves it when the widget is disposed, ensuring dependencies are available only within that widget tree.
 
 This provides similar functionality to Provider's `Provider` widget—making dependencies available to a widget subtree—but with a key architectural advantage: the logic for creating and configuring those dependencies stays outside the widget tree, in your scope handler.
 
-##### Simple Example
+#### Simple Example
 
 ```dart
 AutoScope(
@@ -275,7 +275,7 @@ AutoScope(
 
 When `ProductDetailPage` mounts, `ProductDetailScope` is entered automatically. When the page is removed, the scope is left and its dependencies are cleaned up.
 
-##### Using AutoScope with RequireDependencies
+#### Using AutoScope with RequireDependencies
 
 Combine `AutoScope` with `RequireDependencies` to create a clean separation between scope management and widget implementation. Define the scope in your route configuration, then use `RequireDependencies` in your widgets to safely access scoped dependencies.
 
@@ -348,7 +348,7 @@ With this approach, you can:
 
 This separation keeps your dependency injection logic isolated from UI code, making your architecture more maintainable and testable.
 
-#### Sessions 📦
+### Sessions 📦
 
 While scopes manage dependencies based on application lifecycle (entering and leaving specific states), sessions provide a way to group related dependencies that are created dynamically as your code executes. Sessions are particularly useful when you have a collection of objects that belong together and need to be cleared all at once when a particular operation or workflow completes.
 
@@ -356,7 +356,7 @@ Unlike scopes, which are tied to lifecycle events, sessions allow you to registe
 
 For example, imagine a shopping cart checkout workflow where state management components and services are created incrementally as the user progresses. When the user adds items to their cart and proceeds to checkout, you might need to register a `ShippingBloc` to handle shipping option selection, a `DiscountApi` to manage discount code validation, or a `CheckoutBloc` to orchestrate the checkout process. These components are related to this specific checkout session and should be cleared together when the checkout is completed or abandoned. This is where sessions shine.
 
-##### Using Sessions
+#### Using Sessions
 
 You can register dependencies with a session name using the `session` parameter:
 
@@ -396,7 +396,7 @@ weaver.clearSession('checkout');
 // UserProfileBloc and SettingsBloc remain registered
 ```
 
-##### Session Extensions (Code Generation)
+#### Session Extensions (Code Generation)
 
 To make working with sessions more convenient and type-safe, Weaver can generate extension methods for your sessions. This provides a cleaner API for registering and clearing session-specific dependencies.
 
