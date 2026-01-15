@@ -49,38 +49,49 @@ class Weaver extends Observable {
     notifyObservers();
   }
 
-  void unregister<T extends Object>({final String? name}) {
-    if (T.toString() == 'Object') {
-      if (name != null) {
-        _dependencyMap.removeWhere((final dependencyKey) => dependencyKey.name == name);
-        notifyObservers();
-      } else {
-        throw WeaverException(
-          'When Unregistering an object using unregister method. at least either '
-          'name or type of the dependency object should be specified.\n'
-          'eg: weaver.unregister<TYPE>() | weaver.unregister(name: "dependency-name")\n',
-        );
-      }
+  /// unregisters an already registered dependency object by its type or name
+  ///
+  /// the type of the object that is needed to be unregistered can be passed both using value arguments or
+  /// generic arguments.
+  void unregister<T extends Object>({Type? type, final String? name}) {
+    if (type != null && T.toString() != 'Object' && type.toString() != T.toString()) {
+      throw WeaverException(
+        'calling unregister argument and passing conflicting arguments for the type of the '
+        'object that needs to be unregistered is forbidden!, please specify the type correctly only using'
+        'generic type argument or value argument. eg: either call weaver.unregister<TYPE>() or weaver.unregister(type: type). '
+        'calling weaver.unregister<TYPE_1>(type: TYPE_2) is forbidden',
+      );
+    }
+    type = type ?? T;
+
+    if (name == null && type.toString() == 'Object') {
+      throw WeaverException(
+        'Type or name is required to unregister the dependency object. passed type of "$type" is not accepted',
+      );
+    } else if (name != null && type.toString() == 'Object') {
+      _dependencyMap.removeWhere((final dependencyKey) => dependencyKey.name == name);
+      notifyObservers();
     } else {
-      final dependencyKey = DependencyKey(type: T, name: name);
-      if (isRegistered<T>(name: name)) {
+      final dependencyKey = DependencyKey(type: type, name: name);
+      if (isRegistered(type: type, name: name)) {
         _dependencyMap.remove(dependencyKey);
+      } else {
+        log('⚠️ Tried to unregister an object that is not registered. '
+            'There is no object registered with type: $type ${name != null ? "and name:$name" : ""}');
       }
       notifyObservers();
     }
   }
 
-  bool isRegistered<T extends Object>({final Type? type, final String? name}) {
-    if (type == null && T.toString() == 'Object') {
-      return _dependencyMap.keys.firstWhereOrNull((final key) => key.name == name) != null;
-    }
+  bool isRegistered<T extends Object>({Type? type, final String? name}) {
+    type = type ?? T;
 
-    if (type != null) {
+    if (type.toString() == 'Object') {
+      return _dependencyMap.keys.firstWhereOrNull((final key) => key.name == name) != null;
+    } else {
       final dependencyKey = DependencyKey(type: type, name: name);
       return _dependencyMap.containsKey(dependencyKey) && _dependencyMap.hasValue(dependencyKey);
     }
-    final dependencyKey = DependencyKey(type: T, name: name);
-    return _dependencyMap.containsKey(dependencyKey) && _dependencyMap.hasValue(dependencyKey);
   }
 
   void registerLazy<T extends Object>(final T Function() callback, {final String? name}) {

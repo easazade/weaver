@@ -295,6 +295,167 @@ void main() {
               expect(weaverInstance.isRegistered(name: 'user'), false);
             },
           );
+
+          test(
+            'Should be able to unregister using type parameter directly',
+            () {
+              weaverInstance.register('ali');
+              expect(weaverInstance.isRegistered<String>(), true);
+              expect(weaverInstance.get<String>(), 'ali');
+
+              // Using type parameter: can use type parameter as alternative to generic type
+              // Both generic type and type parameter should work
+              weaverInstance.unregister(type: String);
+              expect(weaverInstance.isRegistered<String>(), false);
+              expect(() => weaverInstance.get<String>(), throwsException);
+            },
+          );
+
+          test(
+            'Should be able to unregister using type parameter with different types '
+            'using type parameter instead of generic type parameter',
+            () {
+              weaverInstance.register('ali');
+              weaverInstance.register(10);
+              weaverInstance.register(true);
+
+              expect(weaverInstance.isRegistered<String>(), true);
+              expect(weaverInstance.isRegistered<int>(), true);
+              expect(weaverInstance.isRegistered<bool>(), true);
+
+              // Use type parameter to unregister String
+              weaverInstance.unregister(type: String);
+              expect(weaverInstance.isRegistered<String>(), false);
+              expect(weaverInstance.isRegistered<int>(), true);
+              expect(weaverInstance.isRegistered<bool>(), true);
+
+              weaverInstance.unregister(type: int);
+              expect(weaverInstance.isRegistered<int>(), false);
+              expect(weaverInstance.isRegistered<bool>(), true);
+
+              weaverInstance.unregister(type: bool);
+              expect(weaverInstance.isRegistered<bool>(), false);
+            },
+          );
+
+          test(
+            'Should be able to unregister using type parameter with named dependencies',
+            () {
+              weaverInstance.register('ali', name: 'user');
+              weaverInstance.register('admin', name: 'admin');
+
+              expect(weaverInstance.isRegistered<String>(name: 'user'), true);
+              expect(weaverInstance.isRegistered<String>(name: 'admin'), true);
+
+              // Use type parameter with name
+              weaverInstance.unregister(type: String, name: 'user');
+              expect(weaverInstance.isRegistered<String>(name: 'user'), false);
+              expect(weaverInstance.isRegistered<String>(name: 'admin'), true);
+
+              weaverInstance.unregister(type: String, name: 'admin');
+              expect(weaverInstance.isRegistered<String>(name: 'admin'), false);
+            },
+          );
+
+          test(
+            'Should unregister lazily registered dependency using type parameter instead of generic type parameter',
+            () {
+              weaverInstance.registerLazy(() => 'Ali');
+              expect(weaverInstance.isRegistered<String>(), true);
+              expect(weaverInstance.get<String>(), 'Ali');
+
+              // Use type parameter to unregister String
+              weaverInstance.unregister(type: String);
+              expect(weaverInstance.isRegistered<String>(), false);
+              expect(() => weaverInstance.get<String>(), throwsException);
+            },
+          );
+
+          test(
+            'Should not throw when unregistering non-registered dependency using type parameter',
+            () {
+              // Use type parameter - should not throw even if dependency is not registered
+              expect(() => weaverInstance.unregister(type: String), returnsNormally);
+              expect(() => weaverInstance.unregister(type: int), returnsNormally);
+              expect(() => weaverInstance.unregister(type: bool), returnsNormally);
+            },
+          );
+
+          test(
+            'Should throw Exception type is defined differently in both generic argument and value argument',
+            () {
+              weaverInstance.register('ali');
+              weaverInstance.register(10);
+
+              expect(() => weaverInstance.unregister<String>(type: int), throwsException);
+            },
+          );
+
+          test(
+            'Should throw exception when unregistering with Object type and no name',
+            () {
+              weaverInstance.register('ali');
+              expect(
+                () => weaverInstance.unregister(type: Object),
+                throwsA(isA<WeaverException>()),
+              );
+            },
+          );
+
+          test(
+            'Should be able to unregister with Object type when name is provided',
+            () {
+              weaverInstance.register('ali', name: 'user');
+              expect(() => weaverInstance.unregister<Object>(type: Object, name: 'user'), returnsNormally);
+              expect(weaverInstance.isRegistered(name: 'user'), false);
+            },
+          );
+
+          test(
+            'Should work correctly when unregistering multiple dependencies of same type with '
+            'different name, passing type using generic type arguments',
+            () {
+              weaverInstance.register('ali', name: 'user1');
+              weaverInstance.register('hassan', name: 'user2');
+              weaverInstance.register('admin', name: 'admin');
+
+              expect(weaverInstance.isRegistered<String>(name: 'user1'), true);
+              expect(weaverInstance.isRegistered<String>(name: 'user2'), true);
+              expect(weaverInstance.isRegistered<String>(name: 'admin'), true);
+
+              weaverInstance.unregister<String>(name: 'user1');
+              expect(weaverInstance.isRegistered<String>(name: 'user1'), false);
+              expect(weaverInstance.isRegistered<String>(name: 'user2'), true);
+              expect(weaverInstance.isRegistered<String>(name: 'admin'), true);
+
+              weaverInstance.unregister<String>(name: 'user2');
+              expect(weaverInstance.isRegistered<String>(name: 'user2'), false);
+              expect(weaverInstance.isRegistered<String>(name: 'admin'), true);
+            },
+          );
+
+          test(
+            'Should work correctly when unregistering multiple dependencies of same type with '
+            'different name, passing type using value arguments',
+            () {
+              weaverInstance.register('ali', name: 'user1');
+              weaverInstance.register('hassan', name: 'user2');
+              weaverInstance.register('admin', name: 'admin');
+
+              expect(weaverInstance.isRegistered<String>(name: 'user1'), true);
+              expect(weaverInstance.isRegistered<String>(name: 'user2'), true);
+              expect(weaverInstance.isRegistered<String>(name: 'admin'), true);
+
+              weaverInstance.unregister(type: String, name: 'user1');
+              expect(weaverInstance.isRegistered<String>(name: 'user1'), false);
+              expect(weaverInstance.isRegistered<String>(name: 'user2'), true);
+              expect(weaverInstance.isRegistered<String>(name: 'admin'), true);
+
+              weaverInstance.unregister(type: String, name: 'user2');
+              expect(weaverInstance.isRegistered<String>(name: 'user2'), false);
+              expect(weaverInstance.isRegistered<String>(name: 'admin'), true);
+            },
+          );
         });
 
         group('isRegistered', () {
@@ -354,6 +515,98 @@ void main() {
               weaverInstance.registerLazy(() => 'Ali');
               // Lazy dependencies are considered registered even before access
               expect(weaverInstance.isRegistered<String>(), true);
+            },
+          );
+
+          test(
+            'Should be able to check registration using type parameter directly without '
+            'passing it throw generic type argument',
+            () {
+              weaverInstance.register('ali');
+              weaverInstance.register(10);
+              weaverInstance.register(true);
+
+              // Using type parameter directly
+              expect(weaverInstance.isRegistered(type: String), true);
+              expect(weaverInstance.isRegistered(type: int), true);
+              expect(weaverInstance.isRegistered(type: bool), true);
+              expect(weaverInstance.isRegistered(type: double), false);
+
+              weaverInstance.unregister<String>();
+              expect(weaverInstance.isRegistered(type: String), false);
+              expect(weaverInstance.isRegistered(type: int), true);
+              expect(weaverInstance.isRegistered(type: bool), true);
+            },
+          );
+
+          test(
+            'Should be able to check registration using type parameter passed through '
+            'value arguments instead of generic type arguments with named dependencies',
+            () {
+              weaverInstance.register('ali', name: 'user');
+              weaverInstance.register('admin', name: 'admin');
+              weaverInstance.register(10, name: 'count');
+
+              // Using type parameter with name
+              expect(weaverInstance.isRegistered(type: String, name: 'user'), true);
+              expect(weaverInstance.isRegistered(type: String, name: 'admin'), true);
+              expect(weaverInstance.isRegistered(type: int, name: 'count'), true);
+              expect(weaverInstance.isRegistered(type: String, name: 'nonexistent'), false);
+              // correct name but incorrect type
+              expect(weaverInstance.isRegistered(type: int, name: 'user'), false);
+            },
+          );
+
+          test(
+            'Should return false when checking registration with type parameter for non-registered dependency',
+            () {
+              // No dependencies registered
+              expect(weaverInstance.isRegistered(type: String), false);
+              expect(weaverInstance.isRegistered(type: int), false);
+              expect(weaverInstance.isRegistered(type: bool), false);
+              expect(weaverInstance.isRegistered(type: String, name: 'user'), false);
+
+              // Register one dependency
+              weaverInstance.register('ali');
+              expect(weaverInstance.isRegistered(type: String), true);
+              expect(weaverInstance.isRegistered(type: int), false);
+              expect(weaverInstance.isRegistered(type: bool), false);
+            },
+          );
+
+          test(
+            'Should work correctly with type parameter when multiple dependencies of same type have different names',
+            () {
+              weaverInstance.register('ali', name: 'user1');
+              weaverInstance.register('hassan', name: 'user2');
+              weaverInstance.register('admin', name: 'admin');
+
+              // Using type parameter with specific names
+              expect(weaverInstance.isRegistered(type: String, name: 'user1'), true);
+              expect(weaverInstance.isRegistered(type: String, name: 'user2'), true);
+              expect(weaverInstance.isRegistered(type: String, name: 'admin'), true);
+              expect(weaverInstance.isRegistered(type: String, name: 'nonexistent'), false);
+
+              // Without name, should return false when multiple named dependencies exist
+              // (because there's no unnamed String dependency)
+              expect(weaverInstance.isRegistered(type: String), false);
+            },
+          );
+
+          test(
+            'Should work correctly with type parameter for lazy dependencies',
+            () {
+              weaverInstance.registerLazy(() => 'Ali');
+              weaverInstance.registerLazy(() => 10, name: 'count');
+
+              // Lazy dependencies should be considered registered even before instantiation
+              expect(weaverInstance.isRegistered(type: String), true);
+              expect(weaverInstance.isRegistered(type: int, name: 'count'), true);
+              expect(weaverInstance.isRegistered(type: int), false); // no unnamed int
+
+              // After accessing, should still be registered
+              expect(weaverInstance.get<String>(), 'Ali');
+              expect(weaverInstance.isRegistered(type: String), true);
             },
           );
         });
