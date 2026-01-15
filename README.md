@@ -29,7 +29,7 @@ Dependency injection logic often becomes intertwined with other types of code (s
 - ✅ Register objects and get them anywhere in your code by just calling `weaver.get()`.
 - ⏳ Ability to wait for the creation of an object before it is even created and then get it as soon as it is created with `getAsync()`.
 - 🧠 Build widgets without worrying about whether dependency objects are created or not by using `RequireDependencies` widget. No more ProviderNotFoundException
-- 📦 Ability to both register an object where it can live globally or within the lifecycle of defined `Scope` that can be handled by a `ScopeHandler`.
+- 📦 Ability to register an object either globally or within the lifecycle of a defined `Scope` that can be handled by a `ScopeHandler`.
 - 🏷️ Named dependency with generated quick access extension methods on `weaver.named`
 
 ## Install 📦
@@ -65,7 +65,7 @@ final userBloc = weaver.get<UserBloc>();
 
 ### Safely build widget 🛠️
 
-`RequireDependencies` widget allows specifying the type of dependency objects that are required, then build the widget as soon as those dependency objects are created. It's not like the provider or BlocProvider where it is required to first, create and provide the required object in order to be able to use it later. With `RequireDependencies` widget it doesn't matter whether the objects are created or going to be created. When they are ready `RequireDependencies` widget will rebuild. No more ProviderNotFoundException or worrying about where it makes sense to add a provider widget in the widget tree.
+`RequireDependencies` widget allows specifying the type of dependency objects that are required, then build the widget as soon as those dependency objects are created. It's not like the provider or BlocProvider where it is required to first create and provide the required object in order to be able to use it later. With `RequireDependencies` widget it doesn't matter whether the objects are created or going to be created. When they are ready `RequireDependencies` widget will rebuild. No more ProviderNotFoundException errors or worrying about where it makes sense to add a provider widget in the widget tree.
 
 ```dart
 RequireDependencies(
@@ -85,7 +85,7 @@ RequireDependencies(
 
 ### Get objects asynchronously ⏱️
 
-With weaver it is possible to wait for registration of an object and then get it as soon as it is registered. using `getAsync()` method.
+With weaver it is possible to wait for registration of an object and then get it as soon as it is registered using `getAsync()` method.
 
 ```dart
 // registers UserBloc 2 seconds later
@@ -160,7 +160,7 @@ class _AdminScope {
 Then run `dart run build_runner build -d` in your code. It will generate a `AdminScopeHandler` & `AdminScope` class.
 
 **NOTE:** 
-1. In above code, in the method annotated with `@OnEnterScope` you can add as many arguments as you need after the first argument (which always should be of type `Weaver`)
+1. In the above code, in the method annotated with `@OnEnterScope` you can add as many arguments as you need after the first argument (which always should be of type `Weaver`)
 2. Unregistering of objects is automatically handled by the generated `AdminScopeHandler`. But there is the option to do it manually by adding a method annotated with `@OnLeaveScope`. If you need to perform custom disposal or actions before unregistering dependency objects registered in this scope, you can optionally add an `@OnLeaveScope` method:
 
 ```dart
@@ -189,7 +189,7 @@ After defining the scope, it is required to first register the scope-handler cla
 weaver.addScopeHandler(AdminScopeHandler());
 ```
 
-Weaver can be signaled that application has entered the scope of authenticated. That can be done using the `enterScope()` method and the `AdminScope` class defined above. When weaver enters that scope the method annotated with `@OnEnterScope` in our defined `_AdminScope` class will be called and dependencies will be registered.
+Weaver can be signaled that application has entered the admin scope. That can be done using the `enterScope()` method and the `AdminScope` class defined above. When weaver enters that scope the method annotated with `@OnEnterScope` in our defined `_AdminScope` class will be called and dependencies will be registered.
 
 ```dart
   weaver.enterScope(
@@ -216,14 +216,14 @@ weaver.leaveScope(AdminScope.scopeName);
 
 #### Example: 🎯
 
-Here is a practical example of how to enter a scope base on business logic of the application
+Here is a practical example of how to enter a scope based on business logic of the application
 
 ```dart
 weaver.get<AuthBloc>().stream.listen((state){
   // check if should enter admin scope
   if(state.authenticatedUser.isAdmin && !weaver.adminScope.isIn){
     // entering admin scope
-    weaver.enterScope(AdminScope(id: 24, accessLevel: 'editor'));
+    weaver.enterScope(AdminScope(adminId: 24, adminAccessLevel: 'editor'));
   }else{
     // leaving admin scope
     weaver.leaveScope(AdminScope.scopeName);
@@ -256,10 +256,10 @@ class _MyScope {
   // @OnLeaveScope is optional - if you don't add it, Weaver automatically handles unregistering
   // all named dependencies when the scope is left
 }
+```
 
 **Important:** All named dependencies defined in the scope, their register and unregister are always handled automatically by Weaver's generated code. You don't need to manually register or unregister them. Though there is an option to do it manually if you need to by setting `autoDispose: false`
-in `@NamedDependency` annotation
-```
+in `@NamedDependency` annotation. After setting `autoDispose: false`, the unregistering of the named object should be handled inside the method annotated with `@OnLeaveScope`
 
 To access the named dependencies generated for a scope:
 
