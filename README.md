@@ -53,12 +53,26 @@ Register objects 🧰
 ```dart
 weaver.register(UserRepository());
 weaver.registerLazy(() => UserBloc(userRepository: weaver.get()));
+
+weaver.registerIfIsNot(CartSession(cartService: weaver.get()));
 ```
 
 And then get them anywhere in your code 🔍
 
 ```dart
 final userBloc = weaver.get<UserBloc>();
+```
+
+**NOTE:** that below style also works
+
+```dart
+final UserBloc userBloc = weaver.get();
+```
+
+There is also a shorter syntax to get objects. simply by calling the `inject<T>()` function.
+
+```dart
+final UserBloc userBloc = inject();
 ```
 
 ## Usage 🧭
@@ -159,7 +173,8 @@ class _AdminScope {
 
 Then run `dart run build_runner build -d` in your code. It will generate a `AdminScopeHandler` & `AdminScope` class.
 
-**NOTE:** 
+**NOTE:**
+
 1. In the above code, in the method annotated with `@OnEnterScope` you can add as many arguments as you need after the first argument (which always should be of type `Weaver`)
 2. Unregistering of objects is automatically handled by the generated `AdminScopeHandler`. But there is the option to do it manually by adding a method annotated with `@OnLeaveScope`. If you need to perform custom disposal or actions before unregistering dependency objects registered in this scope, you can optionally add an `@OnLeaveScope` method:
 
@@ -244,12 +259,12 @@ class _MyScope {
   }
 
   // A getter will be generated for this dependency
-  // Registration and unregistration are handled automatically by Weaver
+  // Registration and un-registration are handled automatically by Weaver
   @NamedDependency(name: 'my-component')
   MyComponent1 _myComponent1() =>  MyComponent1(...);
 
   // A getter will be generated for this dependency
-  // Registration and unregistration are handled automatically by Weaver
+  // Registration and un-registration are handled automatically by Weaver
   @NamedDependency(name: 'my-component-2')
   MyComponent2 _myComponent2() =>  MyComponent2(...);
 
@@ -348,6 +363,7 @@ class ProductDetailPage extends StatelessWidget {
 ```
 
 With this approach, you can:
+
 - Automatically manage scope lifecycle based on widget mount/unmount
 - Access scoped dependencies safely using `RequireDependencies` without worrying about registration timing
 - Keep dependency creation logic separate from your widget tree—unlike Provider where you create dependencies inline, Weaver keeps this logic in scope handlers, maintaining cleaner architecture
@@ -432,6 +448,7 @@ weaver.checkoutSession.clear();
 ```
 
 The generated extension provides:
+
 - A `register<T>()` method that automatically associates dependencies with the session
 - A `clear()` method that removes all dependency objects belonging to that session
 

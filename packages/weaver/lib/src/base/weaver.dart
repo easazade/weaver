@@ -12,6 +12,18 @@ import 'scope.dart';
 /// default instance of [Weaver]
 final weaver = Weaver();
 
+/// This is a short hand function for weaver.get\<T\>().
+/// Keep in mind This function only makes request to the default global instance of weaver.
+/// 
+/// for example below is wrong:
+/// ```dart
+/// final newWeaver = Weaver();
+/// newWeaver.register('my name');
+///
+/// final myName = inject<String>(); // throws an exception since 'my name' is not registered in global instance of weaver
+/// ```
+T inject<T extends Object>({final String? name}) => weaver.get<T>(name: name);
+
 /// [Weaver] is the main class of this library. Manages all dependency objects,
 /// scopes, scope-handlers, sessions and so on
 ///
