@@ -49,6 +49,15 @@ class Weaver extends Observable {
     notifyObservers();
   }
 
+  /// registers an object if it is not already registered.
+  ///
+  /// if an object with the same type and name is already registered, this method does nothing.
+  void registerIfIsNot<T extends Object>(final T instance, {final String? name, final String? session}) {
+    if (!isRegistered<T>(name: name)) {
+      register<T>(instance, name: name, session: session);
+    }
+  }
+
   /// unregisters an already registered dependency object by its type or name
   ///
   /// the type of the object that is needed to be unregistered can be passed both using value arguments or

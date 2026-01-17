@@ -251,6 +251,42 @@ void main() {
               expect(weaverInstance.get<String>(name: 'user'), 'ali');
             },
           );
+
+          group('registerIfNot', () {
+            test(
+              'Should register object if not already registered',
+              () {
+                expect(weaverInstance.isRegistered<String>(), false);
+                weaverInstance.registerIfIsNot('ali');
+                expect(weaverInstance.isRegistered<String>(), true);
+                expect(weaverInstance.get<String>(), 'ali');
+              },
+            );
+
+            test(
+              'Should not throw or change existing registration if already registered',
+              () {
+                weaverInstance.register('ali');
+                expect(weaverInstance.get<String>(), 'ali');
+
+                // This should do nothing and not throw
+                weaverInstance.registerIfIsNot('hasan');
+                expect(weaverInstance.get<String>(), 'ali');
+              },
+            );
+
+            test(
+              'Should work with named dependencies',
+              () {
+                weaverInstance.register('ali', name: 'user');
+                weaverInstance.registerIfIsNot('hasan', name: 'user');
+                weaverInstance.registerIfIsNot('hasan', name: 'admin');
+
+                expect(weaverInstance.get<String>(name: 'user'), 'ali');
+                expect(weaverInstance.get<String>(name: 'admin'), 'hasan');
+              },
+            );
+          });
         });
 
         group('unregister', () {
@@ -416,7 +452,7 @@ void main() {
             'different name, passing type using generic type arguments',
             () {
               weaverInstance.register('ali', name: 'user1');
-              weaverInstance.register('hassan', name: 'user2');
+              weaverInstance.register('hasan', name: 'user2');
               weaverInstance.register('admin', name: 'admin');
 
               expect(weaverInstance.isRegistered<String>(name: 'user1'), true);
@@ -439,7 +475,7 @@ void main() {
             'different name, passing type using value arguments',
             () {
               weaverInstance.register('ali', name: 'user1');
-              weaverInstance.register('hassan', name: 'user2');
+              weaverInstance.register('hasan', name: 'user2');
               weaverInstance.register('admin', name: 'admin');
 
               expect(weaverInstance.isRegistered<String>(name: 'user1'), true);
@@ -578,7 +614,7 @@ void main() {
             'Should work correctly with type parameter when multiple dependencies of same type have different names',
             () {
               weaverInstance.register('ali', name: 'user1');
-              weaverInstance.register('hassan', name: 'user2');
+              weaverInstance.register('hasan', name: 'user2');
               weaverInstance.register('admin', name: 'admin');
 
               // Using type parameter with specific names

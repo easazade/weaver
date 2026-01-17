@@ -23,6 +23,13 @@ class ScopeHandlerWeaverProxy implements Weaver {
     _realWeaver.registerLazy(callback, name: name);
   }
 
+  @override
+  void registerIfIsNot<T extends Object>(final T instance, {final String? name, final String? session}) {
+    if (!isRegistered<T>(name: name)) {
+      register<T>(instance, name: name, session: session);
+    }
+  }
+
   /// unregisters all dependency objects registered using this proxy-weaver by the scope handler
   void unregisterDependencies() {
     for (final key in keys) {
