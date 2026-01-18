@@ -6,8 +6,7 @@ part of 'scopes.dart';
 class AdminScope extends Scope<AdminScopeArgs> {
   static const String scopeName = 'admin-scope';
 
-  AdminScope({String? name, required int age})
-    : super(name: "admin-scope", args: AdminScopeArgs(name, age));
+  AdminScope({String? name, required int age}) : super(name: "admin-scope", args: AdminScopeArgs(name, age));
 }
 
 class AdminScopeArgs {
@@ -43,8 +42,7 @@ class AdminScopeHandler extends ScopeHandler<AdminScopeArgs> {
 }
 
 extension AdminScopeOnWeaverAddedToWeaver on Weaver {
-  AdminScopeOnWeaver get adminScope =>
-      AdminScopeOnWeaver(ScopeHandlerWeaverProxy(this));
+  AdminScopeOnWeaver get adminScope => AdminScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
 class AdminScopeOnWeaver {
@@ -54,9 +52,7 @@ class AdminScopeOnWeaver {
 
   AdminScopeOnWeaver(this.weaverInstance);
 
-  bool get isIn => weaverInstance.scopes
-      .where((scope) => scope.name == "admin-scope")
-      .isNotEmpty;
+  bool get isIn => weaverInstance.scopes.where((scope) => scope.name == "admin-scope").isNotEmpty;
 
   String get adminKey => weaverInstance.get<String>(name: "admin-key");
 }
@@ -64,8 +60,7 @@ class AdminScopeOnWeaver {
 class AuthScope extends Scope<AuthScopeArgs> {
   static const String scopeName = 'auth-scope';
 
-  AuthScope({required User user})
-    : super(name: "auth-scope", args: AuthScopeArgs(user));
+  AuthScope({required User user}) : super(name: "auth-scope", args: AuthScopeArgs(user));
 }
 
 class AuthScopeArgs {
@@ -94,8 +89,7 @@ class AuthScopeHandler extends ScopeHandler<AuthScopeArgs> {
 }
 
 extension AuthScopeOnWeaverAddedToWeaver on Weaver {
-  AuthScopeOnWeaver get authScope =>
-      AuthScopeOnWeaver(ScopeHandlerWeaverProxy(this));
+  AuthScopeOnWeaver get authScope => AuthScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
 class AuthScopeOnWeaver {
@@ -105,9 +99,7 @@ class AuthScopeOnWeaver {
 
   AuthScopeOnWeaver(this.weaverInstance);
 
-  bool get isIn => weaverInstance.scopes
-      .where((scope) => scope.name == "auth-scope")
-      .isNotEmpty;
+  bool get isIn => weaverInstance.scopes.where((scope) => scope.name == "auth-scope").isNotEmpty;
 }
 
 class ShoppingScope extends Scope<void> {
@@ -136,8 +128,7 @@ class ShoppingScopeHandler extends ScopeHandler<void> {
 }
 
 extension ShoppingScopeOnWeaverAddedToWeaver on Weaver {
-  ShoppingScopeOnWeaver get shopping =>
-      ShoppingScopeOnWeaver(ScopeHandlerWeaverProxy(this));
+  ShoppingScopeOnWeaver get shopping => ShoppingScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
 class ShoppingScopeOnWeaver {
@@ -147,9 +138,7 @@ class ShoppingScopeOnWeaver {
 
   ShoppingScopeOnWeaver(this.weaverInstance);
 
-  bool get isIn => weaverInstance.scopes
-      .where((scope) => scope.name == "shopping")
-      .isNotEmpty;
+  bool get isIn => weaverInstance.scopes.where((scope) => scope.name == "shopping").isNotEmpty;
 }
 
 class EditScope extends Scope<void> {
@@ -180,8 +169,7 @@ class EditScopeHandler extends ScopeHandler<void> {
 }
 
 extension EditScopeOnWeaverAddedToWeaver on Weaver {
-  EditScopeOnWeaver get edit =>
-      EditScopeOnWeaver(ScopeHandlerWeaverProxy(this));
+  EditScopeOnWeaver get edit => EditScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
 class EditScopeOnWeaver {
@@ -191,8 +179,7 @@ class EditScopeOnWeaver {
 
   EditScopeOnWeaver(this.weaverInstance);
 
-  bool get isIn =>
-      weaverInstance.scopes.where((scope) => scope.name == "edit").isNotEmpty;
+  bool get isIn => weaverInstance.scopes.where((scope) => scope.name == "edit").isNotEmpty;
 }
 
 extension NamedDependencyUserIdX on WeaverNamed {

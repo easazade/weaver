@@ -14,7 +14,7 @@ final weaver = Weaver();
 
 /// This is a short hand function for weaver.get\<T\>().
 /// Keep in mind This function only makes request to the default global instance of weaver.
-/// 
+///
 /// for example below is wrong:
 /// ```dart
 /// final newWeaver = Weaver();

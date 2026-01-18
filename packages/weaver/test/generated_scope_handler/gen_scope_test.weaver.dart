@@ -7,10 +7,10 @@ class GeneratedTestScope extends Scope<GeneratedTestScopeArgs> {
   static const String scopeName = 'generated-test';
 
   GeneratedTestScope({double? optionalArg, required int arg})
-    : super(
-        name: "generated-test",
-        args: GeneratedTestScopeArgs(optionalArg, arg),
-      );
+      : super(
+          name: "generated-test",
+          args: GeneratedTestScopeArgs(optionalArg, arg),
+        );
 }
 
 class GeneratedTestScopeArgs {
@@ -54,8 +54,7 @@ class GeneratedTestScopeHandler extends ScopeHandler<GeneratedTestScopeArgs> {
 }
 
 extension GeneratedTestScopeOnWeaverAddedToWeaver on Weaver {
-  GeneratedTestScopeOnWeaver get generatedTest =>
-      GeneratedTestScopeOnWeaver(ScopeHandlerWeaverProxy(this));
+  GeneratedTestScopeOnWeaver get generatedTest => GeneratedTestScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
 class GeneratedTestScopeOnWeaver {
@@ -65,9 +64,7 @@ class GeneratedTestScopeOnWeaver {
 
   GeneratedTestScopeOnWeaver(this.weaverInstance);
 
-  bool get isIn => weaverInstance.scopes
-      .where((scope) => scope.name == "generated-test")
-      .isNotEmpty;
+  bool get isIn => weaverInstance.scopes.where((scope) => scope.name == "generated-test").isNotEmpty;
 
   String get namedKey1 => weaverInstance.get<String>(name: "named-key-1");
   String get namedKey2 => weaverInstance.get<String>(name: "named-key-2");
@@ -107,8 +104,7 @@ class GeneratedTest2ScopeHandler extends ScopeHandler<void> {
 }
 
 extension GeneratedTest2ScopeOnWeaverAddedToWeaver on Weaver {
-  GeneratedTest2ScopeOnWeaver get generatedTest2 =>
-      GeneratedTest2ScopeOnWeaver(ScopeHandlerWeaverProxy(this));
+  GeneratedTest2ScopeOnWeaver get generatedTest2 => GeneratedTest2ScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
 class GeneratedTest2ScopeOnWeaver {
@@ -118,9 +114,7 @@ class GeneratedTest2ScopeOnWeaver {
 
   GeneratedTest2ScopeOnWeaver(this.weaverInstance);
 
-  bool get isIn => weaverInstance.scopes
-      .where((scope) => scope.name == "generated-test-2")
-      .isNotEmpty;
+  bool get isIn => weaverInstance.scopes.where((scope) => scope.name == "generated-test-2").isNotEmpty;
 
   String get namedKey3 => weaverInstance.get<String>(name: "named-key-3");
 }
