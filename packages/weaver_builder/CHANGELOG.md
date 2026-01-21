@@ -1,3 +1,7 @@
+## 0.8.1
+
+- Bump [weaver](https://pub.dev/packages/weaver) to 0.8.1
+
 ## 0.8.0
 
 - Update builder to make `@OnLeaveScope` annotation optional

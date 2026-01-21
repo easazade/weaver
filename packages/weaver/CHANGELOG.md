@@ -1,3 +1,8 @@
+## 0.8.1
+
+- Add `inject` function
+- Add `registerIfIsNot` method to `Weaver` class
+
 ## 0.8.0
 
 - Add feature to make @OnLeaveScope annotation optional & make generated scope handlers to automatically unregister objects when scope is left
