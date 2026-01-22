@@ -24,6 +24,10 @@ final weaver = Weaver();
 /// ```
 T inject<T extends Object>({final String? name}) => weaver.get<T>(name: name);
 
+/// This is a short hand function for weaver.getAsync\<T\>().
+/// Keep in mind This function only makes request to the default global instance of weaver.
+Future<T> injectAsync<T extends Object>() => weaver.getAsync<T>();
+
 /// The main dependency injection container for Weaver.
 ///
 /// [Weaver] manages the registration, retrieval, and lifecycle of dependency objects.
@@ -260,9 +264,7 @@ class Weaver extends Observable {
     final alreadyAdded = _scopeHandlers.firstWhereOrNull((final e) => e.scopeName == handler.scopeName) != null;
 
     if (alreadyAdded && !allowReassignment) {
-      throw WeaverException(
-        'Cannot add ScopeHandler with name ${handler.scopeName}, since one is already added',
-      );
+      throw WeaverException('Cannot add ScopeHandler with name ${handler.scopeName}, since one is already added');
     } else if (allowReassignment) {
       _scopeHandlers.removeWhere((final e) => e.scopeName == handler.scopeName);
     }
