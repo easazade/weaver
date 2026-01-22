@@ -1,5 +1,5 @@
 name: flutter_weaver
-description: "Best dependency injection library for Flutter"
+description: Best dependency injection library for Flutter, Rethought and redesigned specifically for flutter
 version: 0.8.1
 repository: https://github.com/easazade/weaver
 issue_tracker: https://github.com/easazade/weaver/issues

@@ -2,14 +2,53 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:weaver/weaver.dart';
 
+/// A widget that waits for a set of dependencies to be registered before building its child.
+///
+/// [RequireDependencies] observes the [weaver] instance and rebuilds whenever
+/// a dependency is registered or unregistered. It passes an `isReady` flag to the
+/// [builder] function, which is true only when all specified [dependencies] are
+/// registered and available in [weaver].
+///
+/// This widget is useful for ensuring that a widget tree is only built when its
+/// required dependencies (e.g., Blocs, Services) are ready, avoiding
+/// `WeaverException` or null-reference errors.
+///
+/// Example:
+/// ```dart
+/// RequireDependencies(
+///   weaver: weaver,
+///   dependencies: const [
+///     DependencyKey(type: UserBloc),
+///     DependencyKey(type: SettingsBloc),
+///   ],
+///   builder: (context, child, isReady) {
+///     if (isReady) {
+///       return const DashboardPage();
+///     } else {
+///       return const LoadingIndicator();
+///     }
+///   },
+/// )
+/// ```
 class RequireDependencies extends StatefulWidget {
+  /// The [Weaver] instance to observe for dependency changes.
   final Weaver weaver;
+
+  /// The list of [DependencyKey]s that must be registered for [isReady] to be true.
   final List<DependencyKey> dependencies;
+
+  /// A builder function that is called whenever the dependency state changes.
+  ///
+  /// - [context]: The build context.
+  /// - [child]: The optional [child] widget passed to [RequireDependencies].
+  /// - [isReady]: True if all [dependencies] are registered in [weaver].
   final Widget Function(
     BuildContext context,
     Widget? child,
     bool isReady,
   ) builder;
+
+  /// An optional child widget that is passed to the [builder].
   final Widget? child;
 
   const RequireDependencies({

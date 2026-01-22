@@ -1,44 +1,47 @@
 import 'package:collection/collection.dart';
 import 'package:weaver/weaver.dart';
 
+/// Represents the state of a [ScopeHandler].
 enum ScopeState { entered, left }
 
-/// Defines a scope in which existence of dependencies are tied to
+/// Defines a scope that holds dependencies tied to a specific lifecycle.
 ///
-/// For example if it is required for some dependencies to exist only after
-/// authentication and be disposed of when user unauthenticated. this scope can
-/// be defined as auth scope.
+/// For example, some dependencies may only need to exist after authentication
+/// and should be disposed of when the user logs out. This would be defined as
+/// an "auth" scope.
 ///
-/// [Weaver] class can enter or leave scopes, eg: auth scope.
-/// When that happens, if a ScopeHandler is registered in [Weaver] class. it will
-/// be notified to register or unregister dependencies.
-///
+/// [Weaver] can enter or leave scopes. When entering a scope, if a corresponding
+/// [ScopeHandler] is registered, it will be notified to register the dependencies.
 abstract class Scope<T> {
+  /// Creates a [Scope] with a unique [name] and optional [args].
   Scope({required this.name, required this.args});
 
+  /// The unique name identifying this scope.
   final String name;
+
+  /// The arguments passed to the scope when entering it.
   final T args;
 }
 
-/// manages dependencies under it's [scopeName]. If [Weaver] class enters/leaves a scope
-/// with the same scope name of this class. This handler will be notified and calls
-/// onEnterScope/onLeaveScope callbacks accordingly.
+/// Manages the lifecycle of dependencies within a specific scope.
 ///
-/// When defining ScopeHandler class, It is also needed to define a Scope class as well
-/// which both classes should have the same generic argument type for the scope argument.
+/// When [Weaver] enters or leaves a scope with a name matching [scopeName],
+/// this handler is notified and calls [onEnterScope] or [onLeaveScope] accordingly.
 ///
-/// [dispose] method can be overridden to handle disposing this class id needed.
-/// It will be called by [Weaver] class when this [ScopeHandler] instance is being
-/// removed from [Weaver] class.
+/// [T] is the type of arguments required when entering the scope.
 abstract class ScopeHandler<T> {
+  /// The [Weaver] proxy used to manage dependencies within this scope.
   final ScopeHandlerWeaverProxy weaver;
 
   ScopeHandler(final Weaver weaver) : weaver = ScopeHandlerWeaverProxy(weaver);
 
+  /// The name of the scope this handler manages.
   String get scopeName;
 
+  /// The current state of the scope (entered or left).
   var scopeState = ScopeState.left;
 
+  /// Handles the scope state transition by checking if the scope is currently active in [weaver].
   Future<void> handle() async {
     final scope = weaver.scopes.firstWhereOrNull((final scope) => scope.name == scopeName);
     final isInScope = scope != null;
@@ -61,9 +64,12 @@ abstract class ScopeHandler<T> {
     }
   }
 
+  /// Called when the scope is entered. Dependencies should be registered here.
   Future<void> onEnterScope(final Weaver weaver, final T argument);
 
+  /// Called when the scope is left. Cleanup or custom un-registration should happen here.
   Future<void> onLeaveScope(final Weaver weaver);
 
+  /// Called when the [ScopeHandler] is being removed from [Weaver].
   void dispose() {}
 }

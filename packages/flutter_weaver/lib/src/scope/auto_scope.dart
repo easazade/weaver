@@ -1,30 +1,35 @@
 import 'package:flutter/widgets.dart';
 import 'package:weaver/weaver.dart';
 
-/// A widget that automatically enters a scope when mounted and leaves it when disposed.
+/// A widget that automatically manages the lifecycle of a [Scope].
 ///
-/// This widget manages the lifecycle of a [Scope] by calling [Weaver.enterScope] in
-/// [initState] and [Weaver.leaveScope] in [dispose]. The scope object is provided
-/// through the constructor.
+/// [AutoScope] enters the provided [scope] when the widget is mounted and
+/// leaves it when the widget is disposed. This ensures that dependencies
+/// defined within the scope are only available while this widget (or its subtree)
+/// is part of the widget tree.
+///
+/// This is particularly useful for tying dependencies to specific routes or
+/// features in a Flutter application.
 ///
 /// Example:
 /// ```dart
 /// AutoScope(
 ///   weaver: weaver,
-///   scope: AuthScope(user: currentUser),
-///   child: MyAuthenticatedWidget(),
+///   scope: ProductDetailScope(productId: 123),
+///   child: ProductDetailPage(),
 /// )
 /// ```
 class AutoScope extends StatefulWidget {
-  /// The [Weaver] instance to manage scopes with.
+  /// The [Weaver] instance used to manage the scope.
   final Weaver weaver;
 
   /// The [Scope] to enter when mounted and leave when disposed.
   final Scope scope;
 
-  /// The child widget to display.
+  /// The child widget that will have access to the scoped dependencies.
   final Widget child;
 
+  /// Creates an [AutoScope] widget.
   const AutoScope({
     super.key,
     required this.weaver,
