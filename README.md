@@ -79,7 +79,11 @@ final UserBloc userBloc = inject();
 
 ### Safely build widget 🛠️
 
-`RequireDependencies` widget allows specifying the type of dependency objects that are required, then build the widget as soon as those dependency objects are created. It's not like the provider or BlocProvider where it is required to first create and provide the required object in order to be able to use it later. With `RequireDependencies` widget it doesn't matter whether the objects are created or going to be created. When they are ready `RequireDependencies` widget will rebuild. No more ProviderNotFoundException errors or worrying about where it makes sense to add a provider widget in the widget tree.
+The `RequireDependencies` widget waits for specified dependency objects to be registered elsewhere and become available. Once those dependencies are ready, it automatically rebuilds the widget tree.
+
+`RequireDependencies` allows specifying the type of dependency objects that are required, then builds the widget as soon as those dependency objects are created. It doesn't care when, where or how those objects are created and registered in weaver.
+
+
 
 ```dart
 RequireDependencies(
@@ -96,6 +100,10 @@ RequireDependencies(
     },
 )
 ```
+
+Unlike `Provider` or `BlocProvider`, where you must explicitly define and create the required object inside the widget tree to make it available to descendants (e.g., using `context.read<T>()` or `BlocBuilder`), `RequireDependencies` is completely decoupled from where or how your objects are registered. Whether an object is registered globally, within a session, or inside a specific scope using Weaver's methods, this widget doesn't need to know the registration details—it just reacts to them.
+
+This provides a significant advantage over traditional dependency injection approaches: it bridges the gap between a standalone DI container and Flutter's reactive nature. Instead of manually checking if an object is ready or handling registration timing in your business logic, `RequireDependencies` takes on that single responsibility. It ensures your widget tree is safely built only when its dependencies are available, eliminating `ProviderNotFoundException` errors and the architectural headache of nesting providers at the "correct" level of the widget tree.
 
 ### Get objects asynchronously ⏱️
 
