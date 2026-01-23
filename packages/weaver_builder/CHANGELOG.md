@@ -1,3 +1,7 @@
+## 0.8.2
+
+- Bump [weaver](https://pub.dev/packages/weaver) to 0.8.2
+
 ## 0.8.1
 
 - Bump [weaver](https://pub.dev/packages/weaver) to 0.8.1

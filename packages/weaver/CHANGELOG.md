@@ -1,3 +1,9 @@
+## 0.8.2
+
+- Adds injectAsync method to Weaver class
+- Adds Documentation comments
+- Updates README
+
 ## 0.8.1
 
 - Add `inject` function
