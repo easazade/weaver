@@ -169,7 +169,7 @@ void writeClassesForSingleScope({
   buffer.writeln(
     '''
         extension ${scopeExtensionClassName}AddedToWeaver on Weaver {
-          $scopeExtensionClassName get ${scopeName.camelCase} => $scopeExtensionClassName(ScopeHandlerWeaverProxy(this));
+          $scopeExtensionClassName get ${scopeClassName.camelCase} => $scopeExtensionClassName(ScopeHandlerWeaverProxy(this));
         }
 
         class $scopeExtensionClassName {

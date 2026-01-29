@@ -36,7 +36,7 @@ class Test1ScopeHandler extends ScopeHandler<Test1ScopeArgs> {
 }
 
 extension Test1ScopeOnWeaverAddedToWeaver on Weaver {
-  Test1ScopeOnWeaver get testScope1 =>
+  Test1ScopeOnWeaver get test1Scope =>
       Test1ScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
@@ -85,7 +85,7 @@ class Test2ScopeHandler extends ScopeHandler<Test2ScopeArgs> {
 }
 
 extension Test2ScopeOnWeaverAddedToWeaver on Weaver {
-  Test2ScopeOnWeaver get testScope2 =>
+  Test2ScopeOnWeaver get test2Scope =>
       Test2ScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 

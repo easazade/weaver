@@ -185,7 +185,7 @@ void writeClassesForMultiScope({
   buffer.writeln(
     '''
         extension ${scopeExtensionClassName}AddedToWeaver on Weaver {
-          $scopeExtensionClassName get ${scopeName.camelCase} => $scopeExtensionClassName(ScopeHandlerWeaverProxy(this));
+          $scopeExtensionClassName get ${baseScopeClassName.camelCase} => $scopeExtensionClassName(ScopeHandlerWeaverProxy(this));
         }
 
         class $scopeExtensionClassName {

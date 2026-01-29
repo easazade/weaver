@@ -54,7 +54,7 @@ class GeneratedTestScopeHandler extends ScopeHandler<GeneratedTestScopeArgs> {
 }
 
 extension GeneratedTestScopeOnWeaverAddedToWeaver on Weaver {
-  GeneratedTestScopeOnWeaver get generatedTest =>
+  GeneratedTestScopeOnWeaver get generatedTestScope =>
       GeneratedTestScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
@@ -107,7 +107,7 @@ class GeneratedTest2ScopeHandler extends ScopeHandler<void> {
 }
 
 extension GeneratedTest2ScopeOnWeaverAddedToWeaver on Weaver {
-  GeneratedTest2ScopeOnWeaver get generatedTest2 =>
+  GeneratedTest2ScopeOnWeaver get generatedTest2Scope =>
       GeneratedTest2ScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
