@@ -50,6 +50,32 @@ void checkForDuplicateNamedDependencyNames(List<ExecutableElement2> classes) {
   }
 }
 
+void validateSourceSyntaxOnNamedDependencyFunction(ExecutableElement2 function) {
+  if (!function.displayName.startsWith('_')) {
+    throw InvalidGenerationSource(
+      '❌ The factory function for named dependencies should be private but ${function.displayName}() is not.',
+    );
+  }
+
+  final returnType = function.returnType;
+  final objectType = returnType.isDartAsyncFuture
+      ? (returnType as ParameterizedType).typeArguments.first.displayNameWithNullability
+      : function.returnType.displayNameWithNullability;
+
+  if (returnType.isDartAsyncFuture) {
+    throw InvalidGenerationSource(
+      '❌ The factory function for named dependencies with return type of Future is not currently '
+      'supported but ${function.displayName}() has a return type of Future.',
+    );
+  }
+
+  if (objectType?.endsWith('?') == true) {
+    throw InvalidGenerationSource(
+      '❌ The factory function for named dependencies cannot have a nullable return type but ${function.displayName}() does.',
+    );
+  }
+}
+
 /// Checks if the input source code for WeaverScope annotated class is valid and as expected.
 /// Throws a [InvalidGenerationSource] if otherwise.
 void validateSourceSyntaxOnWeaverScopeClass(ClassElement2 classElement) {
@@ -68,15 +94,15 @@ void validateSourceSyntaxOnWeaverScopeClass(ClassElement2 classElement) {
   }
 
   final methods = classElement.methods2;
-  final onEnterScopeMethod = methods.firstWhereOrNull(
+  final onEnterScopeMethods = methods.where(
     (method) => _onEnterScopeTypeChecker.hasAnnotationOfExact(method),
   );
 
-  final onLeaveScopeMethod = methods.firstWhereOrNull(
+  final onLeaveScopeMethods = methods.where(
     (method) => _onLeaveScopeTypeChecker.hasAnnotationOfExact(method),
   );
 
-  if (onEnterScopeMethod == null) {
+  if (onEnterScopeMethods.isEmpty) {
     throw InvalidGenerationSource(
       '''-------------------------------------------------------------------------------------
 ❌
@@ -107,77 +133,93 @@ class MyScope {
     );
   }
 
-  // validating the syntax of @onEnterScope method
-
-  if (onEnterScopeMethod.formalParameters.isEmpty) {
-    throw InvalidGenerationSource(
-      '❌ handler function annotated with @OnEnterScope should have its the first parameter of type "Weaver"'
-      'eg: ${onEnterScopeMethod.displayName}(Weaver weaver, WeaverState state, ...)',
-    );
-  }
-
-  final weaverParam = onEnterScopeMethod.formalParameters[0];
-  final weaverParamType = weaverParam.type.element3?.displayName;
-  if (weaverParamType != 'Weaver') {
-    throw InvalidGenerationSource(
-      '❌ First parameter of the scope handler function should be of type "Weaver" not "$weaverParamType". '
-      'eg: ${onEnterScopeMethod.displayName}(Weaver weaver, WeaverState state, ...)',
-    );
-  }
-
-  for (final param in onEnterScopeMethod.formalParameters) {
-    if (!param.isPositional) {
+  // validating the syntax of @onEnterScope methods
+  for (var onEnterScopeMethod in onEnterScopeMethods) {
+    if (onEnterScopeMethod.formalParameters.isEmpty) {
       throw InvalidGenerationSource(
-        'Handler function can only have positional parameters. \n'
-        'Correct ✅: ${onEnterScopeMethod.displayName}(Weaver weaver, WeaverState state, String arg1, int arg2, ...) \n'
-        'Incorrect ❌: ${onEnterScopeMethod.displayName}({Weaver weaver, WeaverState state, String arg1, int arg2, ...})',
+        '❌ handler function annotated with @OnEnterScope should have its the first parameter of type "Weaver"'
+        'eg: ${onEnterScopeMethod.displayName}(Weaver weaver, WeaverState state, ...)',
       );
+    }
+
+    final weaverParam = onEnterScopeMethod.formalParameters[0];
+    final weaverParamType = weaverParam.type.element3?.displayName;
+    if (weaverParamType != 'Weaver') {
+      throw InvalidGenerationSource(
+        '❌ First parameter of the scope handler function should be of type "Weaver" not "$weaverParamType". '
+        'eg: ${onEnterScopeMethod.displayName}(Weaver weaver, WeaverState state, ...)',
+      );
+    }
+
+    for (final param in onEnterScopeMethod.formalParameters) {
+      if (!param.isPositional) {
+        throw InvalidGenerationSource(
+          'Handler function can only have positional parameters. \n'
+          'Correct ✅: ${onEnterScopeMethod.displayName}(Weaver weaver, WeaverState state, String arg1, int arg2, ...) \n'
+          'Incorrect ❌: ${onEnterScopeMethod.displayName}({Weaver weaver, WeaverState state, String arg1, int arg2, ...})',
+        );
+      }
     }
   }
 
-  // validating the syntax of @onLeaveScope method
+  // validating the syntax of @onLeaveScope methods
 
-  if (onLeaveScopeMethod != null) {
+  for (var onLeaveScopeMethod in onLeaveScopeMethods) {
     final onLeaveMethodParamType = onLeaveScopeMethod.formalParameters.first.type.element3?.displayName;
     if (onLeaveScopeMethod.formalParameters.length != 1 || onLeaveMethodParamType != 'Weaver') {
       throw InvalidGenerationSource(
-        '''❌ method onLeaveScope() should have a single argument of type Weaver. 
+        '''
+❌ method onLeaveScope() should have a single argument of type Weaver. 
 
-Example: 
+  Example: 
 
-@OnLeaveScope()
-Future<void> onLeaveScope(Weaver weaver) async {
+  @OnLeaveScope()
+  Future<void> onLeaveScope(Weaver weaver) async {
   weaver.unregister<MyDependency>();
-}
-
-        ''',
+      ''',
       );
     }
   }
-}
 
-void validateSourceSyntaxOnNamedDependencyFunction(ExecutableElement2 function) {
-  if (!function.displayName.startsWith('_')) {
-    throw InvalidGenerationSource(
-      '❌ The factory function for named dependencies should be private but ${function.displayName}() is not.',
-    );
+  // validating if there are more than one @onEnterScope annotated methods, each has a unique name
+  if (onEnterScopeMethods.length > 1) {
+    final childScopeNames = onEnterScopeMethods.map((annotatedMethod) {
+      final reader = ConstantReader(_onEnterScopeTypeChecker.firstAnnotationOfExact(annotatedMethod));
+      return reader.read('name').stringValue;
+    });
+
+    final cleanedUpChildScopeNames = childScopeNames.map((n) => n.replaceAll(' ', '')).toSet();
+    cleanedUpChildScopeNames.removeWhere((name) => name.isEmpty);
+
+    if (childScopeNames.length != cleanedUpChildScopeNames.length) {
+      throw InvalidGenerationSource(
+        '❌ Cannot define multiple child scopes with similar names or empty names. '
+        'Fix these annotations inside ${classElement.displayName} class\n'
+        '${childScopeNames.map((name) => "@OnEnterScope(name: '$name')").join('\n')}\n'
+        '✅ Correct example:\n@OnEnterScope(name: "foo")\n@OnEnterScope(name: "bar")\n',
+      );
+    }
   }
 
-  final returnType = function.returnType;
-  final objectType = returnType.isDartAsyncFuture
-      ? (returnType as ParameterizedType).typeArguments.first.displayNameWithNullability
-      : function.returnType.displayNameWithNullability;
+  // validating if there are multiple onEnterScopes then every onLeaveScope if there are any should have a relevant
+  // name handling leaving one of the child scopes.
 
-  if (returnType.isDartAsyncFuture) {
-    throw InvalidGenerationSource(
-      '❌ The factory function for named dependencies with return type of Future is not currently '
-      'supported but ${function.displayName}() has a return type of Future.',
-    );
-  }
+  if (onEnterScopeMethods.length > 1 && onLeaveScopeMethods.isNotEmpty) {
+    final childScopeNames = onEnterScopeMethods.map((annotatedMethod) {
+      final reader = ConstantReader(_onEnterScopeTypeChecker.firstAnnotationOfExact(annotatedMethod));
+      return reader.read('name').stringValue;
+    });
 
-  if (objectType?.endsWith('?') == true) {
-    throw InvalidGenerationSource(
-      '❌ The factory function for named dependencies cannot have a nullable return type but ${function.displayName}() does.',
-    );
+    for (var onLeaveScopeMethod in onLeaveScopeMethods) {
+      final reader = ConstantReader(_onLeaveScopeTypeChecker.firstAnnotationOfExact(onLeaveScopeMethod));
+      final onLeaveMethodChildScopeName = reader.read('name').stringValue;
+      if (!childScopeNames.contains(onLeaveMethodChildScopeName)) {
+        throw InvalidGenerationSource(
+          'Method annotated with @OnLeaveScope(name: "$onLeaveMethodChildScopeName") inside ${classElement.displayName} '
+          'has incorrect name. the name should match the name of one of existing child scopes defined in ${classElement.displayName} '
+          'which are: ${childScopeNames.join(', ')}',
+        );
+      }
+    }
   }
 }
