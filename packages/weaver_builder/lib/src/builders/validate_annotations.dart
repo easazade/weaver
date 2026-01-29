@@ -185,18 +185,16 @@ class MyScope {
   if (onEnterScopeMethods.length > 1) {
     final childScopeNames = onEnterScopeMethods.map((annotatedMethod) {
       final reader = ConstantReader(_onEnterScopeTypeChecker.firstAnnotationOfExact(annotatedMethod));
-      return reader.read('name').stringValue;
-    });
+      return reader.peek('name')?.stringValue;
+    }).toList();
 
-    final cleanedUpChildScopeNames = childScopeNames.map((n) => n.replaceAll(' ', '')).toSet();
-    cleanedUpChildScopeNames.removeWhere((name) => name.isEmpty);
+    final cleanedUpChildScopeNames = childScopeNames.map((n) => n?.replaceAll(' ', '')).toList().toSet();
+    cleanedUpChildScopeNames.removeWhere((name) => name == null || name.isEmpty == true);
 
     if (childScopeNames.length != cleanedUpChildScopeNames.length) {
       throw InvalidGenerationSource(
-        '❌ Cannot define multiple child scopes with similar names or empty names. '
-        'Fix these annotations inside ${classElement.displayName} class\n'
-        '${childScopeNames.map((name) => "@OnEnterScope(name: '$name')").join('\n')}\n'
-        '✅ Correct example:\n@OnEnterScope(name: "foo")\n@OnEnterScope(name: "bar")\n',
+        'Cannot define multiple child scopes with duplicate, empty or null names\n'
+        'Current child scopes are:\n${childScopeNames.map((name) => "@OnEnterScope(name: $name)").join('\n')}\n',
       );
     }
   }

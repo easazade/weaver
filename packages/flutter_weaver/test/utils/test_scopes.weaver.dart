@@ -6,7 +6,8 @@ part of 'test_scopes.dart';
 class Test1Scope extends Scope<Test1ScopeArgs> {
   static const String scopeName = 'test-scope-1';
 
-  Test1Scope({required List objects}) : super(name: "test-scope-1", args: Test1ScopeArgs(objects));
+  Test1Scope({required List objects})
+    : super(name: "test-scope-1", args: Test1ScopeArgs(objects));
 }
 
 class Test1ScopeArgs {
@@ -35,7 +36,8 @@ class Test1ScopeHandler extends ScopeHandler<Test1ScopeArgs> {
 }
 
 extension Test1ScopeOnWeaverAddedToWeaver on Weaver {
-  Test1ScopeOnWeaver get testScope1 => Test1ScopeOnWeaver(ScopeHandlerWeaverProxy(this));
+  Test1ScopeOnWeaver get testScope1 =>
+      Test1ScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
 class Test1ScopeOnWeaver {
@@ -45,13 +47,16 @@ class Test1ScopeOnWeaver {
 
   Test1ScopeOnWeaver(this.weaverInstance);
 
-  bool get isIn => weaverInstance.scopes.where((scope) => scope.name == "test-scope-1").isNotEmpty;
+  bool get isIn => weaverInstance.scopes
+      .where((scope) => scope.name == "test-scope-1")
+      .isNotEmpty;
 }
 
 class Test2Scope extends Scope<Test2ScopeArgs> {
   static const String scopeName = 'test-scope-2';
 
-  Test2Scope({required List objects}) : super(name: "test-scope-2", args: Test2ScopeArgs(objects));
+  Test2Scope({required List objects})
+    : super(name: "test-scope-2", args: Test2ScopeArgs(objects));
 }
 
 class Test2ScopeArgs {
@@ -80,7 +85,8 @@ class Test2ScopeHandler extends ScopeHandler<Test2ScopeArgs> {
 }
 
 extension Test2ScopeOnWeaverAddedToWeaver on Weaver {
-  Test2ScopeOnWeaver get testScope2 => Test2ScopeOnWeaver(ScopeHandlerWeaverProxy(this));
+  Test2ScopeOnWeaver get testScope2 =>
+      Test2ScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
 class Test2ScopeOnWeaver {
@@ -90,5 +96,7 @@ class Test2ScopeOnWeaver {
 
   Test2ScopeOnWeaver(this.weaverInstance);
 
-  bool get isIn => weaverInstance.scopes.where((scope) => scope.name == "test-scope-2").isNotEmpty;
+  bool get isIn => weaverInstance.scopes
+      .where((scope) => scope.name == "test-scope-2")
+      .isNotEmpty;
 }
