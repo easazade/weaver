@@ -17,7 +17,9 @@ class WeaverScope {
 /// The method should be inside a class annotated with `@WeaverScope`.
 /// It is responsible for registering dependencies specific to that scope.
 class OnEnterScope {
-  const OnEnterScope();
+  final String? name;
+
+  const OnEnterScope({this.name});
 }
 
 /// Annotation used to mark a method that should be called when leaving a scope.
@@ -26,7 +28,9 @@ class OnEnterScope {
 /// It is responsible for unregistering dependencies or performing cleanup.
 /// If not provided, Weaver handles unregistering dependencies automatically.
 class OnLeaveScope {
-  const OnLeaveScope();
+  final String? name;
+
+  const OnLeaveScope({this.name});
 }
 
 /// Annotation used to define a named dependency within a scope or session.

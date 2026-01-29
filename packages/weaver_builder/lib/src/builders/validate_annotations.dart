@@ -129,8 +129,8 @@ class MyScope {
     if (!param.isPositional) {
       throw InvalidGenerationSource(
         'Handler function can only have positional parameters. \n'
-        'Correct ✅: ${onEnterScopeMethod.displayName}(Weaver weaver, WeaverState state, String arg1, int, arg2, ...) \n'
-        'Incorrect ❌: ${onEnterScopeMethod.displayName}({Weaver weaver, WeaverState state, String arg1, int, arg2, ...})',
+        'Correct ✅: ${onEnterScopeMethod.displayName}(Weaver weaver, WeaverState state, String arg1, int arg2, ...) \n'
+        'Incorrect ❌: ${onEnterScopeMethod.displayName}({Weaver weaver, WeaverState state, String arg1, int arg2, ...})',
       );
     }
   }
