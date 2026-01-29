@@ -98,8 +98,8 @@ void main() {
     expect(weaver.get<String>(name: namedKey1), namedValue1);
     expect(weaver.get<String>(name: namedKey2), namedValue2);
 
-    expect(weaver.generatedTest.namedKey1, namedValue1);
-    expect(weaver.generatedTest.namedKey2, namedValue2);
+    expect(weaver.generatedTestScope.namedKey1, namedValue1);
+    expect(weaver.generatedTestScope.namedKey2, namedValue2);
 
     await weaver.leaveScope(GeneratedTestScope.scopeName);
 
@@ -119,7 +119,7 @@ void main() {
 
       expect(weaver.isRegistered<bool>(), isTrue);
       expect(weaver.isRegistered(name: namedKey3), isTrue);
-      expect(weaver.generatedTest2.namedKey3, namedValue3);
+      expect(weaver.generatedTest2Scope.namedKey3, namedValue3);
 
       await weaver.leaveScope(GeneratedTest2Scope.scopeName);
 
