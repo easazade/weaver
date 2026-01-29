@@ -136,7 +136,7 @@ class ShoppingScopeHandler extends ScopeHandler<void> {
 }
 
 extension ShoppingScopeOnWeaverAddedToWeaver on Weaver {
-  ShoppingScopeOnWeaver get shopping =>
+  ShoppingScopeOnWeaver get shoppingScope =>
       ShoppingScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
@@ -180,7 +180,7 @@ class EditScopeHandler extends ScopeHandler<void> {
 }
 
 extension EditScopeOnWeaverAddedToWeaver on Weaver {
-  EditScopeOnWeaver get edit =>
+  EditScopeOnWeaver get editScope =>
       EditScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
@@ -193,56 +193,6 @@ class EditScopeOnWeaver {
 
   bool get isIn =>
       weaverInstance.scopes.where((scope) => scope.name == "edit").isNotEmpty;
-}
-
-class AccessScope extends Scope<AccessScopeArgs> {
-  static const String scopeName = 'access';
-
-  AccessScope({required String adminKey})
-    : super(name: "access", args: AccessScopeArgs(adminKey));
-}
-
-class AccessScopeArgs {
-  final String adminKey;
-
-  AccessScopeArgs(this.adminKey);
-}
-
-class AccessScopeHandler extends ScopeHandler<AccessScopeArgs> {
-  AccessScopeHandler(super.weaver);
-
-  final _scopeHandlerDelegate = _AccessScope();
-
-  @override
-  String get scopeName => 'access';
-
-  @override
-  Future<void> onEnterScope(Weaver weaver, AccessScopeArgs args) async {
-    await _scopeHandlerDelegate.adminAccess(weaver, args.adminKey);
-  }
-
-  @override
-  Future<void> onLeaveScope(Weaver weaver) async {
-    // no methods are annotated with @OnLeaveScope in the scope handler delegate for
-    // custom disposal and unregistering of the dependencies registered for this scope
-    (weaver as ScopeHandlerWeaverProxy).unregisterDependencies();
-  }
-}
-
-extension AccessScopeOnWeaverAddedToWeaver on Weaver {
-  AccessScopeOnWeaver get access =>
-      AccessScopeOnWeaver(ScopeHandlerWeaverProxy(this));
-}
-
-class AccessScopeOnWeaver {
-  final ScopeHandlerWeaverProxy weaverInstance;
-
-  final _scopeHandlerDelegate = _AccessScope();
-
-  AccessScopeOnWeaver(this.weaverInstance);
-
-  bool get isIn =>
-      weaverInstance.scopes.where((scope) => scope.name == "access").isNotEmpty;
 }
 
 extension NamedDependencyUserIdX on WeaverNamed {

@@ -14,9 +14,6 @@ void writeClassesForSingleScope({
 }) {
   final weaverScopeAnnotation = weaverScopeTypeChecker.firstAnnotationOfExact(classElement)!;
 
-  checkForDuplicateScopeNames(library.classes);
-  validateSourceSyntaxOnWeaverScopeClass(classElement);
-
   final methods = classElement.methods2;
   final onEnterScopeMethod = methods.firstWhere((method) => onEnterScopeTypeChecker.hasAnnotationOfExact(method));
   final onLeaveScopeMethod = methods.firstWhereOrNull((method) => onLeaveScopeTypeChecker.hasAnnotationOfExact(method));

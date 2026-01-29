@@ -56,17 +56,6 @@ class _EditScope {
   }
 }
 
-@WeaverScope(name: 'access')
-class _AccessScope {
-  @OnEnterScope(name: 'admin')
-  Future<void> adminAccess(Weaver weaver, String adminKey) async {}
-
-  @OnEnterScope(name: 'user')
-  Future<void> userAccess(Weaver weaver, int userId) async {}
-
-  @OnEnterScope(name: 'public')
-  Future<void> publicAccess(Weaver weaver, bool flag) async {}
-}
 
 @NamedDependency(name: 'user-id')
 String _userId() => '123677283';
