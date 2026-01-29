@@ -225,7 +225,8 @@ class Weaver extends Observable {
       );
     }
 
-    final noHandlerAvailableToHandle = _scopeHandlers.where((final e) => e.scopeName == scope.name).isEmpty;
+    final noHandlerAvailableToHandle =
+        _scopeHandlers.where((final handler) => handler.canHandleScope(scope.name)).isEmpty;
     if (noHandlerAvailableToHandle) {
       throw WeaverException(
         'Entered scope ${scope.name} but there is no scope handler to handle this scope. '
@@ -260,27 +261,28 @@ class Weaver extends Observable {
   /// Adds a [ScopeHandler] to this [Weaver] instance.
   ///
   /// The handler will be immediately notified to handle the current scope state.
-  Future<void> addScopeHandler(final ScopeHandler handler) async {
-    final alreadyAdded = _scopeHandlers.firstWhereOrNull((final e) => e.scopeName == handler.scopeName) != null;
+  Future<void> addScopeHandler(final ScopeHandler newHandler) async {
+    final hasConflictWithAnotherHandler =
+        _scopeHandlers.firstWhereOrNull((final handler) => handler.canHandleScope(newHandler.scopeName)) != null;
 
-    if (alreadyAdded && !allowReassignment) {
-      throw WeaverException('Cannot add ScopeHandler with name ${handler.scopeName}, since one is already added');
+    if (hasConflictWithAnotherHandler && !allowReassignment) {
+      throw WeaverException('Cannot add ScopeHandler with name ${newHandler.scopeName}, since one is already added');
     } else if (allowReassignment) {
-      _scopeHandlers.removeWhere((final e) => e.scopeName == handler.scopeName);
+      _scopeHandlers.removeWhere((final currentHandler) => currentHandler.scopeName == newHandler.scopeName);
     }
 
-    _scopeHandlers.add(handler);
-    await handler.handle();
+    _scopeHandlers.add(newHandler);
+    await newHandler.handle();
   }
 
   /// Removes the [ScopeHandler] that handles the scope with [scopeName].
   ///
   /// Note: This does not leave the scope itself; use [leaveScope] for that.
   Future<void> removeScopeHandler(final String scopeName) async {
-    final handler = _scopeHandlers.firstWhereOrNull((final handler) => handler.scopeName == scopeName);
+    final handler = _scopeHandlers.firstWhereOrNull((final handler) => handler.canHandleScope(scopeName));
 
     if (handler != null) {
-      _scopeHandlers.removeWhere((final e) => e.scopeName == scopeName);
+      _scopeHandlers.removeWhere((final e) => e.canHandleScope(scopeName));
 
       // not calling handler.handle since the scope might not be left yet.
       await handler.onLeaveScope(this);

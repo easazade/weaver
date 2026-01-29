@@ -70,6 +70,8 @@ abstract class ScopeHandler<T> {
   /// Called when the scope is left. Cleanup or custom un-registration should happen here.
   Future<void> onLeaveScope(final Weaver weaver);
 
+  bool canHandleScope(final String scope) => scope == scopeName;
+
   /// Called when the [ScopeHandler] is being removed from [Weaver].
   void dispose() {}
 }
