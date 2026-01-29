@@ -58,10 +58,10 @@ class _EditScope {
 
 @WeaverScope(name: 'access')
 class _AccessScope {
-  @OnEnterScope(name: '')
+  @OnEnterScope(name: 'admin')
   Future<void> adminAccess(Weaver weaver, String adminKey) async {}
 
-  @OnEnterScope(name: 'admin')
+  @OnEnterScope(name: 'user')
   Future<void> userAccess(Weaver weaver, int userId) async {}
 
   @OnEnterScope(name: 'public')
