@@ -8,7 +8,8 @@ class BaseAccessScopeArgs {}
 class AccessAdminScope extends Scope<AccessScopeAdminArgs> {
   static const String scopeName = 'access';
 
-  AccessAdminScope({required String adminKey}) : super(name: "access", args: AccessScopeAdminArgs(adminKey));
+  AccessAdminScope({required String adminKey})
+    : super(name: "access", args: AccessScopeAdminArgs(adminKey));
 }
 
 class AccessScopeAdminArgs extends BaseAccessScopeArgs {
@@ -22,7 +23,8 @@ class AccessScopeAdminArgs extends BaseAccessScopeArgs {
 class AccessUserScope extends Scope<AccessScopeUserArgs> {
   static const String scopeName = 'access';
 
-  AccessUserScope({required int userId}) : super(name: "access", args: AccessScopeUserArgs(userId));
+  AccessUserScope({required int userId})
+    : super(name: "access", args: AccessScopeUserArgs(userId));
 }
 
 class AccessScopeUserArgs extends BaseAccessScopeArgs {
@@ -36,7 +38,8 @@ class AccessScopeUserArgs extends BaseAccessScopeArgs {
 class AccessPublicScope extends Scope<AccessScopePublicArgs> {
   static const String scopeName = 'access';
 
-  AccessPublicScope({required bool flag}) : super(name: "access", args: AccessScopePublicArgs(flag));
+  AccessPublicScope({required bool flag})
+    : super(name: "access", args: AccessScopePublicArgs(flag));
 }
 
 class AccessScopePublicArgs extends BaseAccessScopeArgs {
@@ -47,7 +50,7 @@ class AccessScopePublicArgs extends BaseAccessScopeArgs {
   AccessScopePublicArgs(this.flag);
 }
 
-class AccessScopeHandler extends SingleScopeHandler<BaseAccessScopeArgs> {
+class AccessScopeHandler extends MultiScopeHandler<BaseAccessScopeArgs> {
   AccessScopeHandler(super.weaver);
 
   final _scopeHandlerDelegate = _AccessScope();
@@ -69,7 +72,8 @@ class AccessScopeHandler extends SingleScopeHandler<BaseAccessScopeArgs> {
 }
 
 extension AccessScopeOnWeaverAddedToWeaver on Weaver {
-  AccessScopeOnWeaver get accessScope => AccessScopeOnWeaver(ScopeHandlerWeaverProxy(this));
+  AccessScopeOnWeaver get accessScope =>
+      AccessScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
 class AccessScopeOnWeaver {
@@ -79,5 +83,6 @@ class AccessScopeOnWeaver {
 
   AccessScopeOnWeaver(this.weaverInstance);
 
-  bool get isIn => weaverInstance.scopes.where((scope) => scope.name == "access").isNotEmpty;
+  bool get isIn =>
+      weaverInstance.scopes.where((scope) => scope.name == "access").isNotEmpty;
 }

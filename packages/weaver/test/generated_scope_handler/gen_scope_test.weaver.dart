@@ -20,7 +20,8 @@ class GeneratedTestScopeArgs {
   GeneratedTestScopeArgs(this.optionalArg, this.arg);
 }
 
-class GeneratedTestScopeHandler extends SingleScopeHandler<GeneratedTestScopeArgs> {
+class GeneratedTestScopeHandler
+    extends SingleScopeHandler<GeneratedTestScopeArgs> {
   GeneratedTestScopeHandler(super.weaver);
 
   final _scopeHandlerDelegate = _GeneratedTestScope();
