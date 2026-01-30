@@ -175,7 +175,8 @@ class EditScopeHandler extends SingleScopeHandler<void> {
   Future<void> onLeaveScope(Weaver weaver) async {
     // no methods are annotated with @OnLeaveScope in the scope handler delegate for
     // custom disposal and unregistering of the dependencies registered for this scope
-    (weaver as ScopeHandlerWeaverProxy).unregisterDependencies();
+    (weaver as ScopeHandlerWeaverProxy)
+        .unregisterDependenciesRegisteredByThisProxy();
   }
 }
 

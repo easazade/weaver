@@ -287,6 +287,7 @@ class Weaver extends Observable {
       _scopeHandlers.removeWhere((final e) => e.canHandleScope(scopeName));
 
       // not calling handler.handle since the scope might not be left yet.
+      // ?? 
       await handler.leaveScope();
       handler.dispose();
     }

@@ -2,7 +2,7 @@
 abstract class ScopeHandler<T> {
   bool canHandleScope(final String scopeName);
 
-  Future<void> handle() async {}
+  Future<void> handle();
 
   void dispose();
 

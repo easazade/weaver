@@ -20,7 +20,7 @@ abstract class SingleScopeHandler<T> extends ScopeHandler {
   /// Handles the scope state transition by checking if the scope is currently active in [weaver].
   @override
   Future<void> handle() async {
-    final scope = weaver.scopes.firstWhereOrNull((final scope) => scope.name == scopeName);
+    final scope = weaver.scopes.firstWhereOrNull((final scope) => canHandleScope(scope.name));
     final shouldBeInScope = scope != null;
 
     if (shouldBeInScope && !_isInScope) {

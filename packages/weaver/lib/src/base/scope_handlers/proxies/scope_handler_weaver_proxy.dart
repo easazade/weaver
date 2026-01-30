@@ -31,8 +31,8 @@ class ScopeHandlerWeaverProxy implements Weaver {
     }
   }
 
-  /// unregisters all dependency objects registered using this proxy-weaver by the scope handler
-  void unregisterDependencies() {
+  /// unregister all dependency objects registered using this proxy-weaver by the scope handler
+  void unregisterDependenciesRegisteredByThisProxy() {
     for (final key in keys) {
       unregister(type: key.type, name: key.name);
     }

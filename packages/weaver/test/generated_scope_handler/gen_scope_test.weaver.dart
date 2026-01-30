@@ -7,10 +7,10 @@ class GeneratedTestScope extends Scope<GeneratedTestScopeArgs> {
   static const String scopeName = 'generated-test';
 
   GeneratedTestScope({double? optionalArg, required int arg})
-    : super(
-        name: "generated-test",
-        args: GeneratedTestScopeArgs(optionalArg, arg),
-      );
+      : super(
+          name: "generated-test",
+          args: GeneratedTestScopeArgs(optionalArg, arg),
+        );
 }
 
 class GeneratedTestScopeArgs {
@@ -20,8 +20,7 @@ class GeneratedTestScopeArgs {
   GeneratedTestScopeArgs(this.optionalArg, this.arg);
 }
 
-class GeneratedTestScopeHandler
-    extends SingleScopeHandler<GeneratedTestScopeArgs> {
+class GeneratedTestScopeHandler extends SingleScopeHandler<GeneratedTestScopeArgs> {
   GeneratedTestScopeHandler(super.weaver);
 
   final _scopeHandlerDelegate = _GeneratedTestScope();
@@ -55,8 +54,7 @@ class GeneratedTestScopeHandler
 }
 
 extension GeneratedTestScopeOnWeaverAddedToWeaver on Weaver {
-  GeneratedTestScopeOnWeaver get generatedTestScope =>
-      GeneratedTestScopeOnWeaver(ScopeHandlerWeaverProxy(this));
+  GeneratedTestScopeOnWeaver get generatedTestScope => GeneratedTestScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
 class GeneratedTestScopeOnWeaver {
@@ -66,9 +64,7 @@ class GeneratedTestScopeOnWeaver {
 
   GeneratedTestScopeOnWeaver(this.weaverInstance);
 
-  bool get isIn => weaverInstance.scopes
-      .where((scope) => scope.name == "generated-test")
-      .isNotEmpty;
+  bool get isIn => weaverInstance.scopes.where((scope) => scope.name == "generated-test").isNotEmpty;
 
   String get namedKey1 => weaverInstance.get<String>(name: "named-key-1");
   String get namedKey2 => weaverInstance.get<String>(name: "named-key-2");
@@ -102,14 +98,13 @@ class GeneratedTest2ScopeHandler extends SingleScopeHandler<void> {
   Future<void> onLeaveScope(Weaver weaver) async {
     // no methods are annotated with @OnLeaveScope in the scope handler delegate for
     // custom disposal and unregistering of the dependencies registered for this scope
-    (weaver as ScopeHandlerWeaverProxy).unregisterDependencies();
+    (weaver as ScopeHandlerWeaverProxy).unregisterDependenciesRegisteredByThisProxy();
     weaver.unregister<String>(name: "named-key-3");
   }
 }
 
 extension GeneratedTest2ScopeOnWeaverAddedToWeaver on Weaver {
-  GeneratedTest2ScopeOnWeaver get generatedTest2Scope =>
-      GeneratedTest2ScopeOnWeaver(ScopeHandlerWeaverProxy(this));
+  GeneratedTest2ScopeOnWeaver get generatedTest2Scope => GeneratedTest2ScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
 class GeneratedTest2ScopeOnWeaver {
@@ -119,9 +114,7 @@ class GeneratedTest2ScopeOnWeaver {
 
   GeneratedTest2ScopeOnWeaver(this.weaverInstance);
 
-  bool get isIn => weaverInstance.scopes
-      .where((scope) => scope.name == "generated-test-2")
-      .isNotEmpty;
+  bool get isIn => weaverInstance.scopes.where((scope) => scope.name == "generated-test-2").isNotEmpty;
 
   String get namedKey3 => weaverInstance.get<String>(name: "named-key-3");
 }

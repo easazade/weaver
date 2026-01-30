@@ -19,8 +19,8 @@ void writeClassesForMultiScope({
   final onLeaveScopeMethod = methods.firstWhereOrNull((method) => onLeaveScopeTypeChecker.hasAnnotationOfExact(method));
 
   final reader = ConstantReader(weaverScopeAnnotation);
-  final scopeName = reader.read('name').stringValue;
-  final baseScopeClassName = '${scopeName.pascalCase.replaceAll('Scope', '')}Scope';
+  final baseScopeName = reader.read('name').stringValue;
+  final baseScopeClassName = '${baseScopeName.pascalCase.replaceAll('Scope', '')}Scope';
   final baseScopeArgsClassName = 'Base${baseScopeClassName}Args';
 
   // create arg class
@@ -35,9 +35,10 @@ void writeClassesForMultiScope({
     final onEnterScopeAnnotation = onEnterScopeTypeChecker.firstAnnotationOfExact(onEnterScopeMethod);
     final reader = ConstantReader(onEnterScopeAnnotation);
     final childScopeName = reader.read('name').stringValue;
+    final scopeName = '$baseScopeName${childScopeName.pascalCase}'.paramCase;
+    final childScopeClassName = '${baseScopeName.pascalCase.replaceAll('Scope', '')}${childScopeName.pascalCase}Scope';
     final params = onEnterScopeMethod.formalParameters;
     final scopeArgsClassName = params.length > 1 ? '$baseScopeClassName${childScopeName.pascalCase}Args' : 'void';
-    final childScopeClassName = '${scopeName.pascalCase.replaceAll('Scope', '')}${childScopeName.pascalCase}Scope';
     var scopeClassArgs = <FormalParameterElement>[];
     if (params.length > 1) {
       scopeClassArgs = params.sublist(1);
@@ -139,7 +140,8 @@ void writeClassesForMultiScope({
   }
 
   // create scope-handler class
-  final scopeHandlerClassName = '${scopeName.pascalCase.replaceAll('Scope', '').replaceAll('Handler', '')}ScopeHandler';
+  final scopeHandlerClassName =
+      '${baseScopeName.pascalCase.replaceAll('Scope', '').replaceAll('Handler', '')}ScopeHandler';
 
   buffer.writeln('''
         class $scopeHandlerClassName extends MultiScopeHandler<$baseScopeArgsClassName> {
@@ -148,7 +150,7 @@ void writeClassesForMultiScope({
         final _scopeHandlerDelegate = ${classElement.displayName}();
 
         @override
-        String get scopeName => '$scopeName';
+        String get scopeName => '$baseScopeName';
 
         @override
         Future<void> onEnterScope(Weaver weaver, $baseScopeArgsClassName args) async {
@@ -195,7 +197,7 @@ void writeClassesForMultiScope({
 
           $scopeExtensionClassName(this.weaverInstance);
 
-          bool get isIn => weaverInstance.scopes.where((scope) => scope.name == "$scopeName").isNotEmpty;
+          bool get isIn => weaverInstance.scopes.where((scope) => scope.name == "$baseScopeName").isNotEmpty;
 
           ${namedDependenciesQuickAccessMethodsPart.toString()}
         }
