@@ -126,7 +126,7 @@ void writeClassesForSingleScope({
   final scopeHandlerClassName = '${scopeName.pascalCase.replaceAll('Scope', '').replaceAll('Handler', '')}ScopeHandler';
 
   buffer.writeln('''
-        class $scopeHandlerClassName extends ScopeHandler<$scopeArgsClassName> {
+        class $scopeHandlerClassName extends SingleScopeHandler<$scopeArgsClassName> {
         $scopeHandlerClassName(super.weaver);
 
         final _scopeHandlerDelegate = ${classElement.displayName}();

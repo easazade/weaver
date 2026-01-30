@@ -1,12 +1,12 @@
 import 'package:weaver/src/base/scope.dart';
-import 'package:weaver/src/base/scope_handler.dart';
+import 'package:weaver/src/base/scope_handlers/single_scope_handler.dart';
 import 'package:weaver/src/base/weaver.dart';
 
 class TestScope extends Scope<String> {
   TestScope({required super.args}) : super(name: 'test');
 }
 
-class TestScopeHandler extends ScopeHandler<String> {
+class TestScopeHandler extends SingleScopeHandler<String> {
   TestScopeHandler(
     super.weaver, {
     this.stringObject,

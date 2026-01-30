@@ -20,7 +20,7 @@ class GeneratedTestScopeArgs {
   GeneratedTestScopeArgs(this.optionalArg, this.arg);
 }
 
-class GeneratedTestScopeHandler extends ScopeHandler<GeneratedTestScopeArgs> {
+class GeneratedTestScopeHandler extends SingleScopeHandler<GeneratedTestScopeArgs> {
   GeneratedTestScopeHandler(super.weaver);
 
   final _scopeHandlerDelegate = _GeneratedTestScope();
@@ -79,7 +79,7 @@ class GeneratedTest2Scope extends Scope<void> {
   GeneratedTest2Scope() : super(name: "generated-test-2", args: null);
 }
 
-class GeneratedTest2ScopeHandler extends ScopeHandler<void> {
+class GeneratedTest2ScopeHandler extends SingleScopeHandler<void> {
   GeneratedTest2ScopeHandler(super.weaver);
 
   final _scopeHandlerDelegate = _GeneratedTestScope2();

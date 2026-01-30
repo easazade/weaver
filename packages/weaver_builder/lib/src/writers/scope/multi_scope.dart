@@ -142,7 +142,7 @@ void writeClassesForMultiScope({
   final scopeHandlerClassName = '${scopeName.pascalCase.replaceAll('Scope', '').replaceAll('Handler', '')}ScopeHandler';
 
   buffer.writeln('''
-        class $scopeHandlerClassName extends ScopeHandler<$baseScopeArgsClassName> {
+        class $scopeHandlerClassName extends MultiScopeHandler<$baseScopeArgsClassName> {
         $scopeHandlerClassName(super.weaver);
 
         final _scopeHandlerDelegate = ${classElement.displayName}();

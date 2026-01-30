@@ -15,7 +15,7 @@ class Test1ScopeArgs {
   Test1ScopeArgs(this.objects);
 }
 
-class Test1ScopeHandler extends ScopeHandler<Test1ScopeArgs> {
+class Test1ScopeHandler extends SingleScopeHandler<Test1ScopeArgs> {
   Test1ScopeHandler(super.weaver);
 
   final _scopeHandlerDelegate = _TestScope1();
@@ -60,7 +60,7 @@ class Test2ScopeArgs {
   Test2ScopeArgs(this.objects);
 }
 
-class Test2ScopeHandler extends ScopeHandler<Test2ScopeArgs> {
+class Test2ScopeHandler extends SingleScopeHandler<Test2ScopeArgs> {
   Test2ScopeHandler(super.weaver);
 
   final _scopeHandlerDelegate = _TestScope2();

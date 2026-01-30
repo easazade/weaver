@@ -4,11 +4,12 @@ import 'package:collection/collection.dart';
 import 'package:weaver/src/base/dependency_map.dart';
 import 'package:weaver/src/base/named.dart';
 import 'package:weaver/src/base/scope.dart';
+import 'package:weaver/src/base/scope_handlers/scope_handler.dart';
 import 'package:weaver/src/utils/log.dart';
 import 'package:weaver/src/utils/observable.dart';
 
 import 'dependency.dart';
-import 'scope_handler.dart';
+import 'scope_handlers/single_scope_handler.dart';
 
 /// default instance of [Weaver]
 final weaver = Weaver();
@@ -215,7 +216,7 @@ class Weaver extends Observable {
 
   /// Signals that the application has entered the given [scope].
   ///
-  /// This will notify all registered [ScopeHandler]s to handle the scope entry.
+  /// This will notify all registered [SingleScopeHandler]s to handle the scope entry.
   /// Throws a [WeaverException] if the scope is already entered or if no handler
   /// is available for the scope.
   Future<void> enterScope(final Scope scope) async {
@@ -247,7 +248,7 @@ class Weaver extends Observable {
 
   /// Signals that the application has left the scope with the given [scopeName].
   ///
-  /// This will notify all registered [ScopeHandler]s to handle the scope exit.
+  /// This will notify all registered [SingleScopeHandler]s to handle the scope exit.
   Future<void> leaveScope(final String scopeName) async {
     if (isInScope(scopeName)) {
       _scopes.removeWhere((final e) => e.name == scopeName);
@@ -259,10 +260,10 @@ class Weaver extends Observable {
     }
   }
 
-  /// Adds a [ScopeHandler] to this [Weaver] instance.
+  /// Adds a [SingleScopeHandler] to this [Weaver] instance.
   ///
   /// The handler will be immediately notified to handle the current scope state.
-  Future<void> addScopeHandler(final ScopeHandler newHandler) async {
+  Future<void> addScopeHandler(final SingleScopeHandler newHandler) async {
     final hasConflictWithAnotherHandler =
         _scopeHandlers.firstWhereOrNull((final handler) => handler.canHandleScope(newHandler.scopeName)) != null;
 
@@ -276,7 +277,7 @@ class Weaver extends Observable {
     await newHandler.handle();
   }
 
-  /// Removes the [ScopeHandler] that handles the scope with [scopeName].
+  /// Removes the [SingleScopeHandler] that handles the scope with [scopeName].
   ///
   /// Note: This does not leave the scope itself; use [leaveScope] for that.
   Future<void> removeScopeHandler(final String scopeName) async {
@@ -286,7 +287,7 @@ class Weaver extends Observable {
       _scopeHandlers.removeWhere((final e) => e.canHandleScope(scopeName));
 
       // not calling handler.handle since the scope might not be left yet.
-      await handler.onLeaveScope(this);
+      await handler.leaveScope();
       handler.dispose();
     }
   }
@@ -303,12 +304,7 @@ class Weaver extends Observable {
 }
 
 class WeaverException implements Exception {
-  WeaverException(this.message) {
-    // Since in web sometimes uncaught exception do not get logged correctly
-    // if (kIsWeb) {
-    // log(message);
-    // }
-  }
+  WeaverException(this.message);
 
   final String message;
 
