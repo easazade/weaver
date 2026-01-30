@@ -1,7 +1,7 @@
 import 'package:weaver/src/base/dependency.dart';
 import 'package:weaver/src/base/named.dart';
 import 'package:weaver/src/base/scope.dart';
-import 'package:weaver/src/base/scope_handlers/single_scope_handler.dart';
+import 'package:weaver/src/base/scope_handlers/scope_handler.dart';
 import 'package:weaver/src/base/weaver.dart';
 
 /// Used as a proxy on weaver for generated scope handler classes. provides extra hidden functionality that is only
@@ -50,7 +50,7 @@ class ScopeHandlerWeaverProxy implements Weaver {
   }
 
   @override
-  Future<void> addScopeHandler(final SingleScopeHandler<dynamic> handler) {
+  Future<void> addScopeHandler(final ScopeHandler<dynamic> handler) {
     return _realWeaver.addScopeHandler(handler);
   }
 

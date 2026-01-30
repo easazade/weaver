@@ -1,7 +1,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: unnecessary_string_interpolations, unused_field, prefer_final_parameters
 
-part of 'multi_scopes.dart';
+part of 'switch_scopes.dart';
 
 class BaseAccessScopeArgs {}
 
@@ -52,10 +52,10 @@ class AccessScopePublicArgs extends BaseAccessScopeArgs {
   AccessScopePublicArgs(this.flag);
 }
 
-class AccessDevScope extends Scope<void> {
+class AccessDevScope extends Scope<BaseAccessScopeArgs> {
   static const String scopeName = 'access-dev';
 
-  AccessDevScope() : super(name: "access-dev", args: null);
+  AccessDevScope() : super(name: "access-dev", args: BaseAccessScopeArgs());
 }
 
 class AccessScope {
@@ -73,7 +73,7 @@ class AccessScope {
   static AccessDevScope dev() => AccessDevScope();
 }
 
-class AccessScopeHandler extends MultiScopeHandler<BaseAccessScopeArgs> {
+class AccessScopeHandler extends SwitchScopeHandler<BaseAccessScopeArgs> {
   AccessScopeHandler(super.weaver);
 
   final _scopeHandlerDelegate = _AccessScope();
@@ -94,31 +94,34 @@ class AccessScopeHandler extends MultiScopeHandler<BaseAccessScopeArgs> {
   Future<void> onEnterScopeByScope(Scope<dynamic> scope) async {
     if (scope.name == 'access-admin') {
       final args = scope.args as AccessScopeAdminArgs;
-      await _scopeHandlerDelegate.adminAccess(weaver, args.adminKey, args.id);
+      await _scopeHandlerDelegate.adminAccess(
+        this.weaver,
+        args.adminKey,
+        args.id,
+      );
     }
 
     if (scope.name == 'access-user') {
       final args = scope.args as AccessScopeUserArgs;
-      await _scopeHandlerDelegate.userAccess(weaver, args.userId);
+      await _scopeHandlerDelegate.userAccess(this.weaver, args.userId);
     }
 
     if (scope.name == 'access-public') {
       final args = scope.args as AccessScopePublicArgs;
-      await _scopeHandlerDelegate.publicAccess(weaver, args.flag);
+      await _scopeHandlerDelegate.publicAccess(this.weaver, args.flag);
     }
 
     if (scope.name == 'access-dev') {
-      await _scopeHandlerDelegate.devAccess(weaver);
+      await _scopeHandlerDelegate.devAccess(this.weaver);
     }
   }
 
   @override
   Future<void> onLeaveScopeByName(String scopeName) async {
     if (scopeName == 'access-admin') {
-      await _scopeHandlerDelegate.adminCleanUp(weaver);
+      await _scopeHandlerDelegate.adminCleanUp(this.weaver);
     } else {
-      (weaver as ScopeHandlerWeaverProxy)
-          .unregisterDependenciesRegisteredByThisProxy();
+      this.weaver.unregisterDependenciesRegisteredByThisProxy();
     }
   }
 }

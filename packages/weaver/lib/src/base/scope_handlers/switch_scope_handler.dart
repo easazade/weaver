@@ -3,11 +3,11 @@ import 'package:weaver/src/base/scope_handlers/proxies/scope_handler_weaver_prox
 import 'package:weaver/src/base/scope_handlers/scope_handler.dart';
 import 'package:weaver/src/base/weaver.dart';
 
-abstract class MultiScopeHandler<T> extends ScopeHandler<T> {
+abstract class SwitchScopeHandler<T> extends ScopeHandler<T> {
   /// The [Weaver] proxy used to manage dependencies within this scope.
   final ScopeHandlerWeaverProxy weaver;
 
-  MultiScopeHandler(final Weaver weaver) : weaver = ScopeHandlerWeaverProxy(weaver);
+  SwitchScopeHandler(final Weaver weaver) : weaver = ScopeHandlerWeaverProxy(weaver);
 
   @override
   Future<void> handle(final ScopeChangeEvent event) async {
@@ -18,9 +18,11 @@ abstract class MultiScopeHandler<T> extends ScopeHandler<T> {
         await onLeaveScopeByName(currentScopeName);
       }
       await onEnterScopeByScope(event.scope);
+      currentScope = event.scope as Scope<T>;
     } else if (event is LeaveScope) {
       if (currentScope != null) {
         await onLeaveScopeByName(event.scopeName);
+        currentScope = null;
       }
     }
   }

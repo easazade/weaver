@@ -9,7 +9,6 @@ import 'package:weaver/src/utils/log.dart';
 import 'package:weaver/src/utils/observable.dart';
 
 import 'dependency.dart';
-import 'scope_handlers/single_scope_handler.dart';
 
 /// default instance of [Weaver]
 final weaver = Weaver();
@@ -215,7 +214,7 @@ class Weaver extends Observable {
 
   /// Signals that the application has entered the given [scope].
   ///
-  /// This will notify all registered [SingleScopeHandler]s to handle the scope entry.
+  /// This will notify all registered [ScopeHandler]s to handle the scope entry.
   /// Throws a [WeaverException] if the scope is already entered or if no handler
   /// is available for the scope.
   Future<void> enterScope(final Scope scope) async {
@@ -245,7 +244,7 @@ class Weaver extends Observable {
 
   /// Signals that the application has left the scope with the given [scopeName].
   ///
-  /// This will notify all registered [SingleScopeHandler]s to handle the scope exit.
+  /// This will notify all registered [ScopeHandler]s to handle the scope exit.
   Future<void> leaveScope(final String scopeName) async {
     for (final scopeHandler in _scopeHandlers) {
       await scopeHandler.handle(LeaveScope(scopeName: scopeName));
@@ -253,10 +252,10 @@ class Weaver extends Observable {
     notifyObservers();
   }
 
-  /// Adds a [SingleScopeHandler] to this [Weaver] instance.
+  /// Adds a [ScopeHandler] to this [Weaver] instance.
   ///
   /// The handler will be immediately notified to handle the current scope state.
-  Future<void> addScopeHandler(final SingleScopeHandler newHandler) async {
+  Future<void> addScopeHandler(final ScopeHandler newHandler) async {
     final hasConflictWithAnotherHandler =
         _scopeHandlers.firstWhereOrNull((final handler) => handler.canHandleScope(newHandler.scopeName)) != null;
 
@@ -269,7 +268,7 @@ class Weaver extends Observable {
     _scopeHandlers.add(newHandler);
   }
 
-  /// Removes the [SingleScopeHandler] that handles the scope with [scopeName].
+  /// Removes the [ScopeHandler] that handles the scope with [scopeName].
   ///
   /// Note: This does not leave the scope itself; use [leaveScope] for that.
   Future<void> removeScopeHandler(final String scopeName) async {

@@ -44,7 +44,8 @@ void writeClassesForSwitchScopes({
       final childScopeClassName =
           '${baseScopeName.pascalCase.replaceAll('Scope', '')}${childScopeName.pascalCase}Scope';
       final params = onEnterScopeMethod.formalParameters;
-      final scopeArgsClassName = params.length > 1 ? '$baseScopeClassName${childScopeName.pascalCase}Args' : 'void';
+      final scopeArgsClassName =
+          params.length > 1 ? '$baseScopeClassName${childScopeName.pascalCase}Args' : baseScopeArgsClassName;
       var scopeClassArgs = <FormalParameterElement>[];
 
       final onLeaveMethod = onLeaveScopeMethods.firstWhereOrNull((method) {
@@ -72,7 +73,7 @@ void writeClassesForSwitchScopes({
 
       final argsValue = (constructorArguments.isNotEmpty)
           ? "$scopeArgsClassName( ${scopeClassArgs.map((e) => e.displayName).join(',')})"
-          : "null";
+          : "$baseScopeArgsClassName()";
 
       buffer.writeln(
         '''
@@ -201,7 +202,7 @@ void writeClassesForSwitchScopes({
 
     buffer.writeln(
       '''
-        class $scopeHandlerClassName extends MultiScopeHandler<$baseScopeArgsClassName> {
+        class $scopeHandlerClassName extends SwitchScopeHandler<$baseScopeArgsClassName> {
         $scopeHandlerClassName(super.weaver);
 
         final _scopeHandlerDelegate = ${classElement.displayName}();
@@ -225,11 +226,11 @@ void writeClassesForSwitchScopes({
     );
 
     for (var info in childScopeInfos) {
-      if (info.argClassName == 'void') {
+      if (info.argClassName == baseScopeArgsClassName) {
         buffer.writeln(
           '''
           if(scope.name == '${info.fullName}'){
-            await _scopeHandlerDelegate.${info.delegateOnEnterMethodName}(weaver);
+            await _scopeHandlerDelegate.${info.delegateOnEnterMethodName}(this.weaver);
           }
         ''',
         );
@@ -238,7 +239,7 @@ void writeClassesForSwitchScopes({
           '''
         if(scope.name == '${info.fullName}'){
           final args = scope.args as ${info.argClassName};
-          await _scopeHandlerDelegate.${info.delegateOnEnterMethodName}(weaver, ${info.args.keys.map((argName) => 'args.$argName').join(',')});
+          await _scopeHandlerDelegate.${info.delegateOnEnterMethodName}(this.weaver, ${info.args.keys.map((argName) => 'args.$argName').join(',')});
         }
       ''',
         );
@@ -262,7 +263,7 @@ void writeClassesForSwitchScopes({
           buffer.writeln(
             '''
             if(scopeName == '${info.fullName}'){
-              await _scopeHandlerDelegate.${info.delegateOnLeaveMethodName}(weaver);
+              await _scopeHandlerDelegate.${info.delegateOnLeaveMethodName}(this.weaver);
             } else
           ''',
           );
@@ -272,7 +273,7 @@ void writeClassesForSwitchScopes({
       buffer.writeln(
         '''
       {
-        (weaver as ScopeHandlerWeaverProxy).unregisterDependenciesRegisteredByThisProxy();
+        this.weaver.unregisterDependenciesRegisteredByThisProxy();
       }
         ${namedDependenciesAutoUnRegisterPart.toString()}
       }
@@ -284,7 +285,7 @@ void writeClassesForSwitchScopes({
           Future<void> onLeaveScopeByName(String name) async {
             // no methods are annotated with @OnLeaveScope in the scope handler delegate for
             // custom disposal and unregistering of the dependencies registered for this scope
-            (weaver as ScopeHandlerWeaverProxy).unregisterDependenciesRegisteredByThisProxy();
+            this.weaver.unregisterDependenciesRegisteredByThisProxy();
             ${namedDependenciesAutoUnRegisterPart.toString()}
           }
         ''');

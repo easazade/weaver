@@ -1,6 +1,6 @@
 import 'package:weaver/weaver.dart';
 
-part 'multi_scopes.weaver.dart';
+part 'switch_scopes.weaver.dart';
 
 @WeaverSwitchScope(name: 'access')
 class _AccessScope {
@@ -18,8 +18,4 @@ class _AccessScope {
 
   @OnLeaveScope(name: 'admin')
   Future<void> adminCleanUp(Weaver weaver) async {}
-}
-
-awd() {
-  weaver.enterScope(AccessScope.admin(adminKey: 'adminKey', id: 1));
 }
