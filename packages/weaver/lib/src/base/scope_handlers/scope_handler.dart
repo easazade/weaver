@@ -1,8 +1,12 @@
+import 'package:weaver/src/base/scope.dart';
+
 /// [T] is the type of arguments required when entering the scope.
 abstract class ScopeHandler<T> {
   bool canHandleScope(final String scopeName);
 
-  Future<void> handle();
+  Scope<T>? currentScope;
+
+  Future<void> handle(final ScopeChangeEvent event);
 
   void dispose();
 

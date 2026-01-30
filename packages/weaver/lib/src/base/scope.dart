@@ -16,3 +16,20 @@ abstract class Scope<T> {
   /// The arguments passed to the scope when entering it.
   final T args;
 }
+
+enum ScopeAction { entered, left }
+
+class ScopeChangeEvent {
+  final String scopeName;
+
+  ScopeChangeEvent({required this.scopeName});
+}
+
+class EnterScope<T> extends ScopeChangeEvent {
+  final Scope<T> scope;
+  EnterScope(this.scope) : super(scopeName: scope.name);
+}
+
+class LeaveScope extends ScopeChangeEvent {
+  LeaveScope({required super.scopeName});
+}

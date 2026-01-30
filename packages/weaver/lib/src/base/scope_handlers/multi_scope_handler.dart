@@ -1,3 +1,4 @@
+import 'package:weaver/src/base/scope.dart';
 import 'package:weaver/src/base/scope_handlers/proxies/scope_handler_weaver_proxy.dart';
 import 'package:weaver/src/base/scope_handlers/scope_handler.dart';
 import 'package:weaver/src/base/weaver.dart';
@@ -11,7 +12,7 @@ abstract class MultiScopeHandler<T> extends ScopeHandler<T> {
   String? currentScopeName;
 
   @override
-  Future<void> handle() async {
+  Future<void> handle(final ScopeChangeEvent event) async {
     // get a list of current entered scopes in weaver which this class can handle
     final currentScopes = weaver.scopes.where((final scope) => canHandleScope(scope.name));
     if (currentScopeName != null &&

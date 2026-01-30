@@ -70,6 +70,24 @@ class AccessScopeHandler extends MultiScopeHandler<BaseAccessScopeArgs> {
     (weaver as ScopeHandlerWeaverProxy)
         .unregisterDependenciesRegisteredByThisProxy();
   }
+
+  @override
+  bool canHandleScope(String scopeName) {
+    // TODO: implement canHandleScope
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> enterScopeByName(String name) {
+    // TODO: implement enterScopeByName
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> leaveScopeByName(String name) {
+    // TODO: implement leaveScopeByName
+    throw UnimplementedError();
+  }
 }
 
 extension AccessScopeOnWeaverAddedToWeaver on Weaver {
