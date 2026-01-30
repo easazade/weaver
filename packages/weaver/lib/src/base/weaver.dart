@@ -287,7 +287,6 @@ class Weaver extends Observable {
 
       // not calling handler.handle since the scope might not be left yet.
       await handler.onLeaveScope(this);
-      handler.scopeState = ScopeState.left;
       handler.dispose();
     }
   }

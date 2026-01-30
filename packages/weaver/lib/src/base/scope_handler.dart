@@ -2,9 +2,6 @@ import 'package:collection/collection.dart';
 import 'package:weaver/src/base/proxy_weavers/scope_handler_weaver_proxy.dart';
 import 'package:weaver/src/base/weaver.dart';
 
-/// Represents the state of a [ScopeHandler].
-enum ScopeState { entered, left }
-
 /// Manages the lifecycle of dependencies within a specific scope.
 ///
 /// When [Weaver] enters or leaves a scope with a name matching [scopeName],
@@ -20,15 +17,14 @@ abstract class ScopeHandler<T> {
   /// The name of the scope this handler manages.
   String get scopeName;
 
-  /// The current state of the scope (entered or left).
-  var scopeState = ScopeState.left;
+  var _isInScope = false;
 
   /// Handles the scope state transition by checking if the scope is currently active in [weaver].
   Future<void> handle() async {
     final scope = weaver.scopes.firstWhereOrNull((final scope) => scope.name == scopeName);
-    final isInScope = scope != null;
+    final shouldBeInScope = scope != null;
 
-    if (isInScope && scopeState == ScopeState.left) {
+    if (shouldBeInScope && !_isInScope) {
       if (scope.args != null && scope.args is! T) {
         throw WeaverException(
           'Scope and ScopeHandler that use the same scope-name should '
@@ -38,11 +34,11 @@ abstract class ScopeHandler<T> {
         );
       }
 
-      scopeState = ScopeState.entered;
+      _isInScope = true;
       await onEnterScope(weaver, scope.args as T);
-    } else if (!isInScope && scopeState == ScopeState.entered) {
+    } else if (!shouldBeInScope && _isInScope) {
       await onLeaveScope(weaver);
-      scopeState = ScopeState.left;
+      _isInScope = false;
     }
   }
 
