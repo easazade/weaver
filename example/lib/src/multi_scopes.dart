@@ -19,7 +19,3 @@ class _AccessScope {
   @OnLeaveScope(name: 'admin')
   Future<void> adminCleanUp(Weaver weaver) async {}
 }
-
-rt() {
-  weaver.enterScope(AccessUserScope(userId: 1));
-}

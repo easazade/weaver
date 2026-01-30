@@ -5,12 +5,6 @@ part of 'multi_scopes.dart';
 
 class BaseAccessScopeArgs {}
 
-class AccessScope {
-  AccessScope._();
-  static AccessAdminScope admin(String adminKey) =>
-      AccessAdminScope(adminKey: adminKey);
-}
-
 class AccessAdminScope extends Scope<AccessScopeAdminArgs> {
   static const String scopeName = 'access-admin';
 
@@ -60,6 +54,16 @@ class AccessDevScope extends Scope<void> {
   static const String scopeName = 'access-dev';
 
   AccessDevScope() : super(name: "access-dev", args: null);
+}
+
+class AccessScope {
+  AccessScope._();
+
+  static AccessAdminScope admin(String adminKey) =>
+      AccessAdminScope(adminKey: adminKey);
+  static AccessUserScope user(int userId) => AccessUserScope(userId: userId);
+  static AccessPublicScope public(bool flag) => AccessPublicScope(flag: flag);
+  static AccessDevScope dev() => AccessDevScope();
 }
 
 class AccessScopeHandler extends MultiScopeHandler<BaseAccessScopeArgs> {

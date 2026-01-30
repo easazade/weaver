@@ -128,7 +128,9 @@ void writeClassesForMultiScope({
     ''',
   );
   for (final info in childScopeInfos) {
-    buffer.writeln('static ${info.className} ${info.name}');
+    buffer.writeln(
+        'static ${info.className} ${info.name}(${info.args.entries.map((entry) => '${entry.value} ${entry.key}').join(',')})'
+        ' => ${info.className}(${info.args.keys.map((key)=> '$key: $key').join(',')});');
   }
 
   buffer.writeln('}');
