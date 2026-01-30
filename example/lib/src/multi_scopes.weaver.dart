@@ -5,6 +5,12 @@ part of 'multi_scopes.dart';
 
 class BaseAccessScopeArgs {}
 
+class AccessScope {
+  AccessScope._();
+  static AccessAdminScope admin(String adminKey) =>
+      AccessAdminScope(adminKey: adminKey);
+}
+
 class AccessAdminScope extends Scope<AccessScopeAdminArgs> {
   static const String scopeName = 'access-admin';
 
@@ -50,43 +56,59 @@ class AccessScopePublicArgs extends BaseAccessScopeArgs {
   AccessScopePublicArgs(this.flag);
 }
 
+class AccessDevScope extends Scope<void> {
+  static const String scopeName = 'access-dev';
+
+  AccessDevScope() : super(name: "access-dev", args: null);
+}
+
 class AccessScopeHandler extends MultiScopeHandler<BaseAccessScopeArgs> {
   AccessScopeHandler(super.weaver);
 
   final _scopeHandlerDelegate = _AccessScope();
+  final _allScopeNames = [
+    'access-admin',
+    'access-user',
+    'access-public',
+    'access-dev',
+  ];
 
   @override
   String get scopeName => 'access';
 
   @override
-  Future<void> onEnterScope(Weaver weaver, BaseAccessScopeArgs args) async {
-    //TODO ?????
+  bool canHandleScope(String scopeName) => _allScopeNames.contains(scopeName);
+
+  @override
+  Future<void> onEnterScopeByScope(Scope<dynamic> scope) async {
+    if (scope.name == 'access-admin') {
+      final args = scope.args as AccessScopeAdminArgs;
+      await _scopeHandlerDelegate.adminAccess(weaver, args.adminKey);
+    }
+
+    if (scope.name == 'access-user') {
+      final args = scope.args as AccessScopeUserArgs;
+      await _scopeHandlerDelegate.userAccess(weaver, args.userId);
+    }
+
+    if (scope.name == 'access-public') {
+      final args = scope.args as AccessScopePublicArgs;
+      await _scopeHandlerDelegate.publicAccess(weaver, args.flag);
+    }
+
+    if (scope.name == 'access-dev') {
+      await _scopeHandlerDelegate.devAccess(weaver);
+    }
   }
 
   @override
-  Future<void> onLeaveScope(Weaver weaver) async {
-    // no methods are annotated with @OnLeaveScope in the scope handler delegate for
-    // custom disposal and unregistering of the dependencies registered for this scope
-    (weaver as ScopeHandlerWeaverProxy)
-        .unregisterDependenciesRegisteredByThisProxy();
-  }
-
-  @override
-  bool canHandleScope(String scopeName) {
-    // TODO: implement canHandleScope
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> enterScopeByName(String name) {
-    // TODO: implement enterScopeByName
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> leaveScopeByName(String name) {
-    // TODO: implement leaveScopeByName
-    throw UnimplementedError();
+  Future<void> onLeaveScopeByName(String scopeName) async {
+    if (scopeName == 'access-admin') {
+      await _scopeHandlerDelegate.adminCleanUp(weaver);
+    } else {
+      (weaver as ScopeHandlerWeaverProxy)
+          .unregisterDependenciesRegisteredByThisProxy();
+    }
   }
 }
 

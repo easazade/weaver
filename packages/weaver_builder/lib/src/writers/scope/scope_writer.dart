@@ -1,8 +1,8 @@
 import 'package:analyzer/dart/element/element2.dart';
 import 'package:weaver_builder/src/builders/validate_annotations.dart';
-import 'package:weaver_builder/src/writers/scope/multi_scope.dart';
+import 'package:weaver_builder/src/writers/scope/multi_scope_writer.dart';
 import 'package:weaver_builder/src/type_checkers.dart';
-import 'package:weaver_builder/src/writers/scope/single_scope.dart';
+import 'package:weaver_builder/src/writers/scope/single_scope_writer.dart';
 
 void writeScopes({required StringBuffer buffer, required LibraryElement2 library}) {
   for (final classElement in library.classes) {

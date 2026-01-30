@@ -1,8 +1,8 @@
 import 'package:build/build.dart';
 import 'package:dart_style/dart_style.dart';
-import 'package:weaver_builder/src/writers/named_dependency.dart';
-import 'package:weaver_builder/src/writers/scope/scope.dart';
-import 'package:weaver_builder/src/writers/sessions.dart';
+import 'package:weaver_builder/src/writers/named_dependency_writer.dart';
+import 'package:weaver_builder/src/writers/scope/scope_writer.dart';
+import 'package:weaver_builder/src/writers/sessions_writer.dart';
 import 'package:weaver_builder/src/utils/extensions.dart';
 import 'package:weaver_builder/src/utils/file_header.dart';
 

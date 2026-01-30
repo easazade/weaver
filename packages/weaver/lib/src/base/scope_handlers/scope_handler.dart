@@ -10,7 +10,7 @@ abstract class ScopeHandler<T> {
 
   void dispose();
 
-  Future<void> leaveScope();
+  Future<void> clearAllRegisteredObjects();
 
   /// The name of the scope this handler manages.
   String get scopeName;

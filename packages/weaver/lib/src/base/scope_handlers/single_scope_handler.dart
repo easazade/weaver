@@ -56,5 +56,5 @@ abstract class SingleScopeHandler<T> extends ScopeHandler {
   void dispose() {}
 
   @override
-  Future<void> leaveScope() => onLeaveScope(weaver);
+  Future<void> clearAllRegisteredObjects() => onLeaveScope(weaver);
 }

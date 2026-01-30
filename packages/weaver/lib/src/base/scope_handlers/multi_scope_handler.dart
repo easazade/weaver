@@ -9,26 +9,29 @@ abstract class MultiScopeHandler<T> extends ScopeHandler<T> {
 
   MultiScopeHandler(final Weaver weaver) : weaver = ScopeHandlerWeaverProxy(weaver);
 
-  String? currentScopeName;
-
   @override
   Future<void> handle(final ScopeChangeEvent event) async {
-    // get a list of current entered scopes in weaver which this class can handle
-    final currentScopes = weaver.scopes.where((final scope) => canHandleScope(scope.name));
-    if (currentScopeName != null &&
-        (currentScopes.isEmpty || currentScopes.length > 1 || currentScopes.firstOrNull?.name != currentScopeName)) {
-      await leaveScopeByName(currentScopeName!);
-      currentScopeName = null;
+    if (event is EnterScope) {
+      if (currentScope != null && currentScope?.name != event.scopeName) {
+        final currentScopeName = currentScope!.name;
+        currentScope = null;
+        await onLeaveScopeByName(currentScopeName);
+      }
+      await onEnterScopeByScope(event.scope);
+    } else if (event is LeaveScope) {
+      if (currentScope != null) {
+        await onLeaveScopeByName(event.scopeName);
+      }
     }
   }
 
   @override
-  Future<void> leaveScope() async {
+  Future<void> clearAllRegisteredObjects() async {
     weaver.unregisterDependenciesRegisteredByThisProxy();
   }
 
-  Future<void> leaveScopeByName(final String name);
-  Future<void> enterScopeByName(final String name);
+  Future<void> onLeaveScopeByName(final String name);
+  Future<void> onEnterScopeByScope(final Scope scope);
 
   @override
   void dispose() {}

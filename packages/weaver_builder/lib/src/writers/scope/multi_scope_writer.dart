@@ -16,7 +16,7 @@ void writeClassesForMultiScope({
 
   final methods = classElement.methods2;
   final onEnterScopeMethods = methods.where((method) => onEnterScopeTypeChecker.hasAnnotationOfExact(method));
-  final onLeaveScopeMethod = methods.firstWhereOrNull((method) => onLeaveScopeTypeChecker.hasAnnotationOfExact(method));
+  final onLeaveScopeMethods = methods.where((method) => onLeaveScopeTypeChecker.hasAnnotationOfExact(method));
 
   final reader = ConstantReader(weaverScopeAnnotation);
   final baseScopeName = reader.read('name').stringValue;
@@ -31,6 +31,7 @@ void writeClassesForMultiScope({
   );
 
   // create scope classes
+  List<ChildScopeInfo> childScopeInfos = [];
   for (var onEnterScopeMethod in onEnterScopeMethods) {
     final onEnterScopeAnnotation = onEnterScopeTypeChecker.firstAnnotationOfExact(onEnterScopeMethod);
     final reader = ConstantReader(onEnterScopeAnnotation);
@@ -40,6 +41,14 @@ void writeClassesForMultiScope({
     final params = onEnterScopeMethod.formalParameters;
     final scopeArgsClassName = params.length > 1 ? '$baseScopeClassName${childScopeName.pascalCase}Args' : 'void';
     var scopeClassArgs = <FormalParameterElement>[];
+
+    final onLeaveMethod = onLeaveScopeMethods.firstWhereOrNull((method) {
+      final annotation = onLeaveScopeTypeChecker.firstAnnotationOf(method);
+      final reader = ConstantReader(annotation);
+      return reader.read('name').stringValue == childScopeName;
+    });
+    final onLeaveMethodName = onLeaveMethod?.displayName;
+
     if (params.length > 1) {
       scopeClassArgs = params.sublist(1);
     }
@@ -93,7 +102,36 @@ void writeClassesForMultiScope({
           ''',
       );
     }
+
+    final argsMap = <String, String?>{}
+      ..addEntries(scopeClassArgs.map((e) => MapEntry(e.displayName, e.type.displayNameWithNullability)));
+
+    childScopeInfos.add(
+      ChildScopeInfo(
+        name: childScopeName,
+        fullName: scopeName,
+        className: childScopeClassName,
+        argClassName: scopeArgsClassName,
+        args: argsMap,
+        delegateOnEnterMethodName: onEnterScopeMethod.displayName,
+        delegateOnLeaveMethodName: onLeaveMethodName,
+      ),
+    );
   }
+
+  // add a unified scope class that has a builder method for all child-scopes
+
+  buffer.writeln(
+    '''
+      class $baseScopeClassName {
+        $baseScopeClassName._();
+    ''',
+  );
+  for (final info in childScopeInfos) {
+    buffer.writeln('static ${info.className} ${info.name}');
+  }
+
+  buffer.writeln('}');
 
   // Check if there are any @NamedDependency functions in the scope-handler class first
   // registering and unregistering of NamedDependencies need to be handled automatically
@@ -143,37 +181,92 @@ void writeClassesForMultiScope({
   final scopeHandlerClassName =
       '${baseScopeName.pascalCase.replaceAll('Scope', '').replaceAll('Handler', '')}ScopeHandler';
 
-  buffer.writeln('''
+  buffer.writeln(
+    '''
         class $scopeHandlerClassName extends MultiScopeHandler<$baseScopeArgsClassName> {
         $scopeHandlerClassName(super.weaver);
 
         final _scopeHandlerDelegate = ${classElement.displayName}();
+        final _allScopeNames = [${childScopeInfos.map((e) => "'${e.fullName}'").join(',')}];
 
         @override
         String get scopeName => '$baseScopeName';
 
         @override
-        Future<void> onEnterScope(Weaver weaver, $baseScopeArgsClassName args) async {
-          ${namedDependenciesAutoRegisterPart.toString()}
-          //TODO ?????
-        }
-      ''');
+        bool canHandleScope(String scopeName) => _allScopeNames.contains(scopeName);
 
-  if (onLeaveScopeMethod != null) {
-    buffer.writeln('''
+    ''',
+  );
+
+  // onEnterScopeByScope - start
+  buffer.writeln(
+    '''
+        @override
+        Future<void> onEnterScopeByScope(Scope<dynamic> scope) async {
+    ''',
+  );
+
+  for (var info in childScopeInfos) {
+    if (info.argClassName == 'void') {
+      buffer.writeln(
+        '''
+          if(scope.name == '${info.fullName}'){
+            await _scopeHandlerDelegate.${info.delegateOnEnterMethodName}(weaver);
+          }
+        ''',
+      );
+    } else {
+      buffer.writeln(
+        '''
+        if(scope.name == '${info.fullName}'){
+          final args = scope.args as ${info.argClassName};
+          await _scopeHandlerDelegate.${info.delegateOnEnterMethodName}(weaver, ${info.args.keys.map((argName) => 'args.$argName').join(',')});
+        }
+      ''',
+      );
+    }
+  }
+
+  // onEnterScopeByScope - end
+  buffer.writeln('}');
+
+  // overriding onLeaveScopeByName method
+  if (onLeaveScopeMethods.isNotEmpty) {
+    buffer.writeln(
+      '''
           @override
-          Future<void> onLeaveScope(Weaver weaver) async {
-            await _scopeHandlerDelegate.${onLeaveScopeMethod.displayName}(weaver);
-            ${namedDependenciesAutoUnRegisterPart.toString()}
-          }\n
-        ''');
+          Future<void> onLeaveScopeByName(String scopeName) async {
+      ''',
+    );
+
+    for (final info in childScopeInfos) {
+      if (info.delegateOnLeaveMethodName != null) {
+        buffer.writeln(
+          '''
+            if(scopeName == '${info.fullName}'){
+              await _scopeHandlerDelegate.${info.delegateOnLeaveMethodName}(weaver);
+            } else
+          ''',
+        );
+      }
+    }
+
+    buffer.writeln(
+      '''
+      {
+        (weaver as ScopeHandlerWeaverProxy).unregisterDependenciesRegisteredByThisProxy();
+      }
+        ${namedDependenciesAutoUnRegisterPart.toString()}
+      }
+      ''',
+    );
   } else {
     buffer.writeln('''
           @override
-          Future<void> onLeaveScope(Weaver weaver) async {
+          Future<void> onLeaveScopeByName(String name) async {
             // no methods are annotated with @OnLeaveScope in the scope handler delegate for
             // custom disposal and unregistering of the dependencies registered for this scope
-            (weaver as ScopeHandlerWeaverProxy).unregisterDependencies();
+            (weaver as ScopeHandlerWeaverProxy).unregisterDependenciesRegisteredByThisProxy();
             ${namedDependenciesAutoUnRegisterPart.toString()}
           }
         ''');
@@ -205,4 +298,24 @@ void writeClassesForMultiScope({
   );
 
   buffer.writeln('\n'); // add space
+}
+
+class ChildScopeInfo {
+  final String name;
+  final String fullName;
+  final String argClassName;
+  final String className;
+  final String delegateOnEnterMethodName;
+  final String? delegateOnLeaveMethodName;
+  final Map<String, String?> args;
+
+  ChildScopeInfo({
+    required this.name,
+    required this.fullName,
+    required this.argClassName,
+    required this.className,
+    required this.args,
+    required this.delegateOnEnterMethodName,
+    required this.delegateOnLeaveMethodName,
+  });
 }
