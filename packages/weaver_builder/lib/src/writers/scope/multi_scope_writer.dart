@@ -128,9 +128,20 @@ void writeClassesForMultiScope({
     ''',
   );
   for (final info in childScopeInfos) {
-    buffer.writeln(
-        'static ${info.className} ${info.name}(${info.args.entries.map((entry) => '${entry.value} ${entry.key}').join(',')})'
-        ' => ${info.className}(${info.args.keys.map((key)=> '$key: $key').join(',')});');
+    var arguments = info.args.entries
+        .map((entry) {
+          final type = entry.value;
+          final isNullable = type?.endsWith('?') ?? false;
+          final argName = entry.key;
+          return '${isNullable ? "" : "required"} $type $argName';
+        })
+        .join(',')
+        .trim();
+    if (arguments.isNotEmpty) {
+      arguments = '{$arguments}';
+    }
+    buffer.writeln('static ${info.className} ${info.name}($arguments)'
+        ' => ${info.className}(${info.args.keys.map((key) => '$key: $key').join(',')});\n');
   }
 
   buffer.writeln('}');
@@ -279,6 +290,15 @@ void writeClassesForMultiScope({
   // Create extension class on Weaver
 
   final scopeExtensionClassName = '${baseScopeClassName}OnWeaver';
+
+  // create child scope check methods
+  final childScopeChecksPart = StringBuffer();
+  for (final info in childScopeInfos) {
+    childScopeChecksPart.writeln(
+      'bool get is${info.name.pascalCase} => weaverInstance.isInScope("${info.fullName}");',
+    );
+  }
+
   buffer.writeln(
     '''
         extension ${scopeExtensionClassName}AddedToWeaver on Weaver {
@@ -292,7 +312,7 @@ void writeClassesForMultiScope({
 
           $scopeExtensionClassName(this.weaverInstance);
 
-          bool get isIn => weaverInstance.scopes.where((scope) => scope.name == "$baseScopeName").isNotEmpty;
+          $childScopeChecksPart
 
           ${namedDependenciesQuickAccessMethodsPart.toString()}
         }

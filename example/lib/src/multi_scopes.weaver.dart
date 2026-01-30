@@ -8,16 +8,18 @@ class BaseAccessScopeArgs {}
 class AccessAdminScope extends Scope<AccessScopeAdminArgs> {
   static const String scopeName = 'access-admin';
 
-  AccessAdminScope({required String adminKey})
-    : super(name: "access-admin", args: AccessScopeAdminArgs(adminKey));
+  AccessAdminScope({required String adminKey, int? id})
+    : super(name: "access-admin", args: AccessScopeAdminArgs(adminKey, id));
 }
 
 class AccessScopeAdminArgs extends BaseAccessScopeArgs {
   // properties
   final String adminKey;
 
+  final int? id;
+
   // constructor
-  AccessScopeAdminArgs(this.adminKey);
+  AccessScopeAdminArgs(this.adminKey, this.id);
 }
 
 class AccessUserScope extends Scope<AccessScopeUserArgs> {
@@ -59,10 +61,15 @@ class AccessDevScope extends Scope<void> {
 class AccessScope {
   AccessScope._();
 
-  static AccessAdminScope admin(String adminKey) =>
-      AccessAdminScope(adminKey: adminKey);
-  static AccessUserScope user(int userId) => AccessUserScope(userId: userId);
-  static AccessPublicScope public(bool flag) => AccessPublicScope(flag: flag);
+  static AccessAdminScope admin({required String adminKey, int? id}) =>
+      AccessAdminScope(adminKey: adminKey, id: id);
+
+  static AccessUserScope user({required int userId}) =>
+      AccessUserScope(userId: userId);
+
+  static AccessPublicScope public({required bool flag}) =>
+      AccessPublicScope(flag: flag);
+
   static AccessDevScope dev() => AccessDevScope();
 }
 
@@ -87,7 +94,7 @@ class AccessScopeHandler extends MultiScopeHandler<BaseAccessScopeArgs> {
   Future<void> onEnterScopeByScope(Scope<dynamic> scope) async {
     if (scope.name == 'access-admin') {
       final args = scope.args as AccessScopeAdminArgs;
-      await _scopeHandlerDelegate.adminAccess(weaver, args.adminKey);
+      await _scopeHandlerDelegate.adminAccess(weaver, args.adminKey, args.id);
     }
 
     if (scope.name == 'access-user') {
@@ -128,6 +135,8 @@ class AccessScopeOnWeaver {
 
   AccessScopeOnWeaver(this.weaverInstance);
 
-  bool get isIn =>
-      weaverInstance.scopes.where((scope) => scope.name == "access").isNotEmpty;
+  bool get isAdmin => weaverInstance.isInScope("access-admin");
+  bool get isUser => weaverInstance.isInScope("access-user");
+  bool get isPublic => weaverInstance.isInScope("access-public");
+  bool get isDev => weaverInstance.isInScope("access-dev");
 }

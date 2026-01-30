@@ -5,7 +5,7 @@ part 'multi_scopes.weaver.dart';
 @WeaverScope(name: 'access')
 class _AccessScope {
   @OnEnterScope(name: 'admin')
-  Future<void> adminAccess(Weaver weaver, String adminKey) async {}
+  Future<void> adminAccess(Weaver weaver, String adminKey, int? id) async {}
 
   @OnEnterScope(name: 'user')
   Future<void> userAccess(Weaver weaver, int userId) async {}
@@ -18,4 +18,8 @@ class _AccessScope {
 
   @OnLeaveScope(name: 'admin')
   Future<void> adminCleanUp(Weaver weaver) async {}
+}
+
+awd() {
+  weaver.enterScope(AccessScope.admin(adminKey: 'adminKey', id: 1));
 }
