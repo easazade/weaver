@@ -3,6 +3,7 @@ import 'package:analyzer/dart/element/type.dart';
 import 'package:collection/collection.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:weaver/annotations.dart';
+import 'package:weaver_builder/src/type_checkers.dart';
 import 'package:weaver_builder/src/utils/extensions.dart';
 
 final _onEnterScopeTypeChecker = const TypeChecker.typeNamed(OnEnterScope);
@@ -11,21 +12,31 @@ final _onLeaveScopeTypeChecker = const TypeChecker.typeNamed(OnLeaveScope);
 /// Checks if the annotated classes with [WeaverScope] annotation have duplicate names
 void checkForDuplicateScopeNames(List<ClassElement2> classes) {
   final weaverScopeTypeChecker = const TypeChecker.typeNamed(WeaverScope);
-  final annotatedClasses = classes.where((cls) => weaverScopeTypeChecker.hasAnnotationOfExact(cls));
-  if (annotatedClasses.isNotEmpty) {
-    final scopeNamesList = annotatedClasses.map((annotatedClass) {
-      final reader = ConstantReader(weaverScopeTypeChecker.firstAnnotationOfExact(annotatedClass));
-      final scopeName = reader.read('name').stringValue;
-      return scopeName;
-    });
+  final weaverScopeAnnotatedClasses = classes.where((cls) => weaverScopeTypeChecker.hasAnnotationOfExact(cls));
+  final weaverSwitchScopeAnnotatedClasses =
+      classes.where((cls) => weaverSwitchScopeTypeChecker.hasAnnotationOfExact(cls));
 
-    // there should be one scope name per annotated class
-    if (scopeNamesList.toSet().length != annotatedClasses.length) {
-      throw InvalidGenerationSource(
-        '❌ classes annotated with @WeaverScope(name: "name") annotation cannot have the same annotation name value. '
-        'Here are all the name values defined in all classes annotated with @WeaverScope: $scopeNamesList',
-      );
-    }
+  final scopeNamesList = <String>[];
+
+  scopeNamesList.addAll(weaverScopeAnnotatedClasses.map((annotatedClass) {
+    final reader = ConstantReader(weaverScopeTypeChecker.firstAnnotationOfExact(annotatedClass));
+    final scopeName = reader.read('name').stringValue;
+    return scopeName;
+  }));
+
+  scopeNamesList.addAll(weaverSwitchScopeAnnotatedClasses.map((annotatedClass) {
+    final reader = ConstantReader(weaverSwitchScopeTypeChecker.firstAnnotationOfExact(annotatedClass));
+    final scopeName = reader.read('name').stringValue;
+    return scopeName;
+  }));
+
+  // there should be one scope name per annotated class
+  if (scopeNamesList.toSet().length != [...weaverScopeAnnotatedClasses, ...weaverSwitchScopeAnnotatedClasses].length) {
+    throw InvalidGenerationSource(
+      '❌ classes annotated with @WeaverScope(name: "name") or @WeaverSwitchScope annotations cannot have '
+      'the same value for name argument. Here are all the name values defined in all classes annotated '
+      'with @WeaverScope & @WeaverSwitchScope: $scopeNamesList',
+    );
   }
 }
 
@@ -79,6 +90,129 @@ void validateSourceSyntaxOnNamedDependencyFunction(ExecutableElement2 function) 
 /// Checks if the input source code for WeaverScope annotated class is valid and as expected.
 /// Throws a [InvalidGenerationSource] if otherwise.
 void validateSourceSyntaxOnWeaverScopeClass(ClassElement2 classElement) {
+  final hasCustomConstructor = classElement.constructors2.firstWhereOrNull((e) => !e.isDefaultConstructor) != null;
+
+  if (hasCustomConstructor) {
+    throw InvalidGenerationSource(
+      '❌ class annotated with @WeaverScope must not have a constructor other that its default constructor',
+    );
+  }
+
+  if (!classElement.displayName.startsWith('_')) {
+    throw InvalidGenerationSource(
+      '❌ class annotated with @WeaverScope must be private eg: _${classElement.displayName}',
+    );
+  }
+
+  final methods = classElement.methods2;
+  final hasMoreThanOneOnEnterScope =
+      methods.where((method) => _onEnterScopeTypeChecker.hasAnnotationOfExact(method)).length > 1;
+
+  if (hasMoreThanOneOnEnterScope) {
+    throw InvalidGenerationSource(
+      '❌ WeaverScope class cannot have more than one method annotated with @OnEnterScope',
+    );
+  }
+
+  final hasMoreThanOneOnLeaveScope =
+      methods.where((method) => _onLeaveScopeTypeChecker.hasAnnotationOfExact(method)).length > 1;
+
+  if (hasMoreThanOneOnLeaveScope) {
+    throw InvalidGenerationSource(
+      '❌ WeaverScope class cannot have more than one method annotated with @OnLeaveScope. '
+      'Note that @OnLeaveScope annotated method is optional when defining a scope using @WeaverScope annotation.',
+    );
+  }
+
+  final onEnterScopeMethod = methods.firstWhereOrNull(
+    (method) => _onEnterScopeTypeChecker.hasAnnotationOfExact(method),
+  );
+
+  final onLeaveScopeMethod = methods.firstWhereOrNull(
+    (method) => _onLeaveScopeTypeChecker.hasAnnotationOfExact(method),
+  );
+
+  if (onEnterScopeMethod == null) {
+    throw InvalidGenerationSource(
+      '''-------------------------------------------------------------------------------------
+❌
+scope classes annotated with @WeaverScope are required to have methods annotated with 
+@OnEnterScope and @OnLeaveScope to handle dependencies when entering and leaving the scope
+
+Example:
+
+@WeaverScope(name: 'my-scope')
+class MyScope {
+
+  @OnEnterScope()
+  Future<void> onEnterScope(Weaver weaver, String arg1, int arg2) async {
+    weaver.register(MyDependency(arg1, arg2));
+  }
+
+  // OPTIONAL: @OnLeaveScope is optional and should only be used when it is required 
+  // to dispose or do something before unregistering the dependency objects. Otherwise when omitted 
+  // weaver will automatically unregister the dependency objects that have been registered in method
+  // annotated with onEnterScope.
+  @OnLeaveScope()
+  Future<void> onLeaveScope(Weaver weaver) async {
+    weaver.unregister<MyDependency>();
+  }
+}
+-------------------------------------------------------------------------------------
+            ''',
+    );
+  }
+
+  // validating the syntax of @onEnterScope method
+
+  if (onEnterScopeMethod.formalParameters.isEmpty) {
+    throw InvalidGenerationSource(
+      '❌ handler function annotated with @OnEnterScope should have its the first parameter of type "Weaver"'
+      'eg: ${onEnterScopeMethod.displayName}(Weaver weaver, WeaverState state, ...)',
+    );
+  }
+
+  final weaverParam = onEnterScopeMethod.formalParameters[0];
+  final weaverParamType = weaverParam.type.element3?.displayName;
+  if (weaverParamType != 'Weaver') {
+    throw InvalidGenerationSource(
+      '❌ First parameter of the scope handler function should be of type "Weaver" not "$weaverParamType". '
+      'eg: ${onEnterScopeMethod.displayName}(Weaver weaver, WeaverState state, ...)',
+    );
+  }
+
+  for (final param in onEnterScopeMethod.formalParameters) {
+    if (!param.isPositional) {
+      throw InvalidGenerationSource(
+        'Handler function can only have positional parameters. \n'
+        'Correct ✅: ${onEnterScopeMethod.displayName}(Weaver weaver, WeaverState state, String arg1, int arg2, ...) \n'
+        'Incorrect ❌: ${onEnterScopeMethod.displayName}({Weaver weaver, WeaverState state, String arg1, int arg2, ...})',
+      );
+    }
+  }
+
+  // validating the syntax of @onLeaveScope method
+
+  if (onLeaveScopeMethod != null) {
+    final onLeaveMethodParamType = onLeaveScopeMethod.formalParameters.first.type.element3?.displayName;
+    if (onLeaveScopeMethod.formalParameters.length != 1 || onLeaveMethodParamType != 'Weaver') {
+      throw InvalidGenerationSource(
+        '''❌ method onLeaveScope() should have a single argument of type Weaver. 
+
+Example: 
+
+@OnLeaveScope()
+Future<void> onLeaveScope(Weaver weaver) async {
+  weaver.unregister<MyDependency>();
+}
+
+        ''',
+      );
+    }
+  }
+}
+
+void validateSourceSyntaxOnWeaverSwitchScopeClass(ClassElement2 classElement) {
   final hasCustomConstructor = classElement.constructors2.firstWhereOrNull((e) => !e.isDefaultConstructor) != null;
 
   if (hasCustomConstructor) {

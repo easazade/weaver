@@ -12,6 +12,12 @@ class WeaverScope {
   const WeaverScope({required this.name});
 }
 
+class WeaverSwitchScope {
+  final String name;
+
+  const WeaverSwitchScope({required this.name});
+}
+
 /// Annotation used to mark a method that should be called when entering a scope.
 ///
 /// The method should be inside a class annotated with `@WeaverScope`.

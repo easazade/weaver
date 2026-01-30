@@ -1,10 +1,11 @@
 import 'package:build/build.dart';
 import 'package:dart_style/dart_style.dart';
-import 'package:weaver_builder/src/writers/named_dependency_writer.dart';
-import 'package:weaver_builder/src/writers/scope/scope_writer.dart';
-import 'package:weaver_builder/src/writers/sessions_writer.dart';
 import 'package:weaver_builder/src/utils/extensions.dart';
 import 'package:weaver_builder/src/utils/file_header.dart';
+import 'package:weaver_builder/src/writers/named_dependency_writer.dart';
+import 'package:weaver_builder/src/writers/scope_writer.dart';
+import 'package:weaver_builder/src/writers/switch_scope_writer.dart';
+import 'package:weaver_builder/src/writers/sessions_writer.dart';
 
 class WeaverBuilder implements Builder {
   final _dartFormatter = DartFormatter(languageVersion: DartFormatter.latestLanguageVersion);
@@ -23,7 +24,10 @@ class WeaverBuilder implements Builder {
     final library = await resolver.libraryFor(buildStep.inputId);
 
     // Generating scope, scope-handler, scope-arg, scope-on-weaver, extension classes
-    writeScopes(buffer: buffer, library: library);
+    writeClassesForScopes(buffer: buffer, library: library);
+
+    // Generating scope, scope-handler, scope-arg, scope-on-weaver, extension classes
+    writeClassesForSwitchScopes(buffer: buffer, library: library);
 
     // Generating named dependencies
     writeNamedDependencies(buffer: buffer, library: library);

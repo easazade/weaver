@@ -2,7 +2,7 @@ import 'package:weaver/weaver.dart';
 
 part 'multi_scopes.weaver.dart';
 
-@WeaverScope(name: 'access')
+@WeaverSwitchScope(name: 'access')
 class _AccessScope {
   @OnEnterScope(name: 'admin')
   Future<void> adminAccess(Weaver weaver, String adminKey, int? id) async {}
