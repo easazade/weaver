@@ -3,11 +3,12 @@ import 'dart:async';
 import 'package:collection/collection.dart';
 import 'package:weaver/src/base/dependency_map.dart';
 import 'package:weaver/src/base/named.dart';
+import 'package:weaver/src/base/scope.dart';
 import 'package:weaver/src/utils/log.dart';
 import 'package:weaver/src/utils/observable.dart';
 
 import 'dependency.dart';
-import 'scope.dart';
+import 'scope_handler.dart';
 
 /// default instance of [Weaver]
 final weaver = Weaver();

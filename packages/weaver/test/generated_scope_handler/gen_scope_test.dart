@@ -1,4 +1,5 @@
 import 'package:test/test.dart';
+import 'package:weaver/src/base/scope.dart';
 import 'package:weaver/weaver.dart';
 
 part 'gen_scope_test.weaver.dart';

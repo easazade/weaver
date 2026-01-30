@@ -1,6 +1,7 @@
 import 'package:weaver/src/base/dependency.dart';
 import 'package:weaver/src/base/named.dart';
 import 'package:weaver/src/base/scope.dart';
+import 'package:weaver/src/base/scope_handler.dart';
 import 'package:weaver/src/base/weaver.dart';
 
 /// Used as a proxy on weaver for generated scope handler classes. provides extra hidden functionality that is only

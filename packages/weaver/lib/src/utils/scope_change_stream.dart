@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:weaver/src/base/scope.dart';
+import 'package:weaver/src/base/scope_handler.dart';
 
 class ScopeChangeStream {
   ScopeChangeStream(final Stream<ScopeState> stream, final ScopeState initialState) {
