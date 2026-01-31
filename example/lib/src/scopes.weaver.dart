@@ -27,18 +27,22 @@ class AdminScopeHandler extends SingleScopeHandler<AdminScopeArgs> {
 
   @override
   Future<void> onEnterScope(Weaver weaver, AdminScopeArgs args) async {
-    weaver.register<String>(
+    weaverInstance.register<String>(
       _scopeHandlerDelegate._adminKey(),
       name: "admin-key",
     );
 
-    await _scopeHandlerDelegate.onEnterScope(weaver, args.name, args.age);
+    await _scopeHandlerDelegate.onEnterScope(
+      weaverInstance,
+      args.name,
+      args.age,
+    );
   }
 
   @override
   Future<void> onLeaveScope(Weaver weaver) async {
-    await _scopeHandlerDelegate.onLeave(weaver);
-    weaver.unregister<String>(name: "admin-key");
+    await _scopeHandlerDelegate.onLeave(weaverInstance);
+    weaverInstance.unregister<String>(name: "admin-key");
   }
 }
 
@@ -84,12 +88,12 @@ class AuthScopeHandler extends SingleScopeHandler<AuthScopeArgs> {
 
   @override
   Future<void> onEnterScope(Weaver weaver, AuthScopeArgs args) async {
-    await _scopeHandlerDelegate.onEnter(weaver, args.user);
+    await _scopeHandlerDelegate.onEnter(weaverInstance, args.user);
   }
 
   @override
   Future<void> onLeaveScope(Weaver weaver) async {
-    await _scopeHandlerDelegate.onLeaveScope(weaver);
+    await _scopeHandlerDelegate.onLeaveScope(weaverInstance);
   }
 }
 
@@ -126,12 +130,12 @@ class ShoppingScopeHandler extends SingleScopeHandler<void> {
 
   @override
   Future<void> onEnterScope(Weaver weaver, void args) async {
-    await _scopeHandlerDelegate.onEnterScope(weaver);
+    await _scopeHandlerDelegate.onEnterScope(weaverInstance);
   }
 
   @override
   Future<void> onLeaveScope(Weaver weaver) async {
-    await _scopeHandlerDelegate.onLeaveScope(weaver);
+    await _scopeHandlerDelegate.onLeaveScope(weaverInstance);
   }
 }
 
@@ -168,7 +172,7 @@ class EditScopeHandler extends SingleScopeHandler<void> {
 
   @override
   Future<void> onEnterScope(Weaver weaver, void args) async {
-    await _scopeHandlerDelegate.onEnterScope(weaver);
+    await _scopeHandlerDelegate.onEnterScope(weaverInstance);
   }
 
   @override

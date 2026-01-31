@@ -26,12 +26,12 @@ class Test1ScopeHandler extends SingleScopeHandler<Test1ScopeArgs> {
 
   @override
   Future<void> onEnterScope(Weaver weaver, Test1ScopeArgs args) async {
-    await _scopeHandlerDelegate.onEnterScope(weaver, args.objects);
+    await _scopeHandlerDelegate.onEnterScope(weaverInstance, args.objects);
   }
 
   @override
   Future<void> onLeaveScope(Weaver weaver) async {
-    await _scopeHandlerDelegate.onLeaveScope(weaver);
+    await _scopeHandlerDelegate.onLeaveScope(weaverInstance);
   }
 }
 
@@ -75,12 +75,12 @@ class Test2ScopeHandler extends SingleScopeHandler<Test2ScopeArgs> {
 
   @override
   Future<void> onEnterScope(Weaver weaver, Test2ScopeArgs args) async {
-    await _scopeHandlerDelegate.onEnterScope(weaver, args.objects);
+    await _scopeHandlerDelegate.onEnterScope(weaverInstance, args.objects);
   }
 
   @override
   Future<void> onLeaveScope(Weaver weaver) async {
-    await _scopeHandlerDelegate.onLeaveScope(weaver);
+    await _scopeHandlerDelegate.onLeaveScope(weaverInstance);
   }
 }
 

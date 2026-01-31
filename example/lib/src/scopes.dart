@@ -1,5 +1,5 @@
 import 'package:example/src/models.dart';
-import 'package:weaver/weaver.dart';
+import 'package:weaver/weaver.dart' hide weaver;
 
 part 'scopes.weaver.dart';
 
@@ -15,7 +15,7 @@ class _AdminScope {
 
   @OnLeaveScope()
   Future<void> onLeave(Weaver weaverInstance) async {
-    weaver.unregister<String>();
+    weaverInstance.unregister<String>();
   }
 }
 
@@ -55,7 +55,6 @@ class _EditScope {
     weaver.register<double>(3.14);
   }
 }
-
 
 @NamedDependency(name: 'user-id')
 String _userId() => '123677283';

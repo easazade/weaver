@@ -5,9 +5,9 @@ import 'package:weaver/src/base/weaver.dart';
 
 abstract class SwitchScopeHandler<T> extends ScopeHandler<T> {
   /// The [Weaver] proxy used to manage dependencies within this scope.
-  final ScopeHandlerWeaverProxy weaver;
+  final ScopeHandlerWeaverProxy weaverInstance;
 
-  SwitchScopeHandler(final Weaver weaver) : weaver = ScopeHandlerWeaverProxy(weaver);
+  SwitchScopeHandler(final Weaver weaver) : weaverInstance = ScopeHandlerWeaverProxy(weaver);
 
   @override
   Future<void> handle(final ScopeChangeEvent event) async {
@@ -29,7 +29,7 @@ abstract class SwitchScopeHandler<T> extends ScopeHandler<T> {
 
   @override
   Future<void> clearAllRegisteredObjects() async {
-    weaver.unregisterDependenciesRegisteredByThisProxy();
+    weaverInstance.unregisterDependenciesRegisteredByThisProxy();
   }
 
   Future<void> onLeaveScopeByName(final String name);

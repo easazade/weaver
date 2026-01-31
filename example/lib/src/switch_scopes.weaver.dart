@@ -95,7 +95,7 @@ class AccessScopeHandler extends SwitchScopeHandler<BaseAccessScopeArgs> {
     if (scope.name == 'access-admin') {
       final args = scope.args as AccessScopeAdminArgs;
       await _scopeHandlerDelegate.adminAccess(
-        this.weaver,
+        weaverInstance,
         args.adminKey,
         args.id,
       );
@@ -103,25 +103,25 @@ class AccessScopeHandler extends SwitchScopeHandler<BaseAccessScopeArgs> {
 
     if (scope.name == 'access-user') {
       final args = scope.args as AccessScopeUserArgs;
-      await _scopeHandlerDelegate.userAccess(this.weaver, args.userId);
+      await _scopeHandlerDelegate.userAccess(weaverInstance, args.userId);
     }
 
     if (scope.name == 'access-public') {
       final args = scope.args as AccessScopePublicArgs;
-      await _scopeHandlerDelegate.publicAccess(this.weaver, args.flag);
+      await _scopeHandlerDelegate.publicAccess(weaverInstance, args.flag);
     }
 
     if (scope.name == 'access-dev') {
-      await _scopeHandlerDelegate.devAccess(this.weaver);
+      await _scopeHandlerDelegate.devAccess(weaverInstance);
     }
   }
 
   @override
   Future<void> onLeaveScopeByName(String scopeName) async {
     if (scopeName == 'access-admin') {
-      await _scopeHandlerDelegate.adminCleanUp(this.weaver);
+      await _scopeHandlerDelegate.adminCleanUp(weaverInstance);
     } else {
-      this.weaver.unregisterDependenciesRegisteredByThisProxy();
+      weaverInstance.unregisterDependenciesRegisteredByThisProxy();
     }
   }
 }

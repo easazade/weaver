@@ -31,17 +31,17 @@ class GeneratedTestScopeHandler
 
   @override
   Future<void> onEnterScope(Weaver weaver, GeneratedTestScopeArgs args) async {
-    weaver.register<String>(
+    weaverInstance.register<String>(
       _scopeHandlerDelegate._namedValue1(),
       name: "named-key-1",
     );
-    weaver.register<String>(
+    weaverInstance.register<String>(
       _scopeHandlerDelegate._namedValue2(),
       name: "named-key-2",
     );
 
     await _scopeHandlerDelegate.onEnterScope(
-      weaver,
+      weaverInstance,
       args.optionalArg,
       args.arg,
     );
@@ -49,8 +49,8 @@ class GeneratedTestScopeHandler
 
   @override
   Future<void> onLeaveScope(Weaver weaver) async {
-    await _scopeHandlerDelegate.onLeave(weaver);
-    weaver.unregister<String>(name: "named-key-1");
+    await _scopeHandlerDelegate.onLeave(weaverInstance);
+    weaverInstance.unregister<String>(name: "named-key-1");
   }
 }
 
@@ -90,12 +90,12 @@ class GeneratedTest2ScopeHandler extends SingleScopeHandler<void> {
 
   @override
   Future<void> onEnterScope(Weaver weaver, void args) async {
-    weaver.register<String>(
+    weaverInstance.register<String>(
       _scopeHandlerDelegate._namedValue3(),
       name: "named-key-3",
     );
 
-    await _scopeHandlerDelegate.onEnterScope(weaver);
+    await _scopeHandlerDelegate.onEnterScope(weaverInstance);
   }
 
   @override
@@ -104,7 +104,7 @@ class GeneratedTest2ScopeHandler extends SingleScopeHandler<void> {
     // custom disposal and unregistering of the dependencies registered for this scope
     (weaver as ScopeHandlerWeaverProxy)
         .unregisterDependenciesRegisteredByThisProxy();
-    weaver.unregister<String>(name: "named-key-3");
+    weaverInstance.unregister<String>(name: "named-key-3");
   }
 }
 

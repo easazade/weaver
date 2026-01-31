@@ -11,7 +11,6 @@ void writeClassesForScopes({
   required StringBuffer buffer,
   required LibraryElement2 library,
 }) {
-  
   for (final classElement in library.classes) {
     if (!weaverScopeTypeChecker.hasAnnotationOfExact(classElement)) continue;
     checkForDuplicateScopeNames(library.classes);
@@ -116,11 +115,11 @@ void writeClassesForScopes({
       }
 
       namedDependenciesAutoRegisterPart.writeln(
-        'weaver.register<$objectType>(_scopeHandlerDelegate.${method.displayName}(), name: "$dependencyName");',
+        'weaverInstance.register<$objectType>(_scopeHandlerDelegate.${method.displayName}(), name: "$dependencyName");',
       );
 
       if (enabledAutoDispose) {
-        namedDependenciesAutoUnRegisterPart.writeln('weaver.unregister<$objectType>(name: "$dependencyName");');
+        namedDependenciesAutoUnRegisterPart.writeln('weaverInstance.unregister<$objectType>(name: "$dependencyName");');
       }
 
       namedDependenciesQuickAccessMethodsPart.writeln(
@@ -144,7 +143,7 @@ void writeClassesForScopes({
         @override
         Future<void> onEnterScope(Weaver weaver, $scopeArgsClassName args) async {
           ${namedDependenciesAutoRegisterPart.toString()}
-          await _scopeHandlerDelegate.${onEnterScopeMethod.displayName}(weaver, ${onEnterScopeMethod.formalParameters.sublist(1).map((param) => 'args.${param.displayName}').join(',')});
+          await _scopeHandlerDelegate.${onEnterScopeMethod.displayName}(weaverInstance, ${onEnterScopeMethod.formalParameters.sublist(1).map((param) => 'args.${param.displayName}').join(',')});
         }  
       ''');
 
@@ -152,7 +151,7 @@ void writeClassesForScopes({
       buffer.writeln('''
           @override
           Future<void> onLeaveScope(Weaver weaver) async {
-            await _scopeHandlerDelegate.${onLeaveScopeMethod.displayName}(weaver);
+            await _scopeHandlerDelegate.${onLeaveScopeMethod.displayName}(weaverInstance);
             ${namedDependenciesAutoUnRegisterPart.toString()}
           }\n 
         ''');

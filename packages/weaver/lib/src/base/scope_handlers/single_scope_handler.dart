@@ -11,11 +11,11 @@ import 'package:weaver/src/base/weaver.dart';
 /// [T] is the type of arguments required when entering the scope.
 abstract class SingleScopeHandler<T> extends ScopeHandler {
   /// The [Weaver] proxy used to manage dependencies within this scope.
-  final ScopeHandlerWeaverProxy weaver;
+  final ScopeHandlerWeaverProxy weaverInstance;
 
-  SingleScopeHandler(final Weaver weaver) : weaver = ScopeHandlerWeaverProxy(weaver);
+  SingleScopeHandler(final Weaver weaver) : weaverInstance = ScopeHandlerWeaverProxy(weaver);
 
-  /// Handles the scope state transition by checking if the scope is currently active in [weaver].
+  /// Handles the scope state transition by checking if the scope is currently active in [weaverInstance].
   @override
   Future<void> handle(final ScopeChangeEvent event) async {
     final canHandleEvent = scopeName == event.scopeName;
@@ -35,9 +35,9 @@ abstract class SingleScopeHandler<T> extends ScopeHandler {
       }
 
       currentScope = scope;
-      await onEnterScope(weaver, scope.args as T);
+      await onEnterScope(weaverInstance, scope.args as T);
     } else if (!shouldBeInScope && currentScope != null) {
-      await onLeaveScope(weaver);
+      await onLeaveScope(weaverInstance);
       currentScope = null;
     }
   }
@@ -58,5 +58,5 @@ abstract class SingleScopeHandler<T> extends ScopeHandler {
   void dispose() {}
 
   @override
-  Future<void> clearAllRegisteredObjects() => onLeaveScope(weaver);
+  Future<void> clearAllRegisteredObjects() => onLeaveScope(weaverInstance);
 }

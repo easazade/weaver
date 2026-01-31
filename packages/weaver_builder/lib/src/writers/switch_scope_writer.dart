@@ -184,11 +184,11 @@ void writeClassesForSwitchScopes({
       }
 
       namedDependenciesAutoRegisterPart.writeln(
-        'weaver.register<$objectType>(_scopeHandlerDelegate.${method.displayName}(), name: "$dependencyName");',
+        'weaverInstance.register<$objectType>(_scopeHandlerDelegate.${method.displayName}(), name: "$dependencyName");',
       );
 
       if (enabledAutoDispose) {
-        namedDependenciesAutoUnRegisterPart.writeln('weaver.unregister<$objectType>(name: "$dependencyName");');
+        namedDependenciesAutoUnRegisterPart.writeln('weaverInstance.unregister<$objectType>(name: "$dependencyName");');
       }
 
       namedDependenciesQuickAccessMethodsPart.writeln(
@@ -230,7 +230,7 @@ void writeClassesForSwitchScopes({
         buffer.writeln(
           '''
           if(scope.name == '${info.fullName}'){
-            await _scopeHandlerDelegate.${info.delegateOnEnterMethodName}(this.weaver);
+            await _scopeHandlerDelegate.${info.delegateOnEnterMethodName}(weaverInstance);
           }
         ''',
         );
@@ -239,7 +239,7 @@ void writeClassesForSwitchScopes({
           '''
         if(scope.name == '${info.fullName}'){
           final args = scope.args as ${info.argClassName};
-          await _scopeHandlerDelegate.${info.delegateOnEnterMethodName}(this.weaver, ${info.args.keys.map((argName) => 'args.$argName').join(',')});
+          await _scopeHandlerDelegate.${info.delegateOnEnterMethodName}(weaverInstance, ${info.args.keys.map((argName) => 'args.$argName').join(',')});
         }
       ''',
         );
@@ -263,7 +263,7 @@ void writeClassesForSwitchScopes({
           buffer.writeln(
             '''
             if(scopeName == '${info.fullName}'){
-              await _scopeHandlerDelegate.${info.delegateOnLeaveMethodName}(this.weaver);
+              await _scopeHandlerDelegate.${info.delegateOnLeaveMethodName}(weaverInstance);
             } else
           ''',
           );
@@ -273,7 +273,7 @@ void writeClassesForSwitchScopes({
       buffer.writeln(
         '''
       {
-        this.weaver.unregisterDependenciesRegisteredByThisProxy();
+        weaverInstance.unregisterDependenciesRegisteredByThisProxy();
       }
         ${namedDependenciesAutoUnRegisterPart.toString()}
       }
@@ -285,7 +285,7 @@ void writeClassesForSwitchScopes({
           Future<void> onLeaveScopeByName(String name) async {
             // no methods are annotated with @OnLeaveScope in the scope handler delegate for
             // custom disposal and unregistering of the dependencies registered for this scope
-            this.weaver.unregisterDependenciesRegisteredByThisProxy();
+            weaverInstance.unregisterDependenciesRegisteredByThisProxy();
             ${namedDependenciesAutoUnRegisterPart.toString()}
           }
         ''');
