@@ -42,11 +42,9 @@ abstract class SingleScopeHandler<T> extends ScopeHandler {
     }
   }
 
-  // TODO: No need for weaver to be passed as arg. this class has a weaver instance. use this.weaver in codegen for extended classes.
   /// Called when the scope is entered. Dependencies should be registered here.
   Future<void> onEnterScope(final Weaver weaver, final T argument);
 
-  // TODO: No need for weaver to be passed as arg. this class has a weaver instance. use this.weaver in codegen for extended classes.
   /// Called when the scope is left. Cleanup or custom un-registration should happen here.
   Future<void> onLeaveScope(final Weaver weaver);
 
