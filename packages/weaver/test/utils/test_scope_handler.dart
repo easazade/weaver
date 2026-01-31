@@ -3,7 +3,7 @@ import 'package:weaver/src/base/scope_handlers/single_scope_handler.dart';
 import 'package:weaver/src/base/weaver.dart';
 
 class TestScope extends Scope<String> {
-  TestScope({required super.args}) : super(name: 'test');
+  TestScope({super.name = 'test', required super.args});
 }
 
 class TestScopeHandler extends SingleScopeHandler<String> {

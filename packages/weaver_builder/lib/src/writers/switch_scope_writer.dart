@@ -124,7 +124,7 @@ void writeClassesForSwitchScopes({
       );
     }
 
-    // add a unified scope class that has a builder method for all child-scopes
+    // add a unified scope class that has a builder method for all child-scopes and properties for their scope-names
 
     buffer.writeln(
       '''
@@ -149,6 +149,10 @@ void writeClassesForSwitchScopes({
           ' => ${info.className}(${info.args.keys.map((key) => '$key: $key').join(',')});\n');
     }
 
+    for (final info in childScopeInfos) {
+      buffer.writeln('static String get ${info.name}ScopeName => "${info.fullName}";');
+    }
+
     buffer.writeln('}');
 
     // create scope-handler class
@@ -158,7 +162,7 @@ void writeClassesForSwitchScopes({
     buffer.writeln(
       '''
         class $scopeHandlerClassName extends SwitchScopeHandler<$baseScopeArgsClassName> {
-        $scopeHandlerClassName(super.weaver);
+        $scopeHandlerClassName(super.weaver, {super.defaultScope});
 
         final _scopeHandlerDelegate = ${classElement.displayName}();
         final _allScopeNames = [${childScopeInfos.map((e) => "'${e.fullName}'").join(',')}];

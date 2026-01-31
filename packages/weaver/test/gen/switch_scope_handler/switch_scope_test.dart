@@ -16,12 +16,12 @@ void main() {
 
   group('Entering child scopes', () {
     test('Should register objects when entering Access Admin scope', () async {
-      expect(weaver.isInScope(AccessAdminScope.scopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.adminScopeName), isFalse);
       expect(weaver.isRegistered<String>(), isFalse);
       expect(weaver.isRegistered<AdminAPI>(), isFalse);
 
       await weaver.enterScope(AccessScope.admin(adminKey: 'admin-key-123', id: 42));
-      expect(weaver.isInScope(AccessAdminScope.scopeName), isTrue);
+      expect(weaver.isInScope(AccessScope.adminScopeName), isTrue);
       expect(weaver.isRegistered<String>(), isTrue);
       expect(weaver.isRegistered<AdminAPI>(), isTrue);
 
@@ -31,12 +31,12 @@ void main() {
     });
 
     test('Should register objects when entering Access User scope', () async {
-      expect(weaver.isInScope(AccessUserScope.scopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.userScopeName), isFalse);
       expect(weaver.isRegistered<UserAPI>(), isFalse);
 
       await weaver.enterScope(AccessScope.user(userId: 100));
 
-      expect(weaver.isInScope(AccessUserScope.scopeName), isTrue);
+      expect(weaver.isInScope(AccessScope.userScopeName), isTrue);
       expect(weaver.isRegistered<UserAPI>(), isTrue);
 
       final userAPI = weaver.get<UserAPI>();
@@ -44,12 +44,12 @@ void main() {
     });
 
     test('Should register objects when entering Access Public scope', () async {
-      expect(weaver.isInScope(AccessPublicScope.scopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.publicScopeName), isFalse);
       expect(weaver.isRegistered<PublicAPI>(), isFalse);
 
       await weaver.enterScope(AccessScope.public(flag: true));
 
-      expect(weaver.isInScope(AccessPublicScope.scopeName), isTrue);
+      expect(weaver.isInScope(AccessScope.publicScopeName), isTrue);
       expect(weaver.isRegistered<PublicAPI>(), isTrue);
 
       final publicAPI = weaver.get<PublicAPI>();
@@ -57,12 +57,12 @@ void main() {
     });
 
     test('Should register objects when entering Access Dev scope', () async {
-      expect(weaver.isInScope(AccessDevScope.scopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.devScopeName), isFalse);
       expect(weaver.isRegistered<DevAPI>(), isFalse);
 
       await weaver.enterScope(AccessScope.dev());
 
-      expect(weaver.isInScope(AccessDevScope.scopeName), isTrue);
+      expect(weaver.isInScope(AccessScope.devScopeName), isTrue);
       expect(weaver.isRegistered<DevAPI>(), isTrue);
     });
 
@@ -82,9 +82,9 @@ void main() {
       expect(weaver.isRegistered<String>(), isTrue);
       expect(weaver.isRegistered<AdminAPI>(), isTrue);
 
-      await weaver.leaveScope(AccessAdminScope.scopeName);
+      await weaver.leaveScope(AccessScope.adminScopeName);
 
-      expect(weaver.isInScope(AccessAdminScope.scopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.adminScopeName), isFalse);
       // AdminAPI should be unregistered via @OnLeaveScope
       expect(weaver.isRegistered<AdminAPI>(), isFalse);
       // String should also be unregistered (default behavior)
@@ -95,9 +95,9 @@ void main() {
       await weaver.enterScope(AccessScope.user(userId: 200));
       expect(weaver.isRegistered<UserAPI>(), isTrue);
 
-      await weaver.leaveScope(AccessUserScope.scopeName);
+      await weaver.leaveScope(AccessScope.userScopeName);
 
-      expect(weaver.isInScope(AccessUserScope.scopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.userScopeName), isFalse);
       expect(weaver.isRegistered<UserAPI>(), isFalse);
     });
 
@@ -105,9 +105,9 @@ void main() {
       await weaver.enterScope(AccessScope.public(flag: false));
       expect(weaver.isRegistered<PublicAPI>(), isTrue);
 
-      await weaver.leaveScope(AccessPublicScope.scopeName);
+      await weaver.leaveScope(AccessScope.publicScopeName);
 
-      expect(weaver.isInScope(AccessPublicScope.scopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.publicScopeName), isFalse);
       expect(weaver.isRegistered<PublicAPI>(), isFalse);
     });
 
@@ -115,9 +115,9 @@ void main() {
       await weaver.enterScope(AccessScope.dev());
       expect(weaver.isRegistered<DevAPI>(), isTrue);
 
-      await weaver.leaveScope(AccessDevScope.scopeName);
+      await weaver.leaveScope(AccessScope.devScopeName);
 
-      expect(weaver.isInScope(AccessDevScope.scopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.devScopeName), isFalse);
       expect(weaver.isRegistered<DevAPI>(), isFalse);
     });
   });
@@ -132,12 +132,12 @@ void main() {
       await weaver.enterScope(AccessScope.user(userId: 300));
 
       // Admin scope should be left
-      expect(weaver.isInScope(AccessAdminScope.scopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.adminScopeName), isFalse);
       expect(weaver.isRegistered<AdminAPI>(), isFalse);
       expect(weaver.isRegistered<String>(), isFalse);
 
       // User scope should be active
-      expect(weaver.isInScope(AccessUserScope.scopeName), isTrue);
+      expect(weaver.isInScope(AccessScope.userScopeName), isTrue);
       expect(weaver.isRegistered<UserAPI>(), isTrue);
       expect(weaver.get<UserAPI>().userId, 300);
     });
@@ -148,10 +148,10 @@ void main() {
 
       await weaver.enterScope(AccessScope.public(flag: true));
 
-      expect(weaver.isInScope(AccessUserScope.scopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.userScopeName), isFalse);
       expect(weaver.isRegistered<UserAPI>(), isFalse);
 
-      expect(weaver.isInScope(AccessPublicScope.scopeName), isTrue);
+      expect(weaver.isInScope(AccessScope.publicScopeName), isTrue);
       expect(weaver.isRegistered<PublicAPI>(), isTrue);
     });
 
@@ -161,10 +161,10 @@ void main() {
 
       await weaver.enterScope(AccessScope.dev());
 
-      expect(weaver.isInScope(AccessPublicScope.scopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.publicScopeName), isFalse);
       expect(weaver.isRegistered<PublicAPI>(), isFalse);
 
-      expect(weaver.isInScope(AccessDevScope.scopeName), isTrue);
+      expect(weaver.isInScope(AccessScope.devScopeName), isTrue);
       expect(weaver.isRegistered<DevAPI>(), isTrue);
     });
 
@@ -174,10 +174,10 @@ void main() {
 
       await weaver.enterScope(AccessScope.admin(adminKey: 'new-admin', id: 99));
 
-      expect(weaver.isInScope(AccessDevScope.scopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.devScopeName), isFalse);
       expect(weaver.isRegistered<DevAPI>(), isFalse);
 
-      expect(weaver.isInScope(AccessAdminScope.scopeName), isTrue);
+      expect(weaver.isInScope(AccessScope.adminScopeName), isTrue);
       expect(weaver.isRegistered<AdminAPI>(), isTrue);
       expect(weaver.get<AdminAPI>().adminKey, 'new-admin');
     });
@@ -207,32 +207,32 @@ void main() {
 
   group('Scope state tracking', () {
     test('Should correctly track which child scope is active', () async {
-      expect(weaver.isInScope(AccessAdminScope.scopeName), isFalse);
-      expect(weaver.isInScope(AccessUserScope.scopeName), isFalse);
-      expect(weaver.isInScope(AccessPublicScope.scopeName), isFalse);
-      expect(weaver.isInScope(AccessDevScope.scopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.adminScopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.userScopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.publicScopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.devScopeName), isFalse);
 
       await weaver.enterScope(AccessScope.admin(adminKey: 'key', id: 1));
-      expect(weaver.isInScope(AccessAdminScope.scopeName), isTrue);
-      expect(weaver.isInScope(AccessUserScope.scopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.adminScopeName), isTrue);
+      expect(weaver.isInScope(AccessScope.userScopeName), isFalse);
 
       await weaver.enterScope(AccessScope.user(userId: 50));
-      expect(weaver.isInScope(AccessAdminScope.scopeName), isFalse);
-      expect(weaver.isInScope(AccessUserScope.scopeName), isTrue);
+      expect(weaver.isInScope(AccessScope.adminScopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.userScopeName), isTrue);
     });
 
     test('Should only have one child scope active at a time', () async {
       await weaver.enterScope(AccessScope.admin(adminKey: 'key', id: 1));
-      expect(weaver.isInScope(AccessAdminScope.scopeName), isTrue);
-      expect(weaver.isInScope(AccessUserScope.scopeName), isFalse);
-      expect(weaver.isInScope(AccessPublicScope.scopeName), isFalse);
-      expect(weaver.isInScope(AccessDevScope.scopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.adminScopeName), isTrue);
+      expect(weaver.isInScope(AccessScope.userScopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.publicScopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.devScopeName), isFalse);
 
       await weaver.enterScope(AccessScope.user(userId: 10));
-      expect(weaver.isInScope(AccessAdminScope.scopeName), isFalse);
-      expect(weaver.isInScope(AccessUserScope.scopeName), isTrue);
-      expect(weaver.isInScope(AccessPublicScope.scopeName), isFalse);
-      expect(weaver.isInScope(AccessDevScope.scopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.adminScopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.userScopeName), isTrue);
+      expect(weaver.isInScope(AccessScope.publicScopeName), isFalse);
+      expect(weaver.isInScope(AccessScope.devScopeName), isFalse);
     });
   });
 
@@ -254,6 +254,34 @@ void main() {
       expect(weaver.accessScope.isUser, isTrue);
       expect(weaver.accessScope.isPublic, isFalse);
       expect(weaver.accessScope.isDev, isFalse);
+    });
+  });
+
+  group('Default scope', () {
+    test('Default scope should be entered as soon as the SwitchScopeHandler is added to weaver', () async {
+      weaver.reset();
+      expect(weaver.isRegistered<PublicAPI>(), isFalse);
+
+      await weaver.addScopeHandler(AccessScopeHandler(weaver, defaultScope: AccessScope.public(flag: true)));
+      expect(weaver.isRegistered<PublicAPI>(), isTrue);
+    });
+
+    test('SwitchScopeHandler should switch back to default scope after left current scope.', () async {
+      weaver.reset();
+
+      final handler = AccessScopeHandler(weaver, defaultScope: AccessScope.public(flag: true));
+      await weaver.addScopeHandler(handler);
+      expect(weaver.accessScope.isPublic, isTrue);
+      expect(weaver.isRegistered<PublicAPI>(), isTrue);
+
+      await weaver.enterScope(AccessScope.admin(adminKey: 'adminKey'));
+      expect(weaver.accessScope.isAdmin, isTrue);
+      expect(weaver.isRegistered<AdminAPI>(), isTrue);
+      expect(weaver.accessScope.isPublic, isFalse);
+
+      await weaver.leaveScope(AccessScope.adminScopeName);
+      expect(weaver.accessScope.isPublic, isTrue);
+      expect(weaver.isRegistered<PublicAPI>(), isTrue);
     });
   });
 }

@@ -17,13 +17,8 @@ abstract class SingleScopeHandler<T> extends ScopeHandler {
 
   /// Handles the scope state transition by checking if the scope is currently active in [weaverInstance].
   @override
-  Future<void> handle(final ScopeChangeEvent event) async {
-    final canHandleEvent = scopeName == event.scopeName;
-    if (!canHandleEvent) return;
-
-    final shouldBeInScope = event is EnterScope;
-
-    if (shouldBeInScope && currentScope == null) {
+  Future<void> handle(final HandlerEvent event) async {
+    if (event is EnterScope && currentScope == null) {
       final scope = event.scope;
       if (scope.args != null && scope.args is! T) {
         throw WeaverException(
@@ -36,7 +31,7 @@ abstract class SingleScopeHandler<T> extends ScopeHandler {
 
       currentScope = scope;
       await onEnterScope(weaverInstance, scope.args as T);
-    } else if (!shouldBeInScope && currentScope != null) {
+    } else if (event is LeaveScope && currentScope != null) {
       await onLeaveScope(weaverInstance);
       currentScope = null;
     }

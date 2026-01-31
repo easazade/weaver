@@ -6,7 +6,7 @@ abstract class ScopeHandler<T> {
 
   Scope<T>? currentScope;
 
-  Future<void> handle(final ScopeChangeEvent event);
+  Future<void> handle(final HandlerEvent event);
 
   void dispose();
 

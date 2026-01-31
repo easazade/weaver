@@ -236,7 +236,9 @@ class Weaver extends Observable {
 
     // make scope handlers to handle the change in scopes (new scope added)
     for (final scopeHandler in _scopeHandlers) {
-      await scopeHandler.handle(EnterScope(scope));
+      if (scopeHandler.canHandleScope(scope.name)) {
+        await scopeHandler.handle(EnterScope(scope));
+      }
     }
 
     notifyObservers();
@@ -266,6 +268,7 @@ class Weaver extends Observable {
     }
 
     _scopeHandlers.add(newHandler);
+    await newHandler.handle(HandlerAddedToWeaver());
   }
 
   /// Removes the [ScopeHandler] that handles the scope with [scopeName].

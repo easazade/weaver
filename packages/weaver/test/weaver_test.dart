@@ -1,5 +1,4 @@
 import 'package:test/test.dart';
-import 'package:weaver/src/base/scope.dart';
 import 'package:weaver/weaver.dart';
 
 import 'utils/test_scope_handler.dart';
@@ -1044,7 +1043,7 @@ void main() {
                 weaverInstance,
                 stringObject: 'ali',
                 intObject: 9,
-                scopeName: 'test',
+                scopeName: 'test2',
               );
               final scopeHandler2 = TestScopeHandler(
                 weaverInstance,
@@ -1056,14 +1055,14 @@ void main() {
               await weaverInstance.addScopeHandler(scopeHandler1);
               await weaverInstance.addScopeHandler(scopeHandler2);
 
-              final scope1 = TestScope(args: 'WHAT');
+              final scope1 = TestScope(name: 'test2', args: 'WHAT');
               final scope2 = AnotherTestScope(args: 'WHEN');
 
               await weaverInstance.enterScope(scope1);
               await weaverInstance.enterScope(scope2);
 
               expect(weaverInstance.scopes.length, 2);
-              expect(weaverInstance.scopes.any((final s) => s.name == 'test'), true);
+              expect(weaverInstance.scopes.any((final s) => s.name == 'test2'), true);
               expect(weaverInstance.scopes.any((final s) => s.name == 'another-scope'), true);
             },
           );
@@ -1249,7 +1248,7 @@ void main() {
 }
 
 class WrongArgTestScope extends Scope<int> {
-  WrongArgTestScope({required super.args}) : super(name: 'test');
+  WrongArgTestScope({required super.args}) : super(name: 'wrong-arg-test-scope');
 }
 
 class AnotherTestScope extends Scope<String> {

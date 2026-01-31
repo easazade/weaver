@@ -71,10 +71,15 @@ class AccessScope {
       AccessPublicScope(flag: flag);
 
   static AccessDevScope dev() => AccessDevScope();
+
+  static String get adminScopeName => "access-admin";
+  static String get userScopeName => "access-user";
+  static String get publicScopeName => "access-public";
+  static String get devScopeName => "access-dev";
 }
 
 class AccessScopeHandler extends SwitchScopeHandler<BaseAccessScopeArgs> {
-  AccessScopeHandler(super.weaver);
+  AccessScopeHandler(super.weaver, {super.defaultScope});
 
   final _scopeHandlerDelegate = _AccessScope();
   final _allScopeNames = [

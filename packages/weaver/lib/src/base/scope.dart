@@ -19,17 +19,16 @@ abstract class Scope<T> {
 
 enum ScopeAction { entered, left }
 
-class ScopeChangeEvent {
-  final String scopeName;
+class HandlerEvent {}
 
-  ScopeChangeEvent({required this.scopeName});
-}
+class HandlerAddedToWeaver extends HandlerEvent {}
 
-class EnterScope<T> extends ScopeChangeEvent {
+class EnterScope<T> extends HandlerEvent {
   final Scope<T> scope;
-  EnterScope(this.scope) : super(scopeName: scope.name);
+  EnterScope(this.scope);
 }
 
-class LeaveScope extends ScopeChangeEvent {
-  LeaveScope({required super.scopeName});
+class LeaveScope extends HandlerEvent {
+  final String scopeName;
+  LeaveScope({required this.scopeName});
 }
