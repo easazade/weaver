@@ -1,5 +1,4 @@
 import 'package:analyzer/dart/element/element2.dart';
-import 'package:analyzer/dart/element/type.dart';
 import 'package:collection/collection.dart';
 import 'package:recase/recase.dart';
 import 'package:source_gen/source_gen.dart';
@@ -152,50 +151,6 @@ void writeClassesForSwitchScopes({
 
     buffer.writeln('}');
 
-    // Check if there are any @NamedDependency functions in the scope-handler class first
-    // registering and unregistering of NamedDependencies need to be handled automatically
-    // also a quick access extension function needs to be created for it
-
-    final namedDependenciesQuickAccessMethodsPart = StringBuffer();
-    final namedDependenciesAutoRegisterPart = StringBuffer();
-    final namedDependenciesAutoUnRegisterPart = StringBuffer();
-
-    for (var method in classElement.methods2) {
-      if (!namedDependencyTypeChecker.hasAnnotationOfExact(method)) {
-        continue;
-      }
-
-      checkForDuplicateNamedDependencyNames(methods);
-      validateSourceSyntaxOnNamedDependencyFunction(method);
-
-      final annotation = namedDependencyTypeChecker.firstAnnotationOfExact(method);
-      final reader = ConstantReader(annotation);
-      final dependencyName = reader.read('name').stringValue;
-      final enabledAutoDispose = reader.read('autoDispose').boolValue;
-      final getterName = dependencyName.camelCase;
-
-      final returnType = method.returnType;
-      final objectType = returnType.isDartAsyncFuture
-          ? (returnType as ParameterizedType).typeArguments.first.element3?.displayName
-          : method.returnType.element3?.displayName;
-
-      if (objectType?.isEmpty == true) {
-        continue;
-      }
-
-      namedDependenciesAutoRegisterPart.writeln(
-        'weaverInstance.register<$objectType>(_scopeHandlerDelegate.${method.displayName}(), name: "$dependencyName");',
-      );
-
-      if (enabledAutoDispose) {
-        namedDependenciesAutoUnRegisterPart.writeln('weaverInstance.unregister<$objectType>(name: "$dependencyName");');
-      }
-
-      namedDependenciesQuickAccessMethodsPart.writeln(
-        '$objectType get $getterName => weaverInstance.get<$objectType>(name: "$dependencyName");',
-      );
-    }
-
     // create scope-handler class
     final scopeHandlerClassName =
         '${baseScopeName.pascalCase.replaceAll('Scope', '').replaceAll('Handler', '')}ScopeHandler';
@@ -272,10 +227,9 @@ void writeClassesForSwitchScopes({
 
       buffer.writeln(
         '''
-      {
-        weaverInstance.unregisterDependenciesRegisteredByThisProxy();
-      }
-        ${namedDependenciesAutoUnRegisterPart.toString()}
+        {
+          weaverInstance.unregisterDependenciesRegisteredByThisProxy();
+        }
       }
       ''',
       );
@@ -286,7 +240,6 @@ void writeClassesForSwitchScopes({
             // no methods are annotated with @OnLeaveScope in the scope handler delegate for
             // custom disposal and unregistering of the dependencies registered for this scope
             weaverInstance.unregisterDependenciesRegisteredByThisProxy();
-            ${namedDependenciesAutoUnRegisterPart.toString()}
           }
         ''');
     }
@@ -320,7 +273,6 @@ void writeClassesForSwitchScopes({
 
           $childScopeChecksPart
 
-          ${namedDependenciesQuickAccessMethodsPart.toString()}
         }
       ''',
     );
