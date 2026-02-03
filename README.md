@@ -381,7 +381,7 @@ This separation keeps your dependency injection logic isolated from UI code, mak
 
 Switch scopes are similar to regular scopes, but they allow you to define a parent scope with multiple child scopes that you can switch between. This is useful when you need to manage different sets of dependencies that are mutually exclusive—only one child scope can be active at a time, and switching to a new child scope automatically removes the dependencies from the previous one.
 
-Unlike regular scopes that have a single `@OnEnterScope` callback, switch scopes have multiple `@OnEnterScope` callbacks, each annotated with a `name` parameter to identify the child scope. You can also optionally define a default child scope that will be automatically entered when the switch scope handler is registered.
+Unlike regular scopes that have a single `@OnEnterScope` callback, switch scopes have multiple `@OnEnterScope` callbacks, each annotated with a `name` parameter to identify the child scope.
 
 #### Defining a Switch Scope
 
@@ -425,10 +425,7 @@ weaver.addScopeHandler(AccessScopeHandler(weaver));
 
 // Register with a default scope (public scope will be entered automatically)
 weaver.addScopeHandler(
-  AccessScopeHandler(
-    weaver,
-    defaultScope: AccessScope.public(flag: true),
-  ),
+  AccessScopeHandler(weaver, defaultScope: AccessScope.public(flag: true)),
 );
 ```
 
