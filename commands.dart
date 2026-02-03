@@ -469,7 +469,8 @@ Future<bool> updateChangelog(
   final packageCommits = filterCommitsForPackage(allCommits, packageName);
 
   // Generate changelog entry
-  final newEntry = generateChangelogEntry(newVersion, packageCommits);
+  final newEntry =
+      generateChangelogEntry(newVersion, packageCommits, packageName);
 
   // If changelog is empty, just write the new entry
   if (changelogContent.isEmpty) {
@@ -596,24 +597,60 @@ Map<String, String?>? parseConventionalCommit(String commitMessage) {
   };
 }
 
-String generateChangelogEntry(String version, List<String> commits) {
-  if (commits.isEmpty) {
-    return '## $version\n\n@@TODO\n\n';
-  }
-
+String generateChangelogEntry(
+    String version, List<String> commits, String packageName) {
   final buffer = StringBuffer();
   buffer.writeln('## $version');
   buffer.writeln();
 
+  // Separate commits with scope and without scope
+  final commitsWithoutScope = <String>[];
+  final commitsWithScope = <String>[];
+
   for (final commit in commits) {
     final parsed = parseConventionalCommit(commit);
+    if (parsed == null || parsed['scope'] == null || parsed['scope']!.isEmpty) {
+      commitsWithoutScope.add(commit);
+    } else {
+      commitsWithScope.add(commit);
+    }
+  }
+
+  // Add dependency bump entry for flutter_weaver and weaver_builder
+  final shouldAddDependencyBump =
+      packageName == 'flutter_weaver' || packageName == 'weaver_builder';
+
+  // Write commits without scope first
+  for (final commit in commitsWithoutScope) {
+    final parsed = parseConventionalCommit(commit);
     if (parsed != null) {
-      // Format as changelog entry: - Description
       buffer.writeln('- ${parsed['description']}');
     } else {
-      // Not a conventional commit, use as-is
       buffer.writeln('- $commit');
     }
+  }
+
+  // Add dependency bump entry after no-scope commits (if applicable)
+  if (shouldAddDependencyBump) {
+    buffer.writeln(
+        '- Bump [weaver](https://pub.dev/packages/weaver) to $version');
+  }
+
+  // Write commits with scope at the bottom
+  for (final commit in commitsWithScope) {
+    final parsed = parseConventionalCommit(commit);
+    if (parsed != null) {
+      buffer.writeln('- ${parsed['description']}');
+    } else {
+      buffer.writeln('- $commit');
+    }
+  }
+
+  // If no commits and no dependency bump, add TODO
+  if (commitsWithoutScope.isEmpty &&
+      commitsWithScope.isEmpty &&
+      !shouldAddDependencyBump) {
+    buffer.writeln('@@TODO');
   }
 
   buffer.writeln();
