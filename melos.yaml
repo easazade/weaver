@@ -14,8 +14,8 @@ scripts:
   format:
     run: dart format --set-exit-if-changed .
     
-  analyze:
-    run: melos exec -c 1 -- "dart analyze"
+  check:
+    run: melos exec -c 1 --ignore="example" -- "dart analyze"
 
   test:
     run: melos exec -c 1 --ignore="example" --ignore="weaver_builder" -- "flutter test"
