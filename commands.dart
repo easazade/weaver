@@ -342,6 +342,9 @@ Future<void> bumpVersions(String bumpType) async {
     }
   }
 
+  // Update README.md with new version
+  await updateReadmeVersion(newVersionString);
+
   print(
       '\nVersion bump completed! All packages now at unified version: $newVersionString');
 }
@@ -655,6 +658,38 @@ String generateChangelogEntry(
 
   buffer.writeln();
   return buffer.toString();
+}
+
+Future<void> updateReadmeVersion(String newVersion) async {
+  final readmeFile = File('README.md');
+  if (!await readmeFile.exists()) {
+    print('Warning: README.md not found, skipping version update');
+    return;
+  }
+
+  try {
+    String content = await readmeFile.readAsString();
+
+    // Replace version placeholders in the Install section
+    // Pattern: ^x.y.z should be replaced with ^newVersion
+    final versionPattern = RegExp(r'\^x\.y\.z');
+
+    if (versionPattern.hasMatch(content)) {
+      content = content.replaceAll(versionPattern, '^$newVersion');
+      await readmeFile.writeAsString(content);
+      print('✓ Updated README.md with version $newVersion');
+    } else {
+      // Also check for other possible patterns like just x.y.z without ^
+      final versionPatternNoCaret = RegExp(r':\s*x\.y\.z');
+      if (versionPatternNoCaret.hasMatch(content)) {
+        content = content.replaceAll(versionPatternNoCaret, ': $newVersion');
+        await readmeFile.writeAsString(content);
+        print('✓ Updated README.md with version $newVersion');
+      }
+    }
+  } catch (e) {
+    print('Warning: Failed to update README.md: $e');
+  }
 }
 
 Future<List<Directory>> getPackages() async {
