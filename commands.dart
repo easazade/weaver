@@ -306,9 +306,33 @@ Future<void> bumpVersions(String bumpType) async {
   // Update CHANGELOG.md for all updated packages
   if (updatedPackages.isNotEmpty) {
     print('\nUpdating CHANGELOG.md files...');
+
+    // Get previous version from first package's changelog
+    String? previousVersion;
+    List<String> allCommits = [];
+
+    if (updatedPackages.isNotEmpty) {
+      final firstPackage = updatedPackages.first;
+      final changelogFile = File('${firstPackage.path}/CHANGELOG.md');
+      if (await changelogFile.exists()) {
+        final changelogContent = await changelogFile.readAsString();
+        previousVersion = extractPreviousVersion(changelogContent);
+      }
+
+      // Get commits between previous version and HEAD
+      if (previousVersion != null) {
+        allCommits = await getCommitsBetweenVersions(previousVersion);
+        if (allCommits.isNotEmpty) {
+          print(
+              'Found ${allCommits.length} commit(s) between v$previousVersion and HEAD');
+        }
+      }
+    }
+
     for (final package in updatedPackages) {
       final packageName = package.path.split(Platform.pathSeparator).last;
-      final wasUpdated = await updateChangelog(package, newVersionString);
+      final wasUpdated =
+          await updateChangelog(package, newVersionString, allCommits);
       if (wasUpdated) {
         print('✓ Updated CHANGELOG.md for $packageName');
       } else {
@@ -419,7 +443,8 @@ Future<void> createGitTag(String version) async {
   }
 }
 
-Future<bool> updateChangelog(Directory package, String newVersion) async {
+Future<bool> updateChangelog(
+    Directory package, String newVersion, List<String> allCommits) async {
   final changelogFile = File('${package.path}/CHANGELOG.md');
 
   String changelogContent;
@@ -437,8 +462,14 @@ Future<bool> updateChangelog(Directory package, String newVersion) async {
     return false;
   }
 
-  // Create the new changelog entry
-  final newEntry = '## $newVersion\n\n@@TODO\n\n';
+  // Get package name for filtering commits
+  final packageName = package.path.split(Platform.pathSeparator).last;
+
+  // Filter commits for this package
+  final packageCommits = filterCommitsForPackage(allCommits, packageName);
+
+  // Generate changelog entry
+  final newEntry = generateChangelogEntry(newVersion, packageCommits);
 
   // If changelog is empty, just write the new entry
   if (changelogContent.isEmpty) {
@@ -450,6 +481,143 @@ Future<bool> updateChangelog(Directory package, String newVersion) async {
   final updatedContent = newEntry + changelogContent;
   await changelogFile.writeAsString(updatedContent);
   return true;
+}
+
+String? extractPreviousVersion(String changelogContent) {
+  // Find the first version header (## X.Y.Z)
+  final versionHeaderRegex =
+      RegExp(r'^##\s+(\d+\.\d+\.\d+)\s*$', multiLine: true);
+  final match = versionHeaderRegex.firstMatch(changelogContent);
+  return match?.group(1);
+}
+
+Future<List<String>> getCommitsBetweenVersions(String previousVersion) async {
+  final tagName = 'v$previousVersion';
+
+  try {
+    // Check if git is available
+    final gitCheck = await Process.run('git', ['--version']);
+    if (gitCheck.exitCode != 0) {
+      print('Warning: git is not available, cannot fetch commit messages');
+      return [];
+    }
+  } catch (e) {
+    print('Warning: git is not available: $e');
+    return [];
+  }
+
+  try {
+    // Check if tag exists
+    final tagCheck = await Process.run('git', ['tag', '-l', tagName]);
+    if (tagCheck.stdout.toString().trim().isEmpty) {
+      print(
+          'Warning: Tag $tagName not found, cannot fetch commits for changelog');
+      return [];
+    }
+
+    // Get commits between tag and HEAD
+    final process = await Process.run('git', [
+      'log',
+      '--pretty=format:%s',
+      '$tagName..HEAD',
+    ]);
+
+    if (process.exitCode == 0) {
+      final output = process.stdout.toString().trim();
+      return output.isEmpty ? [] : output.split('\n');
+    }
+
+    return [];
+  } catch (e) {
+    print('Warning: Failed to get commits: $e');
+    return [];
+  }
+}
+
+String normalizeScope(String scope) {
+  // Normalize scope by converting to lowercase and replacing dashes/underscores
+  return scope.toLowerCase().replaceAll('-', '_').replaceAll(' ', '_');
+}
+
+List<String> filterCommitsForPackage(List<String> commits, String packageName) {
+  // Normalize package name for comparison
+  final normalizedPackageName = normalizeScope(packageName);
+
+  final filteredCommits = <String>[];
+
+  for (final commit in commits) {
+    final parsed = parseConventionalCommit(commit);
+
+    if (parsed == null) {
+      // Not a conventional commit, add to all packages
+      filteredCommits.add(commit);
+      continue;
+    }
+
+    // If commit has no scope, add to all packages
+    final scope = parsed['scope'];
+    if (scope == null || scope.isEmpty) {
+      filteredCommits.add(commit);
+      continue;
+    }
+
+    // Normalize scope for comparison
+    final normalizedScope = normalizeScope(scope);
+
+    // If scope matches package, add it
+    if (normalizedScope == normalizedPackageName) {
+      filteredCommits.add(commit);
+    }
+  }
+
+  return filteredCommits;
+}
+
+Map<String, String?>? parseConventionalCommit(String commitMessage) {
+  // Conventional commit format: type(scope): description
+  // or: type: description
+  // or: type(scope)!: description (breaking change)
+  // or: type!: description (breaking change)
+
+  final conventionalCommitRegex = RegExp(
+    r'^(\w+)(?:\(([^)]+)\))?(!)?:\s*(.+)$',
+  );
+
+  final match = conventionalCommitRegex.firstMatch(commitMessage.trim());
+  if (match == null) {
+    return null;
+  }
+
+  return {
+    'type': match.group(1),
+    'scope': match.group(2),
+    'breaking': match.group(3) != null ? 'true' : null,
+    'description': match.group(4),
+  };
+}
+
+String generateChangelogEntry(String version, List<String> commits) {
+  if (commits.isEmpty) {
+    return '## $version\n\n@@TODO\n\n';
+  }
+
+  final buffer = StringBuffer();
+  buffer.writeln('## $version');
+  buffer.writeln();
+
+  for (final commit in commits) {
+    final parsed = parseConventionalCommit(commit);
+    if (parsed != null) {
+      // Format as changelog entry: - Description
+      buffer.writeln('- ${parsed['description']}');
+    } else {
+      // Not a conventional commit, use as-is
+      buffer.writeln('- $commit');
+    }
+  }
+
+  buffer.writeln();
+  return buffer.toString();
 }
 
 Future<List<Directory>> getPackages() async {
