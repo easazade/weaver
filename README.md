@@ -83,8 +83,6 @@ The `RequireDependencies` widget waits for specified dependency objects to be re
 
 `RequireDependencies` allows specifying the type of dependency objects that are required, then builds the widget as soon as those dependency objects are created. It doesn't care when, where or how those objects are created and registered in weaver.
 
-
-
 ```dart
 RequireDependencies(
     weaver: weaver,
@@ -378,6 +376,115 @@ With this approach, you can:
 - Define scopes independently and compose them with any widget tree
 
 This separation keeps your dependency injection logic isolated from UI code, making your architecture more maintainable and testable.
+
+### Switch Scopes 🔀
+
+Switch scopes are similar to regular scopes, but they allow you to define a parent scope with multiple child scopes that you can switch between. This is useful when you need to manage different sets of dependencies that are mutually exclusive—only one child scope can be active at a time, and switching to a new child scope automatically removes the dependencies from the previous one.
+
+Unlike regular scopes that have a single `@OnEnterScope` callback, switch scopes have multiple `@OnEnterScope` callbacks, each annotated with a `name` parameter to identify the child scope. You can also optionally define a default child scope that will be automatically entered when the switch scope handler is registered.
+
+#### Defining a Switch Scope
+
+Here's an example of defining a switch scope with multiple child scopes:
+
+```dart
+@WeaverSwitchScope(name: 'access')
+class _AccessScope {
+  @OnEnterScope(name: 'admin')
+  Future<void> adminAccess(Weaver weaver, String adminKey, int? id) async {
+    weaver.register('admin-key-private');
+    weaver.register(AdminAPI(adminKey: adminKey, id: id));
+  }
+
+  @OnEnterScope(name: 'user')
+  Future<void> userAccess(Weaver weaver, int userId) async {
+    weaver.register(UserAPI(userId: userId));
+  }
+
+  @OnEnterScope(name: 'public')
+  Future<void> publicAccess(Weaver weaver, bool flag) async {
+    weaver.register(PublicAPI(flag: flag));
+  }
+
+  @OnEnterScope(name: 'dev')
+  Future<void> devAccess(Weaver weaver) async {
+    weaver.register(DevAPI());
+  }
+}
+```
+
+After running `dart run build_runner build`, Weaver will generate an `AccessScopeHandler` class and an `AccessScope` class with static factory methods for creating each child scope.
+
+#### Registering a Switch Scope
+
+After defining the switch scope, you need to register the scope handler with Weaver. You can optionally pass a default scope that will be automatically entered when the handler is registered:
+
+```dart
+// Register without a default scope
+weaver.addScopeHandler(AccessScopeHandler(weaver));
+
+// Register with a default scope (public scope will be entered automatically)
+weaver.addScopeHandler(
+  AccessScopeHandler(
+    weaver,
+    defaultScope: AccessScope.public(flag: true),
+  ),
+);
+```
+
+When you register with a default scope, that child scope is immediately entered and its dependencies are registered. If you later leave a current child scope, Weaver will automatically switch back to the default scope.
+
+#### Switching Between Child Scopes
+
+To switch between child scopes, use the `enterScope()` method with the desired child scope:
+
+```dart
+// Switch to admin scope
+await weaver.enterScope(AccessScope.admin(adminKey: 'admin-key-123', id: 42));
+
+// Switch to user scope
+await weaver.enterScope(AccessScope.user(userId: 100));
+
+// Switch to public scope
+await weaver.enterScope(AccessScope.public(flag: true));
+
+// Switch to dev scope
+await weaver.enterScope(AccessScope.dev());
+```
+
+When you switch to a new child scope, the previous child scope is automatically left. This means:
+
+- The previous child scope's dependencies are removed (unregistered)
+- The new child scope's `@OnEnterScope` callback is called
+- The new child scope's dependencies are registered and become available
+
+For example, if you're in the admin scope and switch to the user scope:
+
+#### Custom On-Leave Scope Callbacks
+
+You can optionally add custom `@OnLeaveScope` callbacks for each child scope to perform cleanup or custom disposal before the dependencies are removed:
+
+```dart
+@WeaverSwitchScope(name: 'access')
+class _AccessScope {
+  ...
+
+  @OnEnterScope(name: 'user')
+  Future<void> userAccess(Weaver weaver, int userId) async {
+    weaver.register(UserAPI(userId: userId));
+  }
+
+  @OnLeaveScope(name: 'user')
+  Future<void> userCleanUp(Weaver weaver) async {
+    // Custom cleanup for user scope
+    final userAPI = weaver.get<UserAPI>();
+    await userAPI.dispose();
+    weaver.unregister<UserAPI>();
+  }
+}
+```
+
+If you don't provide an `@OnLeaveScope` callback for a child scope, Weaver will automatically handle unregistering the dependencies when switching away from that scope.
 
 ### Sessions 📦
 
