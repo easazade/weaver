@@ -1,8 +1,9 @@
 import 'package:example/src/scopes.dart';
 import 'package:flutter/material.dart';
-import 'package:weaver/weaver.dart';
+import 'package:flutter_weaver/flutter_weaver.dart';
 
 void main() {
+  weaver.register('Weaver is the best DI package');
   runApp(const MyApp());
 }
 
@@ -15,14 +16,20 @@ class MyApp extends StatelessWidget {
     weaver.named.privateKey;
 
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'Weaver Demo',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: Material(
-        child: Center(
-          child: const Text('Flutter Demo Home Page'),
-        ),
+      home: RequireDependencies(
+        weaver: weaver,
+        dependencies: [DependencyKey(type: String)],
+        builder: (context, child, isReady) {
+          return Material(
+            child: isReady
+                ? Center(child: Text(inject<String>()))
+                : CircularProgressIndicator(),
+          );
+        },
       ),
     );
   }
