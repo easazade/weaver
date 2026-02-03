@@ -1,3 +1,16 @@
+## 0.9.0
+
+- Add document for switch scope feature
+- Update SwitchScopeWriter to not support generating short-hand getters for @NamedDependency annotated methods
+- Move ownership of scopes to ScopeHandler which is the unit responsible for managing them
+- Add switch scope handler feature
+- abstract away ScopeHandler
+- Cleanup code for ScopeHandler class and remove unused code
+- Add more tests
+- Add canHandleScope method to ScopeHandler base class and Update Weaver
+- Update syntax validation for classes annotated with @WeaverScope annotation
+- Update annotations to retrofit multi state scopes feature
+
 ## 0.8.2
 
 - Adds injectAsync method to Weaver class

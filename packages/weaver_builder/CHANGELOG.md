@@ -1,3 +1,14 @@
+## 0.9.0
+
+- Update SwitchScopeWriter to not support generating short-hand getters for @NamedDependency annotated methods
+- Clean up and organize code generation logic into writer functions.
+- change weaver property in scope handlers to weaverInstance to avoid conflict with global weaver
+- Separate weaver scope annotations into @WeaverScope & @WeaverSwitchScope
+- Bump [weaver](https://pub.dev/packages/weaver) to 0.9.0
+- Fix bugs in code generation
+- Fix generated getter extension for scopes on Weaver having incorrect naming
+- Fix syntax validation on WeaverScope not throwing when multiple child scopes have duplicate names
+
 ## 0.8.2
 
 - Bump [weaver](https://pub.dev/packages/weaver) to 0.8.2
