@@ -1,0 +1,86 @@
+name: Test and Coverage
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Dart SDK
+        uses: dart-lang/setup-dart@v1
+        with:
+          sdk: stable
+
+      - name: Install Melos and Coverage tools
+        run: |
+          dart pub global activate melos
+          dart pub global activate coverage
+
+      - name: Bootstrap dependencies
+        run: melos bootstrap
+
+      - name: Run tests with coverage
+        run: melos run test:coverage
+
+      - name: Convert Dart coverage to LCOV format
+        run: |
+          # Convert weaver package coverage
+          if [ -d "packages/weaver/coverage" ] && [ "$(ls -A packages/weaver/coverage/*.json 2>/dev/null)" ]; then
+            dart pub global run coverage:format_coverage \
+              --lcov \
+              --in=packages/weaver/coverage \
+              --out=packages/weaver/coverage/lcov.info \
+              --packages=packages/weaver/.dart_tool/package_config.json \
+              --report-on=lib
+          fi
+          
+          # Convert weaver_builder package coverage
+          if [ -d "packages/weaver_builder/coverage" ] && [ "$(ls -A packages/weaver_builder/coverage/*.json 2>/dev/null)" ]; then
+            dart pub global run coverage:format_coverage \
+              --lcov \
+              --in=packages/weaver_builder/coverage \
+              --out=packages/weaver_builder/coverage/lcov.info \
+              --packages=packages/weaver_builder/.dart_tool/package_config.json \
+              --report-on=lib
+          fi
+
+      - name: Merge coverage reports
+        run: |
+          # Create merged coverage file
+          mkdir -p coverage
+          touch coverage/lcov.info
+          
+          # Append each coverage file if it exists
+          if [ -f "packages/weaver/coverage/lcov.info" ]; then
+            echo "Adding weaver coverage..."
+            cat packages/weaver/coverage/lcov.info >> coverage/lcov.info
+          fi
+          
+          if [ -f "packages/weaver_builder/coverage/lcov.info" ]; then
+            echo "Adding weaver_builder coverage..."
+            cat packages/weaver_builder/coverage/lcov.info >> coverage/lcov.info
+          fi
+          
+          if [ -f "packages/flutter_weaver/coverage/lcov.info" ]; then
+            echo "Adding flutter_weaver coverage..."
+            cat packages/flutter_weaver/coverage/lcov.info >> coverage/lcov.info
+          fi
+          
+          echo "Merged coverage report created at coverage/lcov.info"
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          file: ./coverage/lcov.info
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
