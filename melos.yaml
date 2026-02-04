@@ -20,6 +20,11 @@ scripts:
   test:
     run: melos exec -c 1 --ignore="example" --ignore="weaver_builder" -- "flutter test"
 
+  test:coverage:
+    run: |
+      melos exec -c 1 --scope="weaver" -- "dart test --coverage=coverage" &&
+      melos exec -c 1 --scope="weaver_builder" -- "dart test --coverage=coverage" &&
+      melos exec -c 1 --scope="flutter_weaver" -- "flutter test --coverage"
 
   gen:
     run: | 
