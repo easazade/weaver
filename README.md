@@ -14,6 +14,7 @@
   <img alt="GitHub License" src="https://img.shields.io/github/license/easazade/weaver?style=flat-square">
   <img alt="GitHub Language" src="https://img.shields.io/github/languages/top/easazade/weaver?style=flat-square">
   <img alt="GitHub Code Size" src="https://img.shields.io/github/languages/code-size/easazade/weaver?style=flat-square">
+  <img alt="Codecov" src="https://codecov.io/gh/easazade/weaver/branch/main/graph/badge.svg">
 </p>
 
 <img src="https://raw.githubusercontent.com/easazade/weaver/903913b10f02494d4bf12326b1e279b55d0fb80f/logo-banner.png">
