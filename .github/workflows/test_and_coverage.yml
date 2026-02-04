@@ -61,6 +61,7 @@ jobs:
           fi
           
           echo "Merged coverage report created at coverage/lcov.info"
+          cat coverage/lcov.info
 
       - name: Upload coverage to Codecov
         uses: codecov/codecov-action@v4
