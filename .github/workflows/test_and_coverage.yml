@@ -42,16 +42,6 @@ jobs:
               --packages=packages/weaver/.dart_tool/package_config.json \
               --report-on=lib
           fi
-          
-          # Convert weaver_builder package coverage
-          if [ -d "packages/weaver_builder/coverage" ] && [ "$(ls -A packages/weaver_builder/coverage/*.json 2>/dev/null)" ]; then
-            dart pub global run coverage:format_coverage \
-              --lcov \
-              --in=packages/weaver_builder/coverage \
-              --out=packages/weaver_builder/coverage/lcov.info \
-              --packages=packages/weaver_builder/.dart_tool/package_config.json \
-              --report-on=lib
-          fi
 
       - name: Merge coverage reports
         run: |
@@ -63,11 +53,6 @@ jobs:
           if [ -f "packages/weaver/coverage/lcov.info" ]; then
             echo "Adding weaver coverage..."
             cat packages/weaver/coverage/lcov.info >> coverage/lcov.info
-          fi
-          
-          if [ -f "packages/weaver_builder/coverage/lcov.info" ]; then
-            echo "Adding weaver_builder coverage..."
-            cat packages/weaver_builder/coverage/lcov.info >> coverage/lcov.info
           fi
           
           if [ -f "packages/flutter_weaver/coverage/lcov.info" ]; then
