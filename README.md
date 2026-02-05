@@ -18,11 +18,11 @@
 
 Dependency Injection library, rethought and tailored for Flutter. ⚡️
 
-## Why Weaver? 🎯
+# Why Weaver? 🎯
 
 Dependency injection logic often becomes intertwined with other types of code (state management, UI, etc.), making it difficult to manage and maintain. Weaver isolates dependency injection into its own architectural layer. Object registration, lifecycle management, and dependency resolution live separately from other parts of your codebase. This separation keeps your DI logic clean, focused, and independent—making your architecture more maintainable and your code easier to test.
 
-## Features ✨
+# Features ✨
 
 - ✅ Register objects and get them anywhere in your code by just calling `weaver.get()`.
 - ⏳ Ability to wait for the creation of an object before it is even created and then get it as soon as it is created with `getAsync()`.
@@ -30,7 +30,7 @@ Dependency injection logic often becomes intertwined with other types of code (s
 - 📦 Ability to register an object either globally or within the lifecycle of a defined `Scope` that can be handled by a `ScopeHandler`.
 - 🏷️ Named dependency with generated quick access extension methods on `weaver.named`
 
-## Install 📦
+# Install 📦
 
 Add following dependencies to pubspec.yaml ⬇️
 
@@ -44,7 +44,7 @@ dev_dependencies:
   weaver_builder: ^x.y.z
 ```
 
-## Getting started 🚀
+# Getting started 🚀
 
 Register objects 🧰
 
@@ -73,9 +73,9 @@ There is also a shorter syntax to get objects. simply by calling the `inject<T>(
 final UserBloc userBloc = inject();
 ```
 
-## Usage 🧭
+# Usage 🧭
 
-### Safely build widget 🛠️
+## Safely build widget 🛠️
 
 The `RequireDependencies` widget waits for specified dependency objects to be registered elsewhere and become available. Once those dependencies are ready, it automatically rebuilds the widget tree.
 
@@ -101,7 +101,7 @@ Unlike `Provider` or `BlocProvider`, where you must explicitly define and create
 
 This provides a significant advantage over traditional dependency injection approaches: it bridges the gap between a standalone DI container and Flutter's reactive nature. Instead of manually checking if an object is ready or handling registration timing in your business logic, `RequireDependencies` takes on that single responsibility. It ensures your widget tree is safely built only when its dependencies are available, eliminating `ProviderNotFoundException` errors and the architectural headache of nesting providers at the "correct" level of the widget tree.
 
-### Get objects asynchronously ⏱️
+## Get objects asynchronously ⏱️
 
 With weaver it is possible to wait for registration of an object and then get it as soon as it is registered using `getAsync()` method.
 
@@ -117,7 +117,7 @@ final userBloc = await weaver.getAsync<UserBloc>();
 
 **NOTE:** When building widgets there is no need to use `getAsync()` method. Please use `RequireDependencies` widget instead.
 
-### Named Dependencies 🏷️
+## Named Dependencies 🏷️
 
 Weaver allows registering named instances of the same type of object.
 
@@ -156,7 +156,7 @@ final userProfile = weaver.named.userProfile;
 final adminProfile = weaver.named.adminProfile;
 ```
 
-### Scoped Dependencies 🧩
+## Scoped Dependencies 🧩
 
 When it comes to dependency injection, usually dependency objects are required to exists as long as the app is running. But sometimes it is required for a dependency object to exist only in certain scenario or scope of a lifecycle. In short some dependencies only live in certain scopes.
 
@@ -203,7 +203,7 @@ class _AdminScope {
 }
 ```
 
-### Entering and Leaving scope 🚪
+## Entering and Leaving scope 🚪
 
 After defining the scope, it is required to first register the scope-handler class to weaver.
 
@@ -221,7 +221,7 @@ Weaver can be signaled that application has entered the admin scope. That can be
 
 Above call will trigger `AdminScopeHandler` that was registered and annotated method `@OnEnterScope` will be called with the passed parameters.
 
-#### Check Scope:
+### Check Scope:
 
 It is possible to check whether application has entered a defined scope or not
 
@@ -236,7 +236,7 @@ To leave a scope `leaveScope()` method should be used
 weaver.leaveScope(AdminScope.scopeName);
 ```
 
-#### Example: 🎯
+### Example: 🎯
 
 Here is a practical example of how to enter a scope based on business logic of the application
 
@@ -253,7 +253,7 @@ weaver.get<AuthBloc>().stream.listen((state){
 })
 ```
 
-### Define named dependencies for scopes 🗂️
+## Define named dependencies for scopes 🗂️
 
 In weaver it is possible to define named dependencies specific to a scope.
 
@@ -292,13 +292,13 @@ if(weaver.myScope.isIn){
 }
 ```
 
-### AutoScope Widget 🎯
+## AutoScope Widget 🎯
 
 When you need a scope tied to a specific route or widget subtree, `AutoScope` automatically manages the scope lifecycle. It enters the scope when the widget mounts and leaves it when the widget is disposed, ensuring dependencies are available only within that widget tree.
 
 This provides similar functionality to Provider's `Provider` widget—making dependencies available to a widget subtree—but with a key architectural advantage: the logic for creating and configuring those dependencies stays outside the widget tree, in your scope handler.
 
-#### Simple Example
+### Simple Example
 
 ```dart
 AutoScope(
@@ -310,7 +310,7 @@ AutoScope(
 
 When `ProductDetailPage` mounts, `ProductDetailScope` is entered automatically. When the page is removed, the scope is left and its dependencies are cleaned up.
 
-#### Using AutoScope with RequireDependencies
+### Using AutoScope with RequireDependencies
 
 Combine `AutoScope` with `RequireDependencies` to create a clean separation between scope management and widget implementation. Define the scope in your route configuration, then use `RequireDependencies` in your widgets to safely access scoped dependencies.
 
@@ -378,13 +378,13 @@ With this approach, you can:
 
 This separation keeps your dependency injection logic isolated from UI code, making your architecture more maintainable and testable.
 
-### Switch Scopes 🔀
+## Switch Scopes 🔀
 
 Switch scopes are similar to regular scopes, but they allow you to define a parent scope with multiple child scopes that you can switch between. This is useful when you need to manage different sets of dependencies that are mutually exclusive—only one child scope can be active at a time, and switching to a new child scope automatically removes the dependencies from the previous one.
 
 Unlike regular scopes that have a single `@OnEnterScope` callback, switch scopes have multiple `@OnEnterScope` callbacks, each annotated with a `name` parameter to identify the child scope.
 
-#### Defining a Switch Scope
+### Defining a Switch Scope
 
 Here's an example of defining a switch scope with multiple child scopes:
 
@@ -416,7 +416,7 @@ class _AccessScope {
 
 After running `dart run build_runner build`, Weaver will generate an `AccessScopeHandler` class and an `AccessScope` class with static factory methods for creating each child scope.
 
-#### Registering a Switch Scope
+### Registering a Switch Scope
 
 After defining the switch scope, you need to register the scope handler with Weaver. You can optionally pass a default scope that will be automatically entered when the handler is registered:
 
@@ -432,7 +432,7 @@ weaver.addScopeHandler(
 
 When you register with a default scope, that child scope is immediately entered and its dependencies are registered. If you later leave a current child scope, Weaver will automatically switch back to the default scope.
 
-#### Switching Between Child Scopes
+### Switching Between Child Scopes
 
 To switch between child scopes, use the `enterScope()` method with the desired child scope:
 
@@ -450,7 +450,7 @@ await weaver.enterScope(AccessScope.public(flag: true));
 await weaver.enterScope(AccessScope.dev());
 ```
 
-#### Check Current Child Scope
+### Check Current Child Scope
 
 To check current childScope
 
@@ -473,7 +473,7 @@ When you switch to a new child scope, the previous child scope is automatically 
 
 For example, if you're in the admin scope and switch to the user scope:
 
-#### Custom On-Leave Scope Callbacks
+### Custom On-Leave Scope Callbacks
 
 You can optionally add custom `@OnLeaveScope` callbacks for each child scope to perform cleanup or custom disposal before the dependencies are removed:
 
@@ -499,7 +499,7 @@ class _AccessScope {
 
 If you don't provide an `@OnLeaveScope` callback for a child scope, Weaver will automatically handle unregistering the dependencies when switching away from that scope.
 
-### Sessions 📦
+## Sessions 📦
 
 While scopes manage dependencies based on application lifecycle (entering and leaving specific states), sessions provide a way to group related dependencies that are created dynamically as your code executes. Sessions are particularly useful when you have a collection of objects that belong together and need to be cleared all at once when a particular operation or workflow completes.
 
@@ -507,7 +507,7 @@ Unlike scopes, which are tied to lifecycle events, sessions allow you to registe
 
 For example, imagine a shopping cart checkout workflow where state management components and services are created incrementally as the user progresses. When the user adds items to their cart and proceeds to checkout, you might need to register a `ShippingBloc` to handle shipping option selection, a `DiscountApi` to manage discount code validation, or a `CheckoutBloc` to orchestrate the checkout process. These components are related to this specific checkout session and should be cleared together when the checkout is completed or abandoned. This is where sessions shine.
 
-#### Using Sessions
+### Using Sessions
 
 You can register dependencies with a session name using the `session` parameter:
 
@@ -547,7 +547,7 @@ weaver.clearSession('checkout');
 // UserProfileBloc and SettingsBloc remain registered
 ```
 
-#### Session Extensions (Code Generation)
+### Session Extensions (Code Generation)
 
 To make working with sessions more convenient and type-safe, Weaver can generate extension methods for your sessions. This provides a cleaner API for registering and clearing session-specific dependencies.
 
@@ -582,7 +582,7 @@ The generated extension provides:
 
 This approach makes your code more readable and less error-prone, as you don't need to remember session names as strings. The generated code ensures type safety and provides a consistent API for managing session-based dependencies.
 
-## Observer changes in dependencies 👀
+# Observer changes in dependencies 👀
 
 All registrations and un-registrations can be observed to by adding an observer on `weaver`
 
@@ -594,7 +594,7 @@ weaver.addObserver(() {
 });
 ```
 
-## Testing 🧪
+# Testing 🧪
 
 For testing purposes it is possible to allow re-registration of objects by setting `allowReassignment` to true.
 
