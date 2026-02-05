@@ -45,6 +45,12 @@ class ScopeHandlerWeaverProxy implements Weaver {
   set allowReassignment(final bool value) => _realWeaver.allowReassignment = value;
 
   @override
+  bool get allowScopesWithoutHandler => _realWeaver.allowScopesWithoutHandler;
+
+  @override
+  set allowScopesWithoutHandler(final bool value) => _realWeaver.allowScopesWithoutHandler = value;
+
+  @override
   void addObserver(final Function observer) {
     _realWeaver.addObserver(observer);
   }

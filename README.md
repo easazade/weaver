@@ -596,6 +596,7 @@ weaver.addObserver(() {
 
 # Testing 🧪
 
-For testing purposes it is possible to allow re-registration of objects by setting `allowReassignment` to true.
-
-It is also possible to call `weaver.reset()` to clear all registered dependencies and scopes.
+For testing purposes it is possible to:
+- Allow re-registration of objects by setting `allowReassignment` to true.
+- Allow entering scopes without a scope-handler registered for them by `allowScopesWithoutHandler` to true
+- Call `weaver.reset()` to clear all registered dependencies and scopes.

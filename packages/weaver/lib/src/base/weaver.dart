@@ -48,9 +48,20 @@ class Weaver extends Observable {
   /// The currently active scopes in this [Weaver] instance.
   Iterable<Scope> get scopes => _scopeHandlers.map((final e) => e.currentScope).nonNulls;
 
-  /// Whether to allow re-registering an object with the same [DependencyKey].
-  /// Useful for testing to swap real implementations with mocks.
+  /// Whether to allow reassigning registered dependencies and scope handlers.
+  ///
+  /// When `true`, this allows:
+  /// - Re-registering an object with the same [DependencyKey]
+  /// - Replacing a [ScopeHandler] that handles the same scope
+  ///
+  /// Useful for testing scenarios where you need to override existing registrations.
   var allowReassignment = false;
+
+  /// Whether to allow calling [enterScope] with a scope that has no registered [ScopeHandler].
+  ///
+  /// When `true`, entering a scope without a handler will silently succeed.
+  /// When `false` (default), a [WeaverException] will be thrown if no handler is available.
+  var allowScopesWithoutHandler = false;
 
   /// Registers a dependency [instance] of type [T].
   ///
@@ -227,7 +238,7 @@ class Weaver extends Observable {
 
     final noHandlerAvailableToHandle =
         _scopeHandlers.where((final handler) => handler.canHandleScope(scope.name)).isEmpty;
-    if (noHandlerAvailableToHandle) {
+    if (noHandlerAvailableToHandle && !allowScopesWithoutHandler) {
       throw WeaverException(
         'Entered scope ${scope.name} but there is no scope handler to handle this scope. '
         'please register a ScopeHandler class that handles scope: ${scope.name} using addScopeHandler() method.',
