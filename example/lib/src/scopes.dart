@@ -1,5 +1,5 @@
 import 'package:example/src/models.dart';
-import 'package:weaver/weaver.dart' hide weaver;
+import 'package:flutter_weaver/flutter_weaver.dart';
 
 part 'scopes.weaver.dart';
 
