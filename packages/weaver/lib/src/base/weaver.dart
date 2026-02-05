@@ -14,7 +14,7 @@ import 'dependency.dart';
 final weaver = Weaver();
 
 /// This is a short hand function for weaver.get\<T\>().
-/// Keep in mind This function only makes request to the default global instance of weaver.
+/// Keep in mind This function only makes request to the default global instance of [weaver].
 ///
 /// for example below is wrong:
 /// ```dart
@@ -26,8 +26,8 @@ final weaver = Weaver();
 T inject<T extends Object>({final String? name}) => weaver.get<T>(name: name);
 
 /// This is a short hand function for weaver.getAsync\<T\>().
-/// Keep in mind This function only makes request to the default global instance of weaver.
-Future<T> injectAsync<T extends Object>() => weaver.getAsync<T>();
+/// Keep in mind This function only makes request to the default global instance of [weaver].
+Future<T> injectAsync<T extends Object>({final String? name}) => weaver.getAsync<T>(name: name);
 
 /// The main dependency injection container for Weaver.
 ///
