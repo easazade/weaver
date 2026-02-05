@@ -160,7 +160,10 @@ final adminProfile = weaver.named.adminProfile;
 
 When it comes to dependency injection, usually dependency objects are required to exists as long as the app is running. But sometimes it is required for a dependency object to exist only in certain scenario or scope of a lifecycle. In short some dependencies only live in certain scopes.
 
+A scope is a boundary where certain dependency objects should live. Objects get registered when entering the boundary and removed when exiting it. A boundary can be anything you define—like an authentication state, access level, or navigation route.
+
 For example in an application it might make sense to only register some dependency objects after user is authenticated and unregister them after user has logged out. Hence it can be said those dependency objects only live within the authentication scope.
+eg: AuthenticationScope, AccessLevelScope, ProfilePageScope
 
 Weaver makes it easy to define scopes that have their own dependencies. These dependencies will become available when weaver enters that scope.
 
@@ -216,7 +219,7 @@ Weaver can be signaled that application has entered the admin scope. That can be
   );
 ```
 
-Above call will trigger `AdminScopeHandler` that was registered and annotated method @OnEnterScope will be called with the passed parameters.
+Above call will trigger `AdminScopeHandler` that was registered and annotated method `@OnEnterScope` will be called with the passed parameters.
 
 #### Check Scope:
 
@@ -445,6 +448,15 @@ await weaver.enterScope(AccessScope.public(flag: true));
 
 // Switch to dev scope
 await weaver.enterScope(AccessScope.dev());
+```
+
+#### Check Current Child Scope
+
+To check current childScope
+
+```dart
+final isInAccessAdminScope = weaver.accessScope.isAdmin;
+final isInAccessDevScope = weaver.accessScope.isDev;
 ```
 
 When you switch to a new child scope, the previous child scope is automatically left. This means:

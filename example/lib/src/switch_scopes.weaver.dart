@@ -147,4 +147,10 @@ class AccessScopeOnWeaver {
   bool get isUser => weaverInstance.isInScope("access-user");
   bool get isPublic => weaverInstance.isInScope("access-public");
   bool get isDev => weaverInstance.isInScope("access-dev");
+
+  Scope<BaseAccessScopeArgs>? get currentScope {
+    final matches = weaverInstance.scopes
+        .whereType<Scope<BaseAccessScopeArgs>>();
+    return matches.firstOrNull;
+  }
 }

@@ -1,4 +1,4 @@
-import 'package:weaver/weaver.dart';
+import 'package:flutter_weaver/flutter_weaver.dart';
 
 part 'switch_scopes.weaver.dart';
 

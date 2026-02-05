@@ -255,6 +255,16 @@ void main() {
       expect(weaver.accessScope.isPublic, isFalse);
       expect(weaver.accessScope.isDev, isFalse);
     });
+
+    test('Should provide current scope correctly', () async {
+      expect(weaver.accessScope.currentScope, isNull);
+
+      await weaver.enterScope(AccessScope.admin(adminKey: 'key', id: 1));
+      expect(weaver.accessScope.currentScope, isA<AccessAdminScope>());
+
+      await weaver.enterScope(AccessScope.user(userId: 5));
+      expect(weaver.accessScope.currentScope, isA<AccessUserScope>());
+    });
   });
 
   group('Default scope', () {

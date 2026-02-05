@@ -277,6 +277,11 @@ void writeClassesForSwitchScopes({
 
           $childScopeChecksPart
 
+          Scope<$baseScopeArgsClassName>? get currentScope {
+            final matches = weaverInstance.scopes.whereType<Scope<$baseScopeArgsClassName>>();
+            return matches.firstOrNull;
+          }
+
         }
       ''',
     );
