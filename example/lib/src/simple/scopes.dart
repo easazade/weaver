@@ -1,4 +1,4 @@
-import 'package:example/src/models.dart';
+import 'package:example/src/simple/models.dart';
 import 'package:flutter_weaver/flutter_weaver.dart';
 
 part 'scopes.weaver.dart';
