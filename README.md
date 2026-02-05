@@ -455,6 +455,12 @@ await weaver.enterScope(AccessScope.dev());
 To check current childScope
 
 ```dart
+final currentScope = weaver.accessScope.currentScope;
+```
+
+To check for a certain child scope:
+
+```dart
 final isInAccessAdminScope = weaver.accessScope.isAdmin;
 final isInAccessDevScope = weaver.accessScope.isDev;
 ```
