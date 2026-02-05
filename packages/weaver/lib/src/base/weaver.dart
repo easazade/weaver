@@ -218,6 +218,7 @@ class Weaver extends Observable {
   /// Removes all dependency objects registered under the given [session] name.
   void clearSession(final String session) {
     _dependencyMap.removeBySession(session);
+    notifyObservers();
   }
 
   /// Returns true if the [Weaver] has entered the scope with the given [scopeName].
