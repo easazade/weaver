@@ -1,4 +1,3 @@
-import 'package:example/src/simple/models.dart';
 import 'package:flutter_weaver/flutter_weaver.dart';
 
 part 'scopes.weaver.dart';
@@ -16,19 +15,6 @@ class _AdminScope {
   @OnLeaveScope()
   Future<void> onLeave(Weaver weaverInstance) async {
     weaverInstance.unregister<String>();
-  }
-}
-
-@WeaverScope(name: 'auth-scope')
-class _AuthScope {
-  @OnEnterScope()
-  Future<void> onEnter(Weaver weaver, User user) async {
-    weaver.register(user);
-  }
-
-  @OnLeaveScope()
-  Future<void> onLeaveScope(Weaver weaver) async {
-    weaver.unregister<User>();
   }
 }
 

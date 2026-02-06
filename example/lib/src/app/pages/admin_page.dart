@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../cubits/admin_cubit.dart';
 import '../cubits/user_cubit.dart';
 import '../models/shoes.dart';
-import '../di.dart';
+import '../di/di_setup.dart';
 import '../widgets/primary_button.dart';
 
 class AdminPage extends StatefulWidget {

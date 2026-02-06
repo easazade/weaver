@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../api/user_api.dart';
 import '../cubits/user_cubit.dart';
 import '../models/order.dart';
-import '../di.dart';
+import '../di/di_setup.dart';
 import '../widgets/order_item_widget.dart';
 
 class ProfilePage extends StatefulWidget {

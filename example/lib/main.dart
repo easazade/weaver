@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'src/app/app.dart';
-import 'src/app/di.dart';
+import 'src/app/di/di_setup.dart';
 
 void main() {
   // Setup all app dependencies using Weaver

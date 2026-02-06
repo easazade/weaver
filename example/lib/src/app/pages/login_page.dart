@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../cubits/login_cubit.dart';
-import '../di.dart';
+import '../di/di_setup.dart';
 import '../widgets/login_text_field.dart';
 import '../widgets/primary_button.dart';
 

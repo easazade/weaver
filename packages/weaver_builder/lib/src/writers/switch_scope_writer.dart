@@ -145,12 +145,12 @@ void writeClassesForSwitchScopes({
       if (arguments.isNotEmpty) {
         arguments = '{$arguments}';
       }
-      buffer.writeln('static ${info.className} ${info.name}($arguments)'
+      buffer.writeln('static ${info.className} ${info.name.camelCase}($arguments)'
           ' => ${info.className}(${info.args.keys.map((key) => '$key: $key').join(',')});\n');
     }
 
     for (final info in childScopeInfos) {
-      buffer.writeln('static String get ${info.name}ScopeName => "${info.fullName}";');
+      buffer.writeln('static String get ${info.name.camelCase}ScopeName => "${info.fullName}";');
     }
 
     buffer.writeln('}');

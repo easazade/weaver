@@ -1,7 +1,6 @@
+import 'package:example/src/app/pages/splash_page.dart';
 import 'package:flutter/material.dart';
 
-import 'cubits/user_cubit.dart';
-import 'di.dart';
 import 'pages/admin_page.dart';
 import 'pages/home_page.dart';
 import 'pages/login_page.dart';
@@ -12,8 +11,6 @@ class App extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final userCubit = weaver.get<UserCubit>();
-
     return MaterialApp(
       title: 'Shoes Store',
       theme: ThemeData(
@@ -21,13 +18,22 @@ class App extends StatelessWidget {
         useMaterial3: true,
       ),
       debugShowCheckedModeBanner: false,
-      initialRoute: userCubit.isLoggedIn ? '/home' : '/login',
+      initialRoute: Routes.splash,
       routes: {
-        '/login': (context) => const LoginPage(),
-        '/home': (context) => const HomePage(),
-        '/profile': (context) => const ProfilePage(),
-        '/admin': (context) => const AdminPage(),
+        Routes.login: (context) => const LoginPage(),
+        Routes.home: (context) => const HomePage(),
+        Routes.profile: (context) => const ProfilePage(),
+        Routes.admin: (context) => const AdminPage(),
+        Routes.splash: (context) => const SplashPage(),
       },
     );
   }
+}
+
+class Routes {
+  static final login = '/login';
+  static final home = '/home';
+  static final profile = '/profile';
+  static final admin = '/admin';
+  static final splash = '/splash';
 }

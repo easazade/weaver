@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import '../api/user_api.dart';
 import '../cubits/shoes_cubit.dart';
 import '../cubits/user_cubit.dart';
-import '../di.dart';
+import '../di/di_setup.dart';
 import '../widgets/shoe_item_widget.dart';
 
 class HomePage extends StatefulWidget {

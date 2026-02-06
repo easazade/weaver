@@ -65,55 +65,6 @@ class AdminScopeOnWeaver {
   String get adminKey => weaverInstance.get<String>(name: "admin-key");
 }
 
-class AuthScope extends Scope<AuthScopeArgs> {
-  static const String scopeName = 'auth-scope';
-
-  AuthScope({required User user})
-    : super(name: "auth-scope", args: AuthScopeArgs(user));
-}
-
-class AuthScopeArgs {
-  final User user;
-
-  AuthScopeArgs(this.user);
-}
-
-class AuthScopeHandler extends SingleScopeHandler<AuthScopeArgs> {
-  AuthScopeHandler(super.weaver);
-
-  final _scopeHandlerDelegate = _AuthScope();
-
-  @override
-  String get scopeName => 'auth-scope';
-
-  @override
-  Future<void> onEnterScope(Weaver weaver, AuthScopeArgs args) async {
-    await _scopeHandlerDelegate.onEnter(weaverInstance, args.user);
-  }
-
-  @override
-  Future<void> onLeaveScope(Weaver weaver) async {
-    await _scopeHandlerDelegate.onLeaveScope(weaverInstance);
-  }
-}
-
-extension AuthScopeOnWeaverAddedToWeaver on Weaver {
-  AuthScopeOnWeaver get authScope =>
-      AuthScopeOnWeaver(ScopeHandlerWeaverProxy(this));
-}
-
-class AuthScopeOnWeaver {
-  final ScopeHandlerWeaverProxy weaverInstance;
-
-  final _scopeHandlerDelegate = _AuthScope();
-
-  AuthScopeOnWeaver(this.weaverInstance);
-
-  bool get isIn => weaverInstance.scopes
-      .where((scope) => scope.name == "auth-scope")
-      .isNotEmpty;
-}
-
 class ShoppingScope extends Scope<void> {
   static const String scopeName = 'shopping';
 
