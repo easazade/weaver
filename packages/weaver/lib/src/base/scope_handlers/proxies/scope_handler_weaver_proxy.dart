@@ -39,6 +39,9 @@ class ScopeHandlerWeaverProxy implements Weaver {
   }
 
   @override
+  Iterable<ScopeHandler<dynamic>> get handlers => _realWeaver.handlers;
+
+  @override
   bool get allowReassignment => _realWeaver.allowReassignment;
 
   @override

@@ -153,4 +153,18 @@ class AccessScopeOnWeaver {
         .whereType<Scope<BaseAccessScopeArgs>>();
     return matches.firstOrNull;
   }
+
+  /// This method can be used to wait for enter scope. Returns current scope if it is not null
+  Future<Scope<BaseAccessScopeArgs>> awaitEnterScope() async {
+    final matches = weaverInstance.handlers.whereType<AccessScopeHandler>();
+    if (matches.isEmpty) {
+      throw WeaverException(
+        'Tried to await entering a scope without a handler class registered. '
+        'Please register an instance of AccessScopeHandler first before calling awaitEnterScope()',
+      );
+    }
+
+    final handler = matches.first;
+    return handler.awaitEnterScope();
+  }
 }

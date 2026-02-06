@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:weaver/src/base/scope.dart';
 import 'package:weaver/src/base/scope_handlers/proxies/scope_handler_weaver_proxy.dart';
 import 'package:weaver/src/base/scope_handlers/scope_handler.dart';
@@ -11,31 +13,51 @@ abstract class SwitchScopeHandler<T> extends ScopeHandler<T> {
 
   final Scope<T>? defaultScope;
 
+  Completer<Scope<T>> _currentScopeCompleter = Completer();
+
+  Future<Scope<T>> awaitEnterScope() async {
+    if (currentScope != null) {
+      return currentScope!;
+    } else {
+      return _currentScopeCompleter.future;
+    }
+  }
+
   @override
   Future<void> handle(final HandlerEvent event) async {
     if (event is EnterScope) {
       if (currentScope != null && currentScope?.name != event.scope.name) {
         final currentScopeName = currentScope!.name;
-        currentScope = null;
+        _setCurrentScope(null);
         await onLeaveScopeByName(currentScopeName);
       }
       await onEnterScopeByScope(event.scope);
-      currentScope = event.scope as Scope<T>;
+      _setCurrentScope(event.scope as Scope<T>);
     } else if (event is LeaveScope) {
       if (currentScope != null) {
         await onLeaveScopeByName(event.scopeName);
-        currentScope = null;
+        _setCurrentScope(null);
       }
     } else if (event is HandlerAddedToWeaver) {
       if (currentScope == null && defaultScope != null) {
         await onEnterScopeByScope(defaultScope!);
-        currentScope = defaultScope;
+        _setCurrentScope(defaultScope);
       }
     }
 
     if (currentScope == null && defaultScope != null) {
       await onEnterScopeByScope(defaultScope!);
-      currentScope = defaultScope;
+      _setCurrentScope(defaultScope);
+    }
+  }
+
+  void _setCurrentScope(final Scope<T>? scope) {
+    if (scope != null) {
+      currentScope = scope;
+      _currentScopeCompleter.complete(scope);
+    } else {
+      currentScope = null;
+      _currentScopeCompleter = Completer();
     }
   }
 
@@ -45,6 +67,7 @@ abstract class SwitchScopeHandler<T> extends ScopeHandler<T> {
   }
 
   Future<void> onLeaveScopeByName(final String name);
+
   Future<void> onEnterScopeByScope(final Scope scope);
 
   @override
