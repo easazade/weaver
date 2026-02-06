@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:test/test.dart';
 import 'package:weaver/weaver.dart';
 
@@ -264,6 +266,81 @@ void main() {
 
       await weaver.enterScope(AccessScope.user(userId: 5));
       expect(weaver.accessScope.currentScope, isA<AccessUserScope>());
+    });
+
+    test('Should return current scope immediately when scope is already entered', () async {
+      await weaver.enterScope(AccessScope.admin(adminKey: 'admin-key', id: 42));
+
+      final scope = await weaver.accessScope.awaitEnterScope();
+      expect(scope, isA<AccessAdminScope>());
+      expect((scope as AccessAdminScope).args.adminKey, 'admin-key');
+      expect(scope.args.id, 42);
+    });
+
+    test('Should wait for scope to be entered when no scope is active', () async {
+      // Leave any existing scope first
+      if (weaver.accessScope.currentScope != null) {
+        await weaver.leaveScope(weaver.accessScope.currentScope!.name);
+      }
+
+      // Verify no scope is active
+      expect(weaver.accessScope.currentScope, isNull);
+
+      // Start awaiting before entering scope
+      Scope<BaseAccessScopeArgs>? enteredScope;
+      unawaited(weaver.accessScope.awaitEnterScope().then((final scope) {
+        enteredScope = scope;
+      }));
+
+      // Enter scope asynchronously after a short delay
+      Future.delayed(const Duration(milliseconds: 50), () async {
+        await weaver.enterScope(AccessScope.user(userId: 100));
+      });
+      await Future.delayed(const Duration(milliseconds: 50));
+
+      // Wait for the future to complete
+      expect(enteredScope, isA<AccessUserScope>());
+      expect((enteredScope as AccessUserScope).args.userId, 100);
+    });
+
+    test('Should return new scope after switching scopes', () async {
+      await weaver.enterScope(AccessScope.admin(adminKey: 'old-admin', id: 1));
+      expect(await weaver.accessScope.awaitEnterScope(), isA<AccessAdminScope>());
+
+      // Switch to user scope
+      await weaver.enterScope(AccessScope.user(userId: 200));
+
+      // awaitEnterScope should return the new scope immediately
+      final scope = await weaver.accessScope.awaitEnterScope();
+      expect(scope, isA<AccessUserScope>());
+      expect((scope as AccessUserScope).args.userId, 200);
+    });
+
+    test('Should throw exception when handler is not registered', () async {
+      weaver.reset();
+
+      expect(
+        () => weaver.accessScope.awaitEnterScope(),
+        throwsA(isA<WeaverException>()),
+      );
+    });
+
+    test('Should return correct scope type for different scope types', () async {
+      // Test Admin scope
+      await weaver.enterScope(AccessScope.admin(adminKey: 'key1', id: 1));
+      var scope = await weaver.accessScope.awaitEnterScope();
+      expect(scope, isA<AccessAdminScope>());
+
+      // Test Public scope
+      await weaver.enterScope(AccessScope.public(flag: true));
+      scope = await weaver.accessScope.awaitEnterScope();
+      expect(scope, isA<AccessPublicScope>());
+      expect((scope as AccessPublicScope).args.flag, isTrue);
+
+      // Test Dev scope
+      await weaver.enterScope(AccessScope.dev());
+      scope = await weaver.accessScope.awaitEnterScope();
+      expect(scope, isA<AccessDevScope>());
     });
   });
 
