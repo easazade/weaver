@@ -14,13 +14,37 @@ dependencies:
 
   cupertino_icons: ^1.0.8
   flutter_weaver:
+  flutter_crystalline:
+    git:
+      url: https://github.com/easazade/crystalline.git
+      path: packages/flutter_crystalline
+      ref: 99d0ec9
+  dart_mappable: ^4.6.1
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  build_runner:  
+  build_runner: ^2.7.1  
   weaver_builder:  
   flutter_lints: ^5.0.0
+  crystalline_builder:
+    git:
+      url: https://github.com/easazade/crystalline.git
+      path: packages/crystalline_builder
+      ref: 99d0ec9
+  dart_mappable_builder: ^4.6.0
+
+dependency_overrides:    
+  flutter_crystalline:
+    git:
+      url: https://github.com/easazade/crystalline.git
+      path: packages/flutter_crystalline   
+      ref: 99d0ec9
+  crystalline:
+    git:
+      url: https://github.com/easazade/crystalline.git
+      path: packages/crystalline   
+      ref: 99d0ec9
 
 flutter:
 

@@ -1,4 +1,4 @@
-# melos_managed_dependency_overrides: weaver,weaver_builder,flutter_weaver
+# melos_managed_dependency_overrides: flutter_weaver,weaver,weaver_builder,flutter_crystalline,crystalline
 dependency_overrides:
   flutter_weaver:
     path: ../packages/flutter_weaver
@@ -6,3 +6,13 @@ dependency_overrides:
     path: ../packages/weaver
   weaver_builder:
     path: ../packages/weaver_builder
+  flutter_crystalline:
+    git:
+      url: https://github.com/easazade/crystalline.git
+      ref: 99d0ec9
+      path: packages/flutter_crystalline
+  crystalline:
+    git:
+      url: https://github.com/easazade/crystalline.git
+      ref: 99d0ec9
+      path: packages/crystalline
