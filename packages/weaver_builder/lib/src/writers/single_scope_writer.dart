@@ -1,4 +1,4 @@
-import 'package:analyzer/dart/element/element2.dart';
+import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:collection/collection.dart';
 import 'package:recase/recase.dart';
@@ -9,7 +9,7 @@ import 'package:weaver_builder/src/utils/extensions.dart';
 
 void writeClassesForScopes({
   required StringBuffer buffer,
-  required LibraryElement2 library,
+  required LibraryElement library,
 }) {
   for (final classElement in library.classes) {
     if (!weaverScopeTypeChecker.hasAnnotationOfExact(classElement)) continue;
@@ -18,7 +18,7 @@ void writeClassesForScopes({
 
     final weaverScopeAnnotation = weaverScopeTypeChecker.firstAnnotationOfExact(classElement)!;
 
-    final methods = classElement.methods2;
+    final methods = classElement.methods;
     final onEnterScopeMethod = methods.firstWhere((method) => onEnterScopeTypeChecker.hasAnnotationOfExact(method));
     final onLeaveScopeMethod =
         methods.firstWhereOrNull((method) => onLeaveScopeTypeChecker.hasAnnotationOfExact(method));
@@ -91,7 +91,7 @@ void writeClassesForScopes({
     final namedDependenciesAutoRegisterPart = StringBuffer();
     final namedDependenciesAutoUnRegisterPart = StringBuffer();
 
-    for (var method in classElement.methods2) {
+    for (var method in classElement.methods) {
       if (!namedDependencyTypeChecker.hasAnnotationOfExact(method)) {
         continue;
       }
@@ -107,8 +107,8 @@ void writeClassesForScopes({
 
       final returnType = method.returnType;
       final objectType = returnType.isDartAsyncFuture
-          ? (returnType as ParameterizedType).typeArguments.first.element3?.displayName
-          : method.returnType.element3?.displayName;
+          ? (returnType as ParameterizedType).typeArguments.first.element?.displayName
+          : method.returnType.element?.displayName;
 
       if (objectType?.isEmpty == true) {
         continue;

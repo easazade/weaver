@@ -1,4 +1,4 @@
-import 'package:analyzer/dart/element/element2.dart';
+import 'package:analyzer/dart/element/element.dart';
 import 'package:collection/collection.dart';
 import 'package:recase/recase.dart';
 import 'package:source_gen/source_gen.dart';
@@ -8,7 +8,7 @@ import 'package:weaver_builder/src/utils/extensions.dart';
 
 void writeClassesForSwitchScopes({
   required StringBuffer buffer,
-  required LibraryElement2 library,
+  required LibraryElement library,
 }) {
   for (final classElement in library.classes) {
     if (!weaverSwitchScopeTypeChecker.hasAnnotationOfExact(classElement)) continue;
@@ -17,7 +17,7 @@ void writeClassesForSwitchScopes({
 
     final weaverScopeAnnotation = weaverSwitchScopeTypeChecker.firstAnnotationOfExact(classElement)!;
 
-    final methods = classElement.methods2;
+    final methods = classElement.methods;
     final onEnterScopeMethods = methods.where((method) => onEnterScopeTypeChecker.hasAnnotationOfExact(method));
     final onLeaveScopeMethods = methods.where((method) => onLeaveScopeTypeChecker.hasAnnotationOfExact(method));
 

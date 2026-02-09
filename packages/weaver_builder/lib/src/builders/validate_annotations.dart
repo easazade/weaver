@@ -1,4 +1,4 @@
-import 'package:analyzer/dart/element/element2.dart';
+import 'package:analyzer/dart/element/element.dart';
 import 'package:analyzer/dart/element/type.dart';
 import 'package:collection/collection.dart';
 import 'package:source_gen/source_gen.dart';
@@ -10,7 +10,7 @@ final _onEnterScopeTypeChecker = const TypeChecker.typeNamed(OnEnterScope);
 final _onLeaveScopeTypeChecker = const TypeChecker.typeNamed(OnLeaveScope);
 
 /// Checks if the annotated classes with [WeaverScope] annotation have duplicate names
-void checkForDuplicateScopeNames(List<ClassElement2> classes) {
+void checkForDuplicateScopeNames(List<ClassElement> classes) {
   final weaverScopeTypeChecker = const TypeChecker.typeNamed(WeaverScope);
   final weaverScopeAnnotatedClasses = classes.where((cls) => weaverScopeTypeChecker.hasAnnotationOfExact(cls));
   final weaverSwitchScopeAnnotatedClasses =
@@ -41,7 +41,7 @@ void checkForDuplicateScopeNames(List<ClassElement2> classes) {
 }
 
 /// Checks if the annotated classes with [NamedDependency] annotation have duplicate names
-void checkForDuplicateNamedDependencyNames(List<ExecutableElement2> classes) {
+void checkForDuplicateNamedDependencyNames(List<ExecutableElement> classes) {
   final namedDependencyTypeChecker = const TypeChecker.typeNamed(NamedDependency);
   final annotatedFunctions = classes.where((function) => namedDependencyTypeChecker.hasAnnotationOfExact(function));
   if (annotatedFunctions.isNotEmpty) {
@@ -61,7 +61,7 @@ void checkForDuplicateNamedDependencyNames(List<ExecutableElement2> classes) {
   }
 }
 
-void validateSourceSyntaxOnNamedDependencyFunction(ExecutableElement2 function) {
+void validateSourceSyntaxOnNamedDependencyFunction(ExecutableElement function) {
   if (!function.displayName.startsWith('_')) {
     throw InvalidGenerationSource(
       '❌ The factory function for named dependencies should be private but ${function.displayName}() is not.',
@@ -89,8 +89,8 @@ void validateSourceSyntaxOnNamedDependencyFunction(ExecutableElement2 function) 
 
 /// Checks if the input source code for WeaverScope annotated class is valid and as expected.
 /// Throws a [InvalidGenerationSource] if otherwise.
-void validateSourceSyntaxOnWeaverScopeClass(ClassElement2 classElement) {
-  final hasCustomConstructor = classElement.constructors2.firstWhereOrNull((e) => !e.isDefaultConstructor) != null;
+void validateSourceSyntaxOnWeaverScopeClass(ClassElement classElement) {
+  final hasCustomConstructor = classElement.constructors.firstWhereOrNull((e) => !e.isDefaultConstructor) != null;
 
   if (hasCustomConstructor) {
     throw InvalidGenerationSource(
@@ -104,7 +104,7 @@ void validateSourceSyntaxOnWeaverScopeClass(ClassElement2 classElement) {
     );
   }
 
-  final methods = classElement.methods2;
+  final methods = classElement.methods;
   final hasMoreThanOneOnEnterScope =
       methods.where((method) => _onEnterScopeTypeChecker.hasAnnotationOfExact(method)).length > 1;
 
@@ -173,7 +173,7 @@ class MyScope {
   }
 
   final weaverParam = onEnterScopeMethod.formalParameters[0];
-  final weaverParamType = weaverParam.type.element3?.displayName;
+  final weaverParamType = weaverParam.type.element?.displayName;
   if (weaverParamType != 'Weaver') {
     throw InvalidGenerationSource(
       '❌ First parameter of the scope handler function should be of type "Weaver" not "$weaverParamType". '
@@ -194,7 +194,7 @@ class MyScope {
   // validating the syntax of @onLeaveScope method
 
   if (onLeaveScopeMethod != null) {
-    final onLeaveMethodParamType = onLeaveScopeMethod.formalParameters.first.type.element3?.displayName;
+    final onLeaveMethodParamType = onLeaveScopeMethod.formalParameters.first.type.element?.displayName;
     if (onLeaveScopeMethod.formalParameters.length != 1 || onLeaveMethodParamType != 'Weaver') {
       throw InvalidGenerationSource(
         '''❌ method onLeaveScope() should have a single argument of type Weaver. 
@@ -212,8 +212,8 @@ Future<void> onLeaveScope(Weaver weaver) async {
   }
 }
 
-void validateSourceSyntaxOnWeaverSwitchScopeClass(ClassElement2 classElement) {
-  final hasCustomConstructor = classElement.constructors2.firstWhereOrNull((e) => !e.isDefaultConstructor) != null;
+void validateSourceSyntaxOnWeaverSwitchScopeClass(ClassElement classElement) {
+  final hasCustomConstructor = classElement.constructors.firstWhereOrNull((e) => !e.isDefaultConstructor) != null;
 
   if (hasCustomConstructor) {
     throw InvalidGenerationSource(
@@ -227,7 +227,7 @@ void validateSourceSyntaxOnWeaverSwitchScopeClass(ClassElement2 classElement) {
     );
   }
 
-  final methods = classElement.methods2;
+  final methods = classElement.methods;
   final onEnterScopeMethods = methods.where(
     (method) => _onEnterScopeTypeChecker.hasAnnotationOfExact(method),
   );
@@ -277,7 +277,7 @@ class MyScope {
     }
 
     final weaverParam = onEnterScopeMethod.formalParameters[0];
-    final weaverParamType = weaverParam.type.element3?.displayName;
+    final weaverParamType = weaverParam.type.element?.displayName;
     if (weaverParamType != 'Weaver') {
       throw InvalidGenerationSource(
         '❌ First parameter of the scope handler function should be of type "Weaver" not "$weaverParamType". '
@@ -299,7 +299,7 @@ class MyScope {
   // validating the syntax of @onLeaveScope methods
 
   for (var onLeaveScopeMethod in onLeaveScopeMethods) {
-    final onLeaveMethodParamType = onLeaveScopeMethod.formalParameters.first.type.element3?.displayName;
+    final onLeaveMethodParamType = onLeaveScopeMethod.formalParameters.first.type.element?.displayName;
     if (onLeaveScopeMethod.formalParameters.length != 1 || onLeaveMethodParamType != 'Weaver') {
       throw InvalidGenerationSource(
         '''

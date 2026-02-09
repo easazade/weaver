@@ -16,7 +16,7 @@ extension DartFormatterX on DartFormatter {
 
 extension DartTypeX on DartType {
   String? get displayNameWithNullability {
-    final type = element3?.displayName;
+    final type = element?.displayName;
     if (type == null) {
       return null;
     } else {

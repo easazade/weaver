@@ -1,9 +1,9 @@
-import 'package:analyzer/dart/element/element2.dart';
+import 'package:analyzer/dart/element/element.dart';
 import 'package:recase/recase.dart';
 import 'package:source_gen/source_gen.dart';
 import 'package:weaver_builder/src/type_checkers.dart';
 
-void writeSessions({required StringBuffer buffer, required LibraryElement2 library}) {
+void writeSessions({required StringBuffer buffer, required LibraryElement library}) {
   for (final classElement in library.classes) {
     if (!weaverSessionTypeChecker.hasAnnotationOfExact(classElement)) continue;
 
