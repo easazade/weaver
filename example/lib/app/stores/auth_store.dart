@@ -9,7 +9,8 @@ abstract class _AuthStore extends Store {
   _AuthStore(this.api);
   final UserApi api;
 
-  final user = Data<User>();
+  @sharedData()
+  Data<User> get user;
 
   Future<void> login({
     required String username,
