@@ -18,6 +18,7 @@ abstract class _ProfileStore extends Store {
       profile.failure = null;
       profile.operation = Operation.read;
       publish();
+
       profile.value = await api.getProfileByUserId(user.value.id);
       profile.operation = Operation.none;
       publish();
