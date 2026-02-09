@@ -4,12 +4,12 @@ import 'package:flutter_crystalline/flutter_crystalline.dart';
 
 part 'auth_store.crystalline.dart';
 
-@store()
+@StoreClass()
 abstract class _AuthStore extends Store {
   _AuthStore(this.api);
   final UserApi api;
 
-  @sharedData()
+  @SharedData()
   Data<User> get user;
 
   Future<void> login({

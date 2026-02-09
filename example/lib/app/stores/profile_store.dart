@@ -5,7 +5,7 @@ import 'package:flutter_crystalline/flutter_crystalline.dart';
 
 part 'profile_store.crystalline.dart';
 
-@store()
+@StoreClass()
 abstract class _ProfileStore extends Store {
   _ProfileStore(this.api);
   final ProfileApi api;

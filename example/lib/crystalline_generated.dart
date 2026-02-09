@@ -9,6 +9,12 @@ import 'package:example/app/models/user.dart';
 import 'package:flutter_crystalline/flutter_crystalline.dart';
 import 'dart:core';
 
+import 'package:example/app/stores/home_store.dart';
+import 'package:example/app/api/shoe_api.dart';
+import 'package:example/app/models/shoe.dart';
+import 'package:flutter_crystalline/flutter_crystalline.dart';
+import 'dart:core';
+
 import 'package:example/app/stores/profile_store.dart';
 import 'package:example/app/api/profile_api.dart';
 import 'package:example/app/models/profile.dart';

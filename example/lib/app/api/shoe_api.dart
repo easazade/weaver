@@ -78,4 +78,12 @@ class ShoeApi {
 
     return _shoes.where((shoe) => ids.contains(shoe.id)).toList();
   }
+
+  /// Get all shoes
+  Future<List<Shoe>> getAll() async {
+    // Simulate network delay
+    await Future.delayed(const Duration(milliseconds: 500));
+
+    return List.from(_shoes);
+  }
 }
