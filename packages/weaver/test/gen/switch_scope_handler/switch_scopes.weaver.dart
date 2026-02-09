@@ -9,7 +9,7 @@ class AccessAdminScope extends Scope<AccessScopeAdminArgs> {
   static const String scopeName = 'access-admin';
 
   AccessAdminScope({required String adminKey, int? id})
-      : super(name: "access-admin", args: AccessScopeAdminArgs(adminKey, id));
+    : super(name: "access-admin", args: AccessScopeAdminArgs(adminKey, id));
 }
 
 class AccessScopeAdminArgs extends BaseAccessScopeArgs {
@@ -25,7 +25,8 @@ class AccessScopeAdminArgs extends BaseAccessScopeArgs {
 class AccessUserScope extends Scope<AccessScopeUserArgs> {
   static const String scopeName = 'access-user';
 
-  AccessUserScope({required int userId}) : super(name: "access-user", args: AccessScopeUserArgs(userId));
+  AccessUserScope({required int userId})
+    : super(name: "access-user", args: AccessScopeUserArgs(userId));
 }
 
 class AccessScopeUserArgs extends BaseAccessScopeArgs {
@@ -39,7 +40,8 @@ class AccessScopeUserArgs extends BaseAccessScopeArgs {
 class AccessPublicScope extends Scope<AccessScopePublicArgs> {
   static const String scopeName = 'access-public';
 
-  AccessPublicScope({required bool flag}) : super(name: "access-public", args: AccessScopePublicArgs(flag));
+  AccessPublicScope({required bool flag})
+    : super(name: "access-public", args: AccessScopePublicArgs(flag));
 }
 
 class AccessScopePublicArgs extends BaseAccessScopeArgs {
@@ -59,11 +61,14 @@ class AccessDevScope extends Scope<BaseAccessScopeArgs> {
 class AccessScope {
   AccessScope._();
 
-  static AccessAdminScope admin({required String adminKey, int? id}) => AccessAdminScope(adminKey: adminKey, id: id);
+  static AccessAdminScope admin({required String adminKey, int? id}) =>
+      AccessAdminScope(adminKey: adminKey, id: id);
 
-  static AccessUserScope user({required int userId}) => AccessUserScope(userId: userId);
+  static AccessUserScope user({required int userId}) =>
+      AccessUserScope(userId: userId);
 
-  static AccessPublicScope public({required bool flag}) => AccessPublicScope(flag: flag);
+  static AccessPublicScope public({required bool flag}) =>
+      AccessPublicScope(flag: flag);
 
   static AccessDevScope dev() => AccessDevScope();
 
@@ -127,7 +132,8 @@ class AccessScopeHandler extends SwitchScopeHandler<BaseAccessScopeArgs> {
 }
 
 extension AccessScopeOnWeaverAddedToWeaver on Weaver {
-  AccessScopeOnWeaver get accessScope => AccessScopeOnWeaver(ScopeHandlerWeaverProxy(this));
+  AccessScopeOnWeaver get accessScope =>
+      AccessScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
 class AccessScopeOnWeaver {
@@ -143,7 +149,8 @@ class AccessScopeOnWeaver {
   bool get isDev => weaverInstance.isInScope("access-dev");
 
   Scope<BaseAccessScopeArgs>? get currentScope {
-    final matches = weaverInstance.scopes.whereType<Scope<BaseAccessScopeArgs>>();
+    final matches = weaverInstance.scopes
+        .whereType<Scope<BaseAccessScopeArgs>>();
     return matches.firstOrNull;
   }
 

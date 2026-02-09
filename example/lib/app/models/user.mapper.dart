@@ -2,6 +2,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 // ignore_for_file: type=lint
+// ignore_for_file: invalid_use_of_protected_member
 // ignore_for_file: unused_element, unnecessary_cast, override_on_non_overriding_member
 // ignore_for_file: strict_raw_type, inference_failure_on_untyped_parameter
 
@@ -37,12 +38,6 @@ class UserMapper extends ClassMapperBase<User> {
     _$lastName,
     opt: true,
   );
-  static String _$fullName(User v) => v.fullName;
-  static const Field<User, String> _f$fullName = Field(
-    'fullName',
-    _$fullName,
-    mode: FieldMode.member,
-  );
 
   @override
   final MappableFields<User> fields = const {
@@ -50,7 +45,6 @@ class UserMapper extends ClassMapperBase<User> {
     #username: _f$username,
     #firstName: _f$firstName,
     #lastName: _f$lastName,
-    #fullName: _f$fullName,
   };
 
   static User _instantiate(DecodingData data) {

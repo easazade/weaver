@@ -2,6 +2,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 // ignore_for_file: type=lint
+// ignore_for_file: invalid_use_of_protected_member
 // ignore_for_file: unused_element, unnecessary_cast, override_on_non_overriding_member
 // ignore_for_file: strict_raw_type, inference_failure_on_untyped_parameter
 
@@ -31,32 +32,11 @@ class CartMapper extends ClassMapperBase<Cart> {
     opt: true,
     def: const [],
   );
-  static double _$totalPrice(Cart v) => v.totalPrice;
-  static const Field<Cart, double> _f$totalPrice = Field(
-    'totalPrice',
-    _$totalPrice,
-    mode: FieldMode.member,
-  );
-  static int _$itemCount(Cart v) => v.itemCount;
-  static const Field<Cart, int> _f$itemCount = Field(
-    'itemCount',
-    _$itemCount,
-    mode: FieldMode.member,
-  );
-  static bool _$isEmpty(Cart v) => v.isEmpty;
-  static const Field<Cart, bool> _f$isEmpty = Field(
-    'isEmpty',
-    _$isEmpty,
-    mode: FieldMode.member,
-  );
 
   @override
   final MappableFields<Cart> fields = const {
     #userId: _f$userId,
     #items: _f$items,
-    #totalPrice: _f$totalPrice,
-    #itemCount: _f$itemCount,
-    #isEmpty: _f$isEmpty,
   };
 
   static Cart _instantiate(DecodingData data) {

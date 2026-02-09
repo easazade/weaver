@@ -2,6 +2,7 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // dart format off
 // ignore_for_file: type=lint
+// ignore_for_file: invalid_use_of_protected_member
 // ignore_for_file: unused_element, unnecessary_cast, override_on_non_overriding_member
 // ignore_for_file: strict_raw_type, inference_failure_on_untyped_parameter
 
@@ -61,12 +62,6 @@ class ShoeMapper extends ClassMapperBase<Shoe> {
     _$category,
     opt: true,
   );
-  static bool _$isInStock(Shoe v) => v.isInStock;
-  static const Field<Shoe, bool> _f$isInStock = Field(
-    'isInStock',
-    _$isInStock,
-    mode: FieldMode.member,
-  );
 
   @override
   final MappableFields<Shoe> fields = const {
@@ -79,7 +74,6 @@ class ShoeMapper extends ClassMapperBase<Shoe> {
     #sizes: _f$sizes,
     #stockBySize: _f$stockBySize,
     #category: _f$category,
-    #isInStock: _f$isInStock,
   };
 
   static Shoe _instantiate(DecodingData data) {

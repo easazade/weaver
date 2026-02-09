@@ -3,9 +3,9 @@ import 'package:dart_style/dart_style.dart';
 import 'package:weaver_builder/src/utils/extensions.dart';
 import 'package:weaver_builder/src/utils/file_header.dart';
 import 'package:weaver_builder/src/writers/named_dependency_writer.dart';
+import 'package:weaver_builder/src/writers/sessions_writer.dart';
 import 'package:weaver_builder/src/writers/single_scope_writer.dart';
 import 'package:weaver_builder/src/writers/switch_scope_writer.dart';
-import 'package:weaver_builder/src/writers/sessions_writer.dart';
 
 class WeaverBuilder implements Builder {
   final _dartFormatter = DartFormatter(languageVersion: DartFormatter.latestLanguageVersion);
@@ -17,6 +17,9 @@ class WeaverBuilder implements Builder {
 
   @override
   Future<void> build(BuildStep buildStep) async {
+    // Explicitly read the input file to ensure build runner tracks it as a dependency
+    await buildStep.readAsString(buildStep.inputId);
+    
     final buffer = StringBuffer();
 
     final resolver = buildStep.resolver;
