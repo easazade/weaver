@@ -63,7 +63,7 @@ class ShoeApi {
   Future<Shoe?> getItemById(String id) async {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 500));
-    
+
     try {
       return _shoes.firstWhere((shoe) => shoe.id == id);
     } catch (e) {
@@ -75,7 +75,7 @@ class ShoeApi {
   Future<List<Shoe>> getItemsByIds(List<String> ids) async {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 500));
-    
+
     return _shoes.where((shoe) => ids.contains(shoe.id)).toList();
   }
 }

@@ -20,7 +20,7 @@ class ProfileApi {
   Future<Profile?> getProfileByUserId(String userId) async {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 500));
-    
+
     if (userId == 'user-1') {
       return _regularUserProfile;
     } else if (userId == 'admin-1') {

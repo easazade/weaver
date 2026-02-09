@@ -27,6 +27,6 @@ class Shoe with ShoeMappable {
   });
 
   bool get isInStock => stockBySize.values.any((quantity) => quantity > 0);
-  
+
   int getStockForSize(String size) => stockBySize[size] ?? 0;
 }

@@ -39,7 +39,7 @@ class CartApi {
   Future<CartItem?> getItemById(String id) async {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 500));
-    
+
     try {
       final index = int.parse(id.replaceAll('cart-item-', ''));
       if (index >= 0 && index < _cartItems.length) {
@@ -63,7 +63,7 @@ class CartApi {
   Future<List<CartItem>> getItemsByIds(List<String> ids) async {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 500));
-    
+
     final items = <CartItem>[];
     for (final id in ids) {
       final item = await getItemById(id);
@@ -78,7 +78,7 @@ class CartApi {
   Future<Cart?> getCartByUserId(String userId) async {
     // Simulate network delay
     await Future.delayed(const Duration(milliseconds: 500));
-    
+
     if (userId == 'user-1') {
       return _userCart;
     } else if (userId == 'admin-1') {

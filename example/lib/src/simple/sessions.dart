@@ -1,4 +1,3 @@
-
 import 'package:flutter_weaver/flutter_weaver.dart';
 
 part 'sessions.weaver.dart';
