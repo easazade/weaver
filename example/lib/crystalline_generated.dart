@@ -9,6 +9,13 @@ import 'package:example/app/models/user.dart';
 import 'package:flutter_crystalline/flutter_crystalline.dart';
 import 'dart:core';
 
+import 'package:example/app/stores/profile_store.dart';
+import 'package:example/app/api/profile_api.dart';
+import 'package:example/app/models/profile.dart';
+import 'package:example/crystalline_generated.dart';
+import 'package:flutter_crystalline/flutter_crystalline.dart';
+import 'dart:core';
+
 class SharedState {
   static SharedState? _instance;
 
