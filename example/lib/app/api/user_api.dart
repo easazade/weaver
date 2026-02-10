@@ -1,6 +1,14 @@
+import 'package:shared_preferences/shared_preferences.dart';
+
 import '../models/user.dart';
 
 class UserApi {
+  UserApi({required this.preferences});
+
+  static const _USERNAME = '__username__';
+
+  final SharedPreferences preferences;
+
   // Fake user instances
   static final User _regularUser = User(
     id: 'user-1',
@@ -20,11 +28,24 @@ class UserApi {
   /// If username is "admin", returns admin user, otherwise returns regular user.
   Future<User> login(String username, String password) async {
     // Simulate network delay
-    await Future.delayed(const Duration(milliseconds: 500));
 
     if (username.toLowerCase() == 'admin') {
       return _adminUser;
     }
-    return _regularUser;
+    await preferences.setString(_USERNAME, username);
+    return _regularUser.copyWith(username: username);
+  }
+
+  Future<User?> currentUser() async {
+    await Future.delayed(const Duration(milliseconds: 200));
+
+    final currentUsername = preferences.getString(_USERNAME);
+    if (currentUsername == null) {
+      return null;
+    } else if (currentUsername == 'admin') {
+      return _adminUser;
+    } else {
+      return _regularUser.copyWith(username: currentUsername);
+    }
   }
 }

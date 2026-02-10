@@ -10,8 +10,7 @@ class ShoeApi {
       description: 'Comfortable running shoes for daily use',
       price: 99.99,
       imageUrls: [
-        'https://example.com/shoe1-1.jpg',
-        'https://example.com/shoe1-2.jpg',
+        'https://images.puma.com/image/upload/f_auto,q_auto,b_rgb:fafafa,w_2000,h_2000/global/311098/10/sv01/fnd/EEA/fmt/png/Softride-Enzo-5-Running-Shoes',
       ],
       sizes: ['7', '8', '9', '10', '11'],
       stockBySize: {'7': 5, '8': 10, '9': 8, '10': 12, '11': 3},
@@ -24,7 +23,7 @@ class ShoeApi {
       description: 'High-top basketball shoes with excellent ankle support',
       price: 129.99,
       imageUrls: [
-        'https://example.com/shoe2-1.jpg',
+        'https://www.tracerindia.com/cdn/shop/files/01_3_c52bf142-d83e-42e7-96f3-5a3ce6bc5c03.jpg?v=1688547156',
       ],
       sizes: ['8', '9', '10', '11', '12'],
       stockBySize: {'8': 7, '9': 4, '10': 6, '11': 8, '12': 2},
@@ -37,8 +36,7 @@ class ShoeApi {
       description: 'Stylish casual sneakers for everyday wear',
       price: 79.99,
       imageUrls: [
-        'https://example.com/shoe3-1.jpg',
-        'https://example.com/shoe3-2.jpg',
+        'https://www.asics.co.in/media/catalog/product/1/0/1011c127_003_sl_lt.jpg?optimize=high&bg-color=255%2C255%2C255&fit=cover&height=375&width=500&auto=webp&format=pjpg',
       ],
       sizes: ['7', '8', '9', '10'],
       stockBySize: {'7': 15, '8': 20, '9': 18, '10': 14},
@@ -51,7 +49,7 @@ class ShoeApi {
       description: 'Durable trail running shoes for off-road adventures',
       price: 149.99,
       imageUrls: [
-        'https://example.com/shoe4-1.jpg',
+        'https://www.walkaroo.in/cdn/shop/files/1_29f414dc-dc7b-4267-bc04-0abe240e042d.jpg?v=1753517433',
       ],
       sizes: ['8', '9', '10', '11'],
       stockBySize: {'8': 3, '9': 5, '10': 4, '11': 6},

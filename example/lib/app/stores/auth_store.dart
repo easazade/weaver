@@ -12,6 +12,16 @@ abstract class _AuthStore extends Store {
   @SharedData()
   Data<User> get user;
 
+  @override
+  Future<void> init() async {
+    user.operation = Operation.read;
+    final loggedInUser = await api.currentUser();
+    if (loggedInUser != null) {
+      user.value = loggedInUser;
+    }
+    user.operation = Operation.none;
+  }
+
   Future<void> login({
     required String username,
     required String password,

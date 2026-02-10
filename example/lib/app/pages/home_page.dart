@@ -23,7 +23,7 @@ class HomePage extends StatelessWidget {
         final homeStore = weaver.get<HomeStore>();
         return StoreBuilder(
           store: homeStore,
-          builder: (context, store, child) {
+          builder: (context, homeStore, child) {
             if (homeStore.shoes.operation == Operation.read) {
               return const Scaffold(
                 body: Center(child: CircularProgressIndicator()),
@@ -49,7 +49,7 @@ class HomePage extends StatelessWidget {
               );
             }
 
-            final shoes = homeStore.shoes.value ?? [];
+            final shoes = homeStore.shoes.items;
 
             return Scaffold(
               appBar: AppBar(
@@ -72,7 +72,7 @@ class HomePage extends StatelessWidget {
                             crossAxisCount: 2,
                             crossAxisSpacing: 16,
                             mainAxisSpacing: 16,
-                            childAspectRatio: 0.75,
+                            mainAxisExtent: 400,
                           ),
                       itemCount: shoes.length,
                       itemBuilder: (context, index) {
