@@ -16,41 +16,14 @@ class HomePage extends StatelessWidget {
       dependencies: [DependencyKey(type: HomeStore)],
       builder: (context, child, isReady) {
         if (!isReady) {
-          return const Scaffold(
-            body: Center(child: CircularProgressIndicator()),
+          return const Material(
+            child: Center(child: CircularProgressIndicator()),
           );
         }
 
         return StoreBuilder<HomeStore>(
           store: weaver.get(),
           builder: (context, homeStore, child) {
-            if (homeStore.shoes.operation == Operation.read) {
-              return const Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              );
-            }
-
-            if (homeStore.shoes.hasFailure) {
-              return Scaffold(
-                appBar: AppBar(
-                  title: const Text('Shoes'),
-                  actions: [
-                    IconButton(
-                      icon: const Icon(Icons.person),
-                      onPressed: () {
-                        Navigator.of(context).pushNamed(Routes.profile);
-                      },
-                    ),
-                  ],
-                ),
-                body: Center(
-                  child: Text('Error: ${homeStore.shoes.failure.message}'),
-                ),
-              );
-            }
-
-            final shoes = homeStore.shoes.items;
-
             return Scaffold(
               appBar: AppBar(
                 title: const Text('Shoes'),
@@ -63,23 +36,36 @@ class HomePage extends StatelessWidget {
                   ),
                 ],
               ),
-              body: shoes.isEmpty
-                  ? const Center(child: Text('No shoes available'))
-                  : GridView.builder(
-                      padding: const EdgeInsets.all(16),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                            crossAxisCount: 2,
-                            crossAxisSpacing: 16,
-                            mainAxisSpacing: 16,
-                            mainAxisExtent: 400,
-                          ),
-                      itemCount: shoes.length,
-                      itemBuilder: (context, index) {
-                        final shoe = shoes[index];
-                        return _ShoeCard(shoe: shoe);
-                      },
-                    ),
+              body: WhenData(
+                data: homeStore.shoes,
+                onValue: (context, shoes) {
+                  if (shoes.isReading) {
+                    return Center(child: CircularProgressIndicator());
+                  } else if (shoes.hasFailure) {
+                    return Center(
+                      child: Text('Error: ${homeStore.shoes.failure.message}'),
+                    );
+                  } else {
+                    return shoes.isEmpty
+                        ? const Center(child: Text('No shoes available'))
+                        : GridView.builder(
+                            padding: const EdgeInsets.all(16),
+                            gridDelegate:
+                                const SliverGridDelegateWithFixedCrossAxisCount(
+                                  crossAxisCount: 2,
+                                  crossAxisSpacing: 16,
+                                  mainAxisSpacing: 16,
+                                  mainAxisExtent: 400,
+                                ),
+                            itemCount: shoes.length,
+                            itemBuilder: (context, index) {
+                              final shoe = shoes[index];
+                              return _ShoeCard(shoe: shoe);
+                            },
+                          );
+                  }
+                },
+              ),
             );
           },
         );
