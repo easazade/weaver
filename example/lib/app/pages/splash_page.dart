@@ -18,9 +18,8 @@ class _State extends State<SplashPage> {
   }
 
   Future<void> _init() async {
-    print('Awaiting authscope change start!!');
     await weaver.authScope.awaitEnterScope();
-    print('Awaiting authscope change end!!');
+    
     if (mounted) {
       if (weaver.authScope.isUserLoggedIn) {
         Navigator.pushReplacementNamed(context, Routes.home);

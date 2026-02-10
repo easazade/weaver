@@ -23,12 +23,9 @@ Future<void> bootstrapDependencies() async {
 
   authStore.observers.add(
     Observer(() {
-      print('observer called.');
       if (!weaver.authScope.isUserLoggedIn && authStore.user.hasValue) {
-        print('entering userlogin scope');
         weaver.enterScope(AuthScope.userLoggedIn());
       } else if (!weaver.authScope.isLoggedOut && authStore.user.hasNoValue) {
-        print('entering loggedout scope');
         weaver.enterScope(AuthScope.loggedOut());
       }
     }),
