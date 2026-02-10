@@ -48,4 +48,8 @@ class UserApi {
       return _regularUser.copyWith(username: currentUsername);
     }
   }
+
+  Future<void> logout() async {
+    await preferences.remove(_USERNAME);
+  }
 }

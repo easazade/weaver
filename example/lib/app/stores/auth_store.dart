@@ -40,4 +40,10 @@ abstract class _AuthStore extends Store {
       publish();
     }
   }
+
+  Future<void> logout() async {
+    await api.logout();
+    user.value = null;
+    publish();
+  }
 }

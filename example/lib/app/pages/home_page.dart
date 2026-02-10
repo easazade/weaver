@@ -1,5 +1,6 @@
 import 'package:example/app/app.dart';
 import 'package:example/app/models/shoe.dart';
+import 'package:example/app/stores/auth_store.dart';
 import 'package:example/app/stores/home_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_crystalline/flutter_crystalline.dart';
@@ -29,10 +30,12 @@ class HomePage extends StatelessWidget {
                 title: const Text('Shoes'),
                 actions: [
                   IconButton(
+                    icon: const Icon(Icons.logout),
+                    onPressed: () => weaver.get<AuthStore>().logout(),
+                  ),
+                  IconButton(
                     icon: const Icon(Icons.person),
-                    onPressed: () {
-                      Navigator.of(context).pushNamed(Routes.profile);
-                    },
+                    onPressed: () => Navigator.of(context).pushNamed(Routes.profile),
                   ),
                 ],
               ),
