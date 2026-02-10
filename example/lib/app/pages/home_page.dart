@@ -1,3 +1,4 @@
+import 'package:example/app/app.dart';
 import 'package:example/app/models/shoe.dart';
 import 'package:example/app/stores/home_store.dart';
 import 'package:flutter/material.dart';
@@ -20,9 +21,8 @@ class HomePage extends StatelessWidget {
           );
         }
 
-        final homeStore = weaver.get<HomeStore>();
-        return StoreBuilder(
-          store: homeStore,
+        return StoreBuilder<HomeStore>(
+          store: weaver.get(),
           builder: (context, homeStore, child) {
             if (homeStore.shoes.operation == Operation.read) {
               return const Scaffold(
@@ -38,7 +38,7 @@ class HomePage extends StatelessWidget {
                     IconButton(
                       icon: const Icon(Icons.person),
                       onPressed: () {
-                        Navigator.of(context).pushNamed('/profile');
+                        Navigator.of(context).pushNamed(Routes.profile);
                       },
                     ),
                   ],
@@ -58,7 +58,7 @@ class HomePage extends StatelessWidget {
                   IconButton(
                     icon: const Icon(Icons.person),
                     onPressed: () {
-                      Navigator.of(context).pushNamed('/profile');
+                      Navigator.of(context).pushNamed(Routes.profile);
                     },
                   ),
                 ],
