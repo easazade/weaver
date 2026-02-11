@@ -459,6 +459,38 @@ final isInAccessAdminScope = weaver.accessScope.isAdmin;
 final isInAccessDevScope = weaver.accessScope.isDev;
 ```
 
+### Awaiting Scope Entry
+
+The `awaitEnterScope()` method allows you to either return the current scope immediately (if already in a scope) or wait for a scope to be entered (if no scope is active yet). This is useful when you need to defer navigation or other logic until a scope change has occurred.
+
+For example, in a Splash Screen you might want to wait for the auth scope to be determined before deciding which route to navigate to:
+
+```dart
+class SplashPageState extends State<SplashPage> {
+  @override
+  void initState() {
+    super.initState();
+    _init();
+  }
+
+  Future<void> _init() async {
+    await weaver.authScope.awaitEnterScope();
+    
+    if (mounted) {
+      if (weaver.authScope.isUserLoggedIn) {
+        Navigator.pushReplacementNamed(context, Routes.home);
+      } else {
+        Navigator.pushReplacementNamed(context, Routes.login);
+      }
+    }
+  }
+}
+```
+
+- If a scope is already active, `awaitEnterScope()` returns it immediately.
+- If no scope is active, it waits until a scope is entered (e.g., via `enterScope()` elsewhere) and then returns the new scope.
+- Throws if the switch scope handler is not registered with Weaver.
+
 When you switch to a new child scope, the previous child scope is automatically left. This means:
 
 - The previous child scope's dependencies are removed (unregistered)
