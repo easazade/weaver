@@ -31,11 +31,8 @@ class ProfilePage extends StatelessWidget {
             builder: (context, profileStore, _) {
               return WhenData(
                 data: profileStore.profile,
-                onNoValue: (context, data) {
-                  return Center(child: Text('No Profile data'));
-                },
-                onRead: (context, data) =>
-                    Center(child: CircularProgressIndicator()),
+                onNoValue: (context, data) => Center(child: Text('No Profile data')),
+                onRead: (context, data) => Center(child: CircularProgressIndicator()),
                 onValue: (context, data) {
                   final profile = data.value;
 

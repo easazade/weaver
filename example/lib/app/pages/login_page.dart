@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
-import 'package:shadcn_ui/shadcn_ui.dart';
-import 'package:weaver/weaver.dart';
 import 'package:example/app/stores/auth_store.dart';
-import 'package:flutter_crystalline/flutter_crystalline.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_weaver/flutter_weaver.dart';
+import 'package:shadcn_ui/shadcn_ui.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});

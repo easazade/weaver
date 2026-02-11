@@ -35,40 +35,30 @@ class HomePage extends StatelessWidget {
                   ),
                   IconButton(
                     icon: const Icon(Icons.person),
-                    onPressed: () =>
-                        Navigator.of(context).pushNamed(Routes.profile),
+                    onPressed: () => Navigator.of(context).pushNamed(Routes.profile),
                   ),
                 ],
               ),
               body: WhenData(
                 data: homeStore.shoes,
-                onValue: (context, shoes) {
-                  if (shoes.isReading) {
-                    return Center(child: CircularProgressIndicator());
-                  } else if (shoes.hasFailure) {
-                    return Center(
-                      child: Text('Error: ${homeStore.shoes.failure.message}'),
-                    );
-                  } else {
-                    return shoes.isEmpty
-                        ? const Center(child: Text('No shoes available'))
-                        : GridView.builder(
-                            padding: const EdgeInsets.all(16),
-                            gridDelegate:
-                                const SliverGridDelegateWithFixedCrossAxisCount(
-                                  crossAxisCount: 2,
-                                  crossAxisSpacing: 16,
-                                  mainAxisSpacing: 16,
-                                  mainAxisExtent: 400,
-                                ),
-                            itemCount: shoes.length,
-                            itemBuilder: (context, index) {
-                              final shoe = shoes[index];
-                              return _ShoeCard(shoe: shoe);
-                            },
-                          );
-                  }
-                },
+                onRead: (context, data) => Center(child: CircularProgressIndicator()),
+                onFailure: (context, data) => Center(child: Text('Error: ${homeStore.shoes.failure.message}')),
+                onValue: (context, shoes) => shoes.isEmpty
+                    ? const Center(child: Text('No shoes available'))
+                    : GridView.builder(
+                        padding: const EdgeInsets.all(16),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 16,
+                          mainAxisSpacing: 16,
+                          mainAxisExtent: 400,
+                        ),
+                        itemCount: shoes.length,
+                        itemBuilder: (context, index) {
+                          final shoe = shoes[index];
+                          return _ShoeCard(shoe: shoe);
+                        },
+                      ),
               ),
             );
           },

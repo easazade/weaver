@@ -23,7 +23,6 @@ abstract class _ProfileStore extends Store {
       profile.operation = Operation.none;
       publish();
     } else if (user.hasNoValue && profile.hasValue) {
-
       profile.value = null;
       publish();
     }

@@ -8,15 +8,13 @@ class BaseAuthScopeArgs {}
 class AuthUserLoggedInScope extends Scope<BaseAuthScopeArgs> {
   static const String scopeName = 'auth-user-logged-in';
 
-  AuthUserLoggedInScope()
-    : super(name: "auth-user-logged-in", args: BaseAuthScopeArgs());
+  AuthUserLoggedInScope() : super(name: "auth-user-logged-in", args: BaseAuthScopeArgs());
 }
 
 class AuthLoggedOutScope extends Scope<BaseAuthScopeArgs> {
   static const String scopeName = 'auth-logged-out';
 
-  AuthLoggedOutScope()
-    : super(name: "auth-logged-out", args: BaseAuthScopeArgs());
+  AuthLoggedOutScope() : super(name: "auth-logged-out", args: BaseAuthScopeArgs());
 }
 
 class AuthScope {
@@ -62,8 +60,7 @@ class AuthScopeHandler extends SwitchScopeHandler<BaseAuthScopeArgs> {
 }
 
 extension AuthScopeOnWeaverAddedToWeaver on Weaver {
-  AuthScopeOnWeaver get authScope =>
-      AuthScopeOnWeaver(ScopeHandlerWeaverProxy(this));
+  AuthScopeOnWeaver get authScope => AuthScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
 class AuthScopeOnWeaver {
