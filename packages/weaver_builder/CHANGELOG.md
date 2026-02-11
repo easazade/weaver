@@ -1,3 +1,8 @@
+## 0.9.1
+
+- Bump LICENSE year
+- Bump [weaver](https://pub.dev/packages/weaver) to 0.9.1
+
 ## 0.9.0
 
 - Update SwitchScopeWriter to not support generating short-hand getters for @NamedDependency annotated methods
@@ -39,5 +44,5 @@
 
 ## 0.4.0
 
-- Add feature to generate scopes, scope-handlers, scope-argument classes 
+- Add feature to generate scopes, scope-handlers, scope-argument classes
 - Add feature to generate extension variable on `weaver.named` for named variables

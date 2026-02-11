@@ -544,30 +544,32 @@ String normalizeScope(String scope) {
 }
 
 List<String> filterCommitsForPackage(List<String> commits, String packageName) {
-  // No filtering by conventional commit type (feat, fix, refactor, style, docs, ci, etc.) - include all.
-  // Scope filtering: scoped commits go to matching package; unscoped or non-matching scope go to all packages.
+  // Normalize package name for comparison
   final normalizedPackageName = normalizeScope(packageName);
+
   final filteredCommits = <String>[];
 
   for (final commit in commits) {
     final parsed = parseConventionalCommit(commit);
 
     if (parsed == null) {
+      // Not a conventional commit, add to all packages
       filteredCommits.add(commit);
       continue;
     }
 
+    // If commit has no scope, add to all packages
     final scope = parsed['scope'];
     if (scope == null || scope.isEmpty) {
       filteredCommits.add(commit);
       continue;
     }
 
+    // Normalize scope for comparison
     final normalizedScope = normalizeScope(scope);
+
+    // If scope matches package, add it
     if (normalizedScope == normalizedPackageName) {
-      filteredCommits.add(commit);
-    } else {
-      // Scope doesn't match - include in all packages so no commits are lost
       filteredCommits.add(commit);
     }
   }

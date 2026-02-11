@@ -1,3 +1,8 @@
+## 0.9.1
+
+- Bump LICENSE year
+- Bump [weaver](https://pub.dev/packages/weaver) to 0.9.1
+
 ## 0.9.0
 
 - Bump [weaver](https://pub.dev/packages/weaver) to 0.9.0

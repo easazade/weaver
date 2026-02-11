@@ -1,3 +1,13 @@
+## 0.9.1
+
+- Bump LICENSE year
+- Remove shorthand functions inject() & injectAsync() to avoid production or error prone code when weaver proxies are being used behind the scenes
+- Add tests for awaitEnterScope() method
+- Add feature to wait for enter scope for generated scopes
+- Fix notifyObservers() not being called when a session was cleared
+- Add allowScopesWithoutHandler flag in Weaver class for testing
+- Add currentScope method to generated switch scope extension class on weaver
+
 ## 0.9.0
 
 - Add document for switch scope feature

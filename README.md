@@ -36,12 +36,12 @@ Add following dependencies to pubspec.yaml ⬇️
 
 ```yaml
 dependencies:
-  weaver: ^x.y.z # for dart only projects
-  flutter_weaver: ^x.y.z # for flutter projects
+  weaver: ^0.9.1 # for dart only projects
+  flutter_weaver: ^0.9.1 # for flutter projects
 
 dev_dependencies:
   build_runner:
-  weaver_builder: ^x.y.z
+  weaver_builder: ^0.9.1
 ```
 
 # Getting started 🚀
