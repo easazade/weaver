@@ -24,11 +24,14 @@ Dependency injection logic often becomes intertwined with other types of code (s
 
 # Features ✨
 
-- ✅ Register objects and get them anywhere in your code by just calling `weaver.get()`.
-- ⏳ Ability to wait for the creation of an object before it is even created and then get it as soon as it is created with `getAsync()`.
-- 🧠 Build widgets without worrying about whether dependency objects are created or not by using `RequireDependencies` widget. No more ProviderNotFoundException
-- 📦 Ability to register an object either globally or within the lifecycle of a defined `Scope` that can be handled by a `ScopeHandler`.
-- 🏷️ Named dependency with generated quick access extension methods on `weaver.named`
+These are the features that make weaver package unlike any other Dependency Injection library
+
+- ⏳ **Get objects asynchronously** Wait for objects to be created and retrieve them as soon as they are available.
+- 🧠 **Safe widget builds:** Build widgets that wait for their dependencies before rendering. No more ProviderNotFoundException.
+- 📦 **Scopes:** Register objects either globally or within the lifecycle of a defined scope.
+- 🔀 **Switch scopes:** Manage mutually exclusive child scopes within a parent scope; only one is active at a time, and switching automatically cleans up the previous one. Great for auth states (logged in, guest, admin).
+- 🗂️ **Sessions:** Group related dependencies created incrementally during a workflow and clear them together when done. Supports code generation for a type-safe API.
+- 🏷️ **Named dependencies:** with generated quick access methods.
 
 # Install 📦
 
@@ -475,7 +478,7 @@ class SplashPageState extends State<SplashPage> {
 
   Future<void> _init() async {
     await weaver.authScope.awaitEnterScope();
-    
+
     if (mounted) {
       if (weaver.authScope.isUserLoggedIn) {
         Navigator.pushReplacementNamed(context, Routes.home);
@@ -623,6 +626,7 @@ weaver.addObserver(() {
 # Testing 🧪
 
 For testing purposes it is possible to:
+
 - Allow re-registration of objects by setting `allowReassignment` to true.
 - Allow entering scopes without a scope-handler registered for them by `allowScopesWithoutHandler` to true
 - Call `weaver.reset()` to clear all registered dependencies and scopes.
