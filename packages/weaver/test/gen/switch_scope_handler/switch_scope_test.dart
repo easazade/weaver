@@ -296,7 +296,7 @@ void main() {
       Future.delayed(const Duration(milliseconds: 50), () async {
         await weaver.enterScope(AccessScope.user(userId: 100));
       });
-      await Future.delayed(const Duration(milliseconds: 50));
+      await Future.delayed(const Duration(milliseconds: 100));
 
       // Wait for the future to complete
       expect(enteredScope, isA<AccessUserScope>());
