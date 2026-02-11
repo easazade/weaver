@@ -67,12 +67,6 @@ final userBloc = weaver.get<UserBloc>();
 final UserBloc userBloc = weaver.get();
 ```
 
-There is also a shorter syntax to get objects. simply by calling the `inject<T>()` function.
-
-```dart
-final UserBloc userBloc = inject();
-```
-
 # Usage 🧭
 
 ## Safely build widget 🛠️

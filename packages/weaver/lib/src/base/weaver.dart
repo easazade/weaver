@@ -13,22 +13,6 @@ import 'dependency.dart';
 /// default instance of [Weaver]
 final weaver = Weaver();
 
-/// This is a short hand function for weaver.get\<T\>().
-/// Keep in mind This function only makes request to the default global instance of [weaver].
-///
-/// for example below is wrong:
-/// ```dart
-/// final newWeaver = Weaver();
-/// newWeaver.register('my name');
-///
-/// final myName = inject<String>(); // throws an exception since 'my name' is not registered in global instance of weaver
-/// ```
-T inject<T extends Object>({final String? name}) => weaver.get<T>(name: name);
-
-/// This is a short hand function for weaver.getAsync\<T\>().
-/// Keep in mind This function only makes request to the default global instance of [weaver].
-Future<T> injectAsync<T extends Object>({final String? name}) => weaver.getAsync<T>(name: name);
-
 /// The main dependency injection container for Weaver.
 ///
 /// [Weaver] manages the registration, retrieval, and lifecycle of dependency objects.
