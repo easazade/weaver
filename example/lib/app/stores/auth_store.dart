@@ -12,6 +12,8 @@ abstract class _AuthStore extends Store {
   @SharedData()
   Data<User> get user;
 
+  bool get isLoggedIn => user.hasValue;
+
   @override
   Future<void> init() async {
     user.operation = Operation.read;

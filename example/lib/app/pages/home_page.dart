@@ -35,7 +35,7 @@ class HomePage extends StatelessWidget {
                   ),
                   IconButton(
                     icon: const Icon(Icons.person),
-                    onPressed: () => Navigator.of(context).pushNamed(Routes.profile),
+                    onPressed: () => router.go(Routes.profile),
                   ),
                 ],
               ),

@@ -3,15 +3,38 @@
 
 part of 'home_store.dart';
 
-class HomeStore extends _HomeStore with _HomeStoreMixin {
+class HomeStore extends _HomeStore {
   // constructor
   HomeStore(super.api);
-}
 
-mixin _HomeStoreMixin on _HomeStore {
   @override
   List<Data<Object?>> get states => [shoes];
 
   @override
   String? get name => 'HomeStore';
+
+  @override
+  bool operator ==(Object other) {
+    if (other is! HomeStore) return false;
+
+    return other.runtimeType == runtimeType &&
+        failureOrNull == other.failureOrNull &&
+        operation == other.operation &&
+        const ListEquality().equals(
+          sideEffects.all.toList(),
+          other.sideEffects.all.toList(),
+        ) &&
+        const ListEquality().equals(states, other.states);
+  }
+
+  @override
+  int get hashCode =>
+      (failureOrNull?.hashCode ?? 9) +
+      sideEffects.all.hashCode +
+      states.hashCode +
+      operation.hashCode +
+      runtimeType.hashCode;
+
+  @override
+  Stream<HomeStore> get stream => streamController.stream.map((e) => this);
 }

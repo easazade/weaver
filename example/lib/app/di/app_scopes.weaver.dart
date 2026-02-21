@@ -98,4 +98,17 @@ class AuthScopeOnWeaver {
     final handler = matches.first;
     return handler.ensureEnterScope();
   }
+
+  Stream<Scope<BaseAuthScopeArgs>?> get stream {
+    final matches = weaverInstance.handlers.whereType<AuthScopeHandler>();
+    if (matches.isEmpty) {
+      throw WeaverException(
+        'Tried to listen on stream of auth without a handler class registered. '
+        'Please register an instance of AuthScopeHandler first before trying to listen to its stream',
+      );
+    }
+
+    final handler = matches.first;
+    return handler.stream;
+  }
 }

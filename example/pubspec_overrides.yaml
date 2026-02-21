@@ -9,15 +9,15 @@ dependency_overrides:
   crystalline_builder:
     git:
       url: https://github.com/easazade/crystalline.git
-      ref: 2df41b6
+      ref: f6e73ef
       path: packages/crystalline_builder
   flutter_crystalline:
     git:
       url: https://github.com/easazade/crystalline.git
-      ref: 2df41b6
+      ref: f6e73ef
       path: packages/flutter_crystalline
   crystalline:
     git:
       url: https://github.com/easazade/crystalline.git
-      ref: 2df41b6
+      ref: f6e73ef
       path: packages/crystalline

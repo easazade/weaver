@@ -18,10 +18,11 @@ dependencies:
     git:
       url: https://github.com/easazade/crystalline.git
       path: packages/flutter_crystalline
-      ref: 2df41b6
+      ref: f6e73ef
   dart_mappable: ^4.6.1
-  shadcn_ui: ^0.45.2
+  shadcn_ui: ^0.46.1
   shared_preferences: ^2.5.4
+  go_router: ^17.1.0
 
 dev_dependencies:
   flutter_test:
@@ -33,7 +34,7 @@ dev_dependencies:
     git:
       url: https://github.com/easazade/crystalline.git
       path: packages/crystalline_builder
-      ref: 2df41b6
+      ref: f6e73ef
   dart_mappable_builder: ^4.6.4
 
 dependency_overrides:
@@ -47,17 +48,17 @@ dependency_overrides:
     git:
       url: https://github.com/easazade/crystalline.git
       path: packages/crystalline_builder
-      ref: 2df41b6
+      ref: f6e73ef
   flutter_crystalline:
     git:
       url: https://github.com/easazade/crystalline.git
       path: packages/flutter_crystalline   
-      ref: 2df41b6
+      ref: f6e73ef
   crystalline:
     git:
       url: https://github.com/easazade/crystalline.git
       path: packages/crystalline   
-      ref: 2df41b6
+      ref: f6e73ef
 
 flutter:
 

@@ -2,6 +2,7 @@ import 'package:example/app/app.dart';
 import 'package:example/app/di/app_scopes.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_weaver/flutter_weaver.dart';
+import 'package:go_router/go_router.dart';
 
 class SplashPage extends StatefulWidget {
   const SplashPage({super.key});
@@ -22,9 +23,9 @@ class _State extends State<SplashPage> {
 
     if (mounted) {
       if (weaver.authScope.isUserLoggedIn) {
-        Navigator.pushReplacementNamed(context, Routes.home);
+        context.go(Routes.home);
       } else {
-        Navigator.pushReplacementNamed(context, Routes.login);
+        context.go(Routes.login);
       }
     }
   }
