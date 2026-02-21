@@ -1,6 +1,7 @@
-import 'package:shared_preferences/shared_preferences.dart';
+// ignore_for_file: constant_identifier_names
 
-import '../models/user.dart';
+import 'package:example/app/models/user.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class UserApi {
   UserApi({required this.preferences});

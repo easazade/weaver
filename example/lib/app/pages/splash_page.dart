@@ -18,7 +18,7 @@ class _State extends State<SplashPage> {
   }
 
   Future<void> _init() async {
-    await weaver.authScope.awaitEnterScope();
+    await weaver.authScope.ensureEnterScope();
 
     if (mounted) {
       if (weaver.authScope.isUserLoggedIn) {

@@ -282,8 +282,12 @@ void writeClassesForSwitchScopes({
             return matches.firstOrNull;
           }
 
-          /// This method can be used to wait for enter scope. Returns current scope if it is not null
-          Future<Scope<$baseScopeArgsClassName>> awaitEnterScope() async {
+          @Deprecated('Use ensureEnterScope() method instead')
+          Future<Scope<$baseScopeArgsClassName>> awaitEnterScope() => ensureEnterScope();
+
+          /// This method can be used to wait and ensure for enter scope.
+          /// If scope has already entered Returns current scope.
+          Future<Scope<$baseScopeArgsClassName>> ensureEnterScope() async {
             final matches = weaverInstance.handlers.whereType<$scopeHandlerClassName>();
             if (matches.isEmpty) {
               throw WeaverException(
@@ -293,7 +297,7 @@ void writeClassesForSwitchScopes({
             }
 
             final handler = matches.first;
-            return handler.awaitEnterScope();
+            return handler.ensureEnterScope();
           }
 
         }

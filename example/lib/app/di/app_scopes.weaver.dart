@@ -8,13 +8,15 @@ class BaseAuthScopeArgs {}
 class AuthUserLoggedInScope extends Scope<BaseAuthScopeArgs> {
   static const String scopeName = 'auth-user-logged-in';
 
-  AuthUserLoggedInScope() : super(name: "auth-user-logged-in", args: BaseAuthScopeArgs());
+  AuthUserLoggedInScope()
+    : super(name: "auth-user-logged-in", args: BaseAuthScopeArgs());
 }
 
 class AuthLoggedOutScope extends Scope<BaseAuthScopeArgs> {
   static const String scopeName = 'auth-logged-out';
 
-  AuthLoggedOutScope() : super(name: "auth-logged-out", args: BaseAuthScopeArgs());
+  AuthLoggedOutScope()
+    : super(name: "auth-logged-out", args: BaseAuthScopeArgs());
 }
 
 class AuthScope {
@@ -60,7 +62,8 @@ class AuthScopeHandler extends SwitchScopeHandler<BaseAuthScopeArgs> {
 }
 
 extension AuthScopeOnWeaverAddedToWeaver on Weaver {
-  AuthScopeOnWeaver get authScope => AuthScopeOnWeaver(ScopeHandlerWeaverProxy(this));
+  AuthScopeOnWeaver get authScope =>
+      AuthScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
 class AuthScopeOnWeaver {
@@ -78,8 +81,12 @@ class AuthScopeOnWeaver {
     return matches.firstOrNull;
   }
 
-  /// This method can be used to wait for enter scope. Returns current scope if it is not null
-  Future<Scope<BaseAuthScopeArgs>> awaitEnterScope() async {
+  @Deprecated('Use ensureEnterScope() method instead')
+  Future<Scope<BaseAuthScopeArgs>> awaitEnterScope() => ensureEnterScope();
+
+  /// This method can be used to wait and ensure for enter scope.
+  /// If scope has already entered Returns current scope.
+  Future<Scope<BaseAuthScopeArgs>> ensureEnterScope() async {
     final matches = weaverInstance.handlers.whereType<AuthScopeHandler>();
     if (matches.isEmpty) {
       throw WeaverException(
@@ -89,6 +96,6 @@ class AuthScopeOnWeaver {
     }
 
     final handler = matches.first;
-    return handler.awaitEnterScope();
+    return handler.ensureEnterScope();
   }
 }

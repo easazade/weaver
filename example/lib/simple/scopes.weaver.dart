@@ -6,7 +6,8 @@ part of 'scopes.dart';
 class AdminScope extends Scope<AdminScopeArgs> {
   static const String scopeName = 'admin-scope';
 
-  AdminScope({String? name, required int age}) : super(name: "admin-scope", args: AdminScopeArgs(name, age));
+  AdminScope({String? name, required int age})
+    : super(name: "admin-scope", args: AdminScopeArgs(name, age));
 }
 
 class AdminScopeArgs {
@@ -46,7 +47,8 @@ class AdminScopeHandler extends SingleScopeHandler<AdminScopeArgs> {
 }
 
 extension AdminScopeOnWeaverAddedToWeaver on Weaver {
-  AdminScopeOnWeaver get adminScope => AdminScopeOnWeaver(ScopeHandlerWeaverProxy(this));
+  AdminScopeOnWeaver get adminScope =>
+      AdminScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
 class AdminScopeOnWeaver {
@@ -56,7 +58,9 @@ class AdminScopeOnWeaver {
 
   AdminScopeOnWeaver(this.weaverInstance);
 
-  bool get isIn => weaverInstance.scopes.where((scope) => scope.name == "admin-scope").isNotEmpty;
+  bool get isIn => weaverInstance.scopes
+      .where((scope) => scope.name == "admin-scope")
+      .isNotEmpty;
 
   String get adminKey => weaverInstance.get<String>(name: "admin-key");
 }
@@ -87,7 +91,8 @@ class ShoppingScopeHandler extends SingleScopeHandler<void> {
 }
 
 extension ShoppingScopeOnWeaverAddedToWeaver on Weaver {
-  ShoppingScopeOnWeaver get shoppingScope => ShoppingScopeOnWeaver(ScopeHandlerWeaverProxy(this));
+  ShoppingScopeOnWeaver get shoppingScope =>
+      ShoppingScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
 class ShoppingScopeOnWeaver {
@@ -97,7 +102,9 @@ class ShoppingScopeOnWeaver {
 
   ShoppingScopeOnWeaver(this.weaverInstance);
 
-  bool get isIn => weaverInstance.scopes.where((scope) => scope.name == "shopping").isNotEmpty;
+  bool get isIn => weaverInstance.scopes
+      .where((scope) => scope.name == "shopping")
+      .isNotEmpty;
 }
 
 class EditScope extends Scope<void> {
@@ -123,12 +130,14 @@ class EditScopeHandler extends SingleScopeHandler<void> {
   Future<void> onLeaveScope(Weaver weaver) async {
     // no methods are annotated with @OnLeaveScope in the scope handler delegate for
     // custom disposal and unregistering of the dependencies registered for this scope
-    (weaver as ScopeHandlerWeaverProxy).unregisterDependenciesRegisteredByThisProxy();
+    (weaver as ScopeHandlerWeaverProxy)
+        .unregisterDependenciesRegisteredByThisProxy();
   }
 }
 
 extension EditScopeOnWeaverAddedToWeaver on Weaver {
-  EditScopeOnWeaver get editScope => EditScopeOnWeaver(ScopeHandlerWeaverProxy(this));
+  EditScopeOnWeaver get editScope =>
+      EditScopeOnWeaver(ScopeHandlerWeaverProxy(this));
 }
 
 class EditScopeOnWeaver {
@@ -138,7 +147,8 @@ class EditScopeOnWeaver {
 
   EditScopeOnWeaver(this.weaverInstance);
 
-  bool get isIn => weaverInstance.scopes.where((scope) => scope.name == "edit").isNotEmpty;
+  bool get isIn =>
+      weaverInstance.scopes.where((scope) => scope.name == "edit").isNotEmpty;
 }
 
 extension NamedDependencyUserIdX on WeaverNamed {

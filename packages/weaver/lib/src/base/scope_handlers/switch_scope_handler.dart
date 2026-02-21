@@ -15,7 +15,9 @@ abstract class SwitchScopeHandler<T> extends ScopeHandler<T> {
 
   Completer<Scope<T>> _currentScopeCompleter = Completer();
 
-  Future<Scope<T>> awaitEnterScope() async {
+  /// This method can be used to wait and ensure for enter scope.
+  /// If scope has already entered Returns current scope.
+  Future<Scope<T>> ensureEnterScope() async {
     if (currentScope != null) {
       return currentScope!;
     } else {
