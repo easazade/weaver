@@ -25,8 +25,8 @@ abstract class SwitchScopeHandler<T> extends ScopeHandler<T> {
       currentScope = event.scope as Scope<T>;
     } else if (event is LeaveScope) {
       if (currentScope != null) {
-        await onLeaveScopeByName(event.scopeName);
         currentScope = null;
+        await onLeaveScopeByName(event.scopeName);
       }
     } else if (event is HandlerAddedToWeaver) {
       if (currentScope == null && defaultScope != null) {

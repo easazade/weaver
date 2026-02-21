@@ -29,11 +29,11 @@ abstract class SingleScopeHandler<T> extends ScopeHandler<T> {
         );
       }
 
-      currentScope = scope as Scope<T>;
       await onEnterScope(weaverInstance, scope.args);
+      currentScope = scope as Scope<T>;
     } else if (event is LeaveScope && currentScope != null) {
-      await onLeaveScope(weaverInstance);
       currentScope = null;
+      await onLeaveScope(weaverInstance);
     }
   }
 

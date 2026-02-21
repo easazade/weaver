@@ -9,16 +9,14 @@ abstract class ScopeHandler<T> {
   Scope<T>? _currentScope;
   Scope<T>? get currentScope => _currentScope;
 
-  Future<void> handle(final HandlerEvent event);
-
-  void dispose();
-
-  Future<void> clearAllRegisteredObjects();
-
   /// The name of the scope this handler manages.
   String get scopeName;
 
   Completer<Scope<T>> _currentScopeCompleter = Completer();
+
+  final _streamController = StreamController<Scope<T>?>.broadcast();
+
+  late final Stream<Scope<T>?> stream = _streamController.stream;
 
   /// This method can be used to wait and ensure for enter scope.
   /// If scope has already entered Returns current scope.
@@ -34,9 +32,17 @@ abstract class ScopeHandler<T> {
     if (scope != null) {
       _currentScope = scope;
       _currentScopeCompleter.complete(scope);
+      _streamController.add(scope);
     } else {
       _currentScope = null;
       _currentScopeCompleter = Completer();
+      _streamController.add(null);
     }
   }
+
+  Future<void> handle(final HandlerEvent event);
+
+  Future<void> clearAllRegisteredObjects();
+
+  void dispose();
 }
