@@ -464,7 +464,7 @@ final isInAccessDevScope = weaver.accessScope.isDev;
 
 ### Awaiting Scope Entry
 
-The `awaitEnterScope()` method allows you to either return the current scope immediately (if already in a scope) or wait for a scope to be entered (if no scope is active yet). This is useful when you need to defer navigation or other logic until a scope change has occurred.
+The `ensureEnterScope()` method allows you to ensure the scope has been entered. It either returns the current scope immediately (if already in a scope) or waits for a scope to be entered (if no scope is active yet). This is useful when you need to defer navigation or other logic until a scope change has occurred.
 
 For example, in a Splash Screen you might want to wait for the auth scope to be determined before deciding which route to navigate to:
 
@@ -477,7 +477,7 @@ class SplashPageState extends State<SplashPage> {
   }
 
   Future<void> _init() async {
-    await weaver.authScope.awaitEnterScope();
+    await weaver.authScope.ensureEnterScope();
 
     if (mounted) {
       if (weaver.authScope.isUserLoggedIn) {
@@ -490,7 +490,7 @@ class SplashPageState extends State<SplashPage> {
 }
 ```
 
-- If a scope is already active, `awaitEnterScope()` returns it immediately.
+- If a scope is already active, `ensureEnterScope()` returns it immediately.
 - If no scope is active, it waits until a scope is entered (e.g., via `enterScope()` elsewhere) and then returns the new scope.
 - Throws if the switch scope handler is not registered with Weaver.
 
