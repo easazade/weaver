@@ -18,7 +18,7 @@ scripts:
     run: melos exec -c 1 --ignore="example" -- "dart analyze"
 
   test:
-    run: melos exec -c 1 --ignore="example" --ignore="weaver_builder" -- "flutter test"
+    run: melos exec -c 1 --ignore="example" --ignore="weaver_builder" -- "flutter test --coverage"
 
   test:coverage:
     run: |

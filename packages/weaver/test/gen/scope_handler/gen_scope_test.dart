@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:test/test.dart';
 import 'package:weaver/weaver.dart';
 
@@ -59,72 +61,113 @@ void main() {
     weaver.reset();
   });
 
-  test('Should register values added in @OnEnterScope and unregister values removed in @OnLeaveScope ', () async {
-    expect(weaver.isInScope(GeneratedTestScope.scopeName), isFalse);
-    expect(weaver.isRegistered<String>(), isFalse);
-    expect(weaver.isRegistered<int>(), isFalse);
+  group('Scope lifecycle', () {
+    test('Should register values added in @OnEnterScope and unregister values removed in @OnLeaveScope ', () async {
+      expect(weaver.isInScope(GeneratedTestScope.scopeName), isFalse);
+      expect(weaver.isRegistered<String>(), isFalse);
+      expect(weaver.isRegistered<int>(), isFalse);
 
-    await weaver.enterScope(GeneratedTestScope(arg: 1));
+      await weaver.enterScope(GeneratedTestScope(arg: 1));
 
-    expect(weaver.isInScope(GeneratedTestScope.scopeName), isTrue);
-    expect(weaver.isRegistered<String>(), isTrue);
-    expect(weaver.isRegistered<int>(), isTrue);
+      expect(weaver.isInScope(GeneratedTestScope.scopeName), isTrue);
+      expect(weaver.isRegistered<String>(), isTrue);
+      expect(weaver.isRegistered<int>(), isTrue);
 
-    await weaver.leaveScope(GeneratedTestScope.scopeName);
+      await weaver.leaveScope(GeneratedTestScope.scopeName);
 
-    expect(weaver.isInScope(GeneratedTestScope.scopeName), isFalse);
-    expect(weaver.isRegistered<String>(), isFalse);
-    expect(weaver.isRegistered<int>(), isFalse);
+      expect(weaver.isInScope(GeneratedTestScope.scopeName), isFalse);
+      expect(weaver.isRegistered<String>(), isFalse);
+      expect(weaver.isRegistered<int>(), isFalse);
+    });
+
+    test('Should register optional value if passed as arg when entering scope', () async {
+      expect(weaver.isRegistered<double>(), isFalse);
+
+      await weaver.enterScope(GeneratedTestScope(arg: 1, optionalArg: 2));
+
+      expect(weaver.isRegistered<double>(), isTrue);
+      expect(weaver.get<double>(), equals(2));
+    });
   });
 
-  test('Should register optional value if passed as arg when entering scope', () async {
-    expect(weaver.isRegistered<double>(), isFalse);
+  group('Named dependencies', () {
+    test('Should create auto register/unregister named values when entered/left scope', () async {
+      expect(weaver.isRegistered(name: namedKey1), isFalse);
+      expect(weaver.isRegistered(name: namedKey2), isFalse);
 
-    await weaver.enterScope(GeneratedTestScope(arg: 1, optionalArg: 2));
+      await weaver.enterScope(GeneratedTestScope(arg: 1));
 
-    expect(weaver.isRegistered<double>(), isTrue);
-    expect(weaver.get<double>(), equals(2));
+      expect(weaver.isRegistered(name: namedKey1), isTrue);
+      expect(weaver.isRegistered(name: namedKey2), isTrue);
+
+      expect(weaver.get<String>(name: namedKey1), namedValue1);
+      expect(weaver.get<String>(name: namedKey2), namedValue2);
+
+      expect(weaver.generatedTestScope.namedKey1, namedValue1);
+      expect(weaver.generatedTestScope.namedKey2, namedValue2);
+
+      await weaver.leaveScope(GeneratedTestScope.scopeName);
+
+      expect(weaver.isRegistered(name: namedKey1), isFalse);
+      // should not be unregistered after leaving scope since this named value has set autoDispose to false
+      expect(weaver.isRegistered(name: namedKey2), isTrue);
+    });
   });
 
-  test('Should create auto register/unregister named values when entered/left scope', () async {
-    expect(weaver.isRegistered(name: namedKey1), isFalse);
-    expect(weaver.isRegistered(name: namedKey2), isFalse);
+  group('Leaving scope', () {
+    test(
+      'Should create auto unregister values registered when no custom method is annotated with @OnLeaveScope'
+      'inside the scope class defined ',
+      () async {
+        expect(weaver.isRegistered(name: namedKey3), isFalse);
+        expect(weaver.isRegistered<bool>(), isFalse);
 
-    await weaver.enterScope(GeneratedTestScope(arg: 1));
+        await weaver.enterScope(GeneratedTest2Scope());
 
-    expect(weaver.isRegistered(name: namedKey1), isTrue);
-    expect(weaver.isRegistered(name: namedKey2), isTrue);
+        expect(weaver.isRegistered<bool>(), isTrue);
+        expect(weaver.isRegistered(name: namedKey3), isTrue);
+        expect(weaver.generatedTest2Scope.namedKey3, namedValue3);
 
-    expect(weaver.get<String>(name: namedKey1), namedValue1);
-    expect(weaver.get<String>(name: namedKey2), namedValue2);
+        await weaver.leaveScope(GeneratedTest2Scope.scopeName);
 
-    expect(weaver.generatedTestScope.namedKey1, namedValue1);
-    expect(weaver.generatedTestScope.namedKey2, namedValue2);
-
-    await weaver.leaveScope(GeneratedTestScope.scopeName);
-
-    expect(weaver.isRegistered(name: namedKey1), isFalse);
-    // should not be unregistered after leaving scope since this named value has set autoDispose to false
-    expect(weaver.isRegistered(name: namedKey2), isTrue);
+        expect(weaver.isRegistered<bool>(), false);
+        expect(weaver.isRegistered(name: namedKey3), isFalse);
+      },
+    );
   });
 
-  test(
-    'Should create auto unregister values registered when no custom method is annotated with @OnLeaveScope'
-    'inside the scope class defined ',
-    () async {
-      expect(weaver.isRegistered(name: namedKey3), isFalse);
-      expect(weaver.isRegistered<bool>(), isFalse);
+  group('ensureEnterScope', () {
+    test('Should return current scope immediately when scope is already entered', () async {
+      await weaver.enterScope(GeneratedTestScope(arg: 42));
 
-      await weaver.enterScope(GeneratedTest2Scope());
+      final handler = weaver.handlers.firstWhere(
+        (final h) => h.canHandleScope(GeneratedTestScope.scopeName),
+      );
+      final scope = await handler.ensureEnterScope();
 
-      expect(weaver.isRegistered<bool>(), isTrue);
-      expect(weaver.isRegistered(name: namedKey3), isTrue);
-      expect(weaver.generatedTest2Scope.namedKey3, namedValue3);
+      expect(scope, isA<GeneratedTestScope>());
+      expect((scope as GeneratedTestScope).args.arg, 42);
+    });
 
-      await weaver.leaveScope(GeneratedTest2Scope.scopeName);
+    test('Should wait for scope to be entered when no scope is active', () async {
+      expect(weaver.isInScope(GeneratedTestScope.scopeName), isFalse);
 
-      expect(weaver.isRegistered<bool>(), false);
-      expect(weaver.isRegistered(name: namedKey3), isFalse);
-    },
-  );
+      final handler = weaver.handlers.firstWhere(
+        (final h) => h.canHandleScope(GeneratedTestScope.scopeName),
+      );
+
+      Scope? enteredScope;
+      unawaited(handler.ensureEnterScope().then((final scope) {
+        enteredScope = scope;
+      }));
+
+      Future.delayed(const Duration(milliseconds: 50), () async {
+        await weaver.enterScope(GeneratedTestScope(arg: 100));
+      });
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      expect(enteredScope, isA<GeneratedTestScope>());
+      expect((enteredScope as GeneratedTestScope).args.arg, 100);
+    });
+  });
 }
