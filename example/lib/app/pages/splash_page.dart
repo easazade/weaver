@@ -1,5 +1,5 @@
-import 'package:example/app/app.dart';
 import 'package:example/app/di/app_scopes.dart';
+import 'package:example/app/router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_weaver/flutter_weaver.dart';
 import 'package:go_router/go_router.dart';

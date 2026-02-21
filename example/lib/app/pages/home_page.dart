@@ -1,10 +1,12 @@
 import 'package:example/app/app.dart';
 import 'package:example/app/models/shoe.dart';
+import 'package:example/app/router.dart';
 import 'package:example/app/stores/auth_store.dart';
 import 'package:example/app/stores/home_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_crystalline/flutter_crystalline.dart';
 import 'package:flutter_weaver/flutter_weaver.dart';
+import 'package:go_router/go_router.dart';
 import 'package:shadcn_ui/shadcn_ui.dart';
 
 class HomePage extends StatelessWidget {
@@ -35,7 +37,7 @@ class HomePage extends StatelessWidget {
                   ),
                   IconButton(
                     icon: const Icon(Icons.person),
-                    onPressed: () => router.go(Routes.profile),
+                    onPressed: () => context.go(Routes.profile),
                   ),
                 ],
               ),
