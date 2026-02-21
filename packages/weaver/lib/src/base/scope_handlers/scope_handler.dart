@@ -30,8 +30,11 @@ abstract class ScopeHandler<T> {
 
   set currentScope(final Scope<T>? scope) {
     if (scope != null) {
+      final wasCurrentScopeNull = _currentScope == null;
       _currentScope = scope;
-      _currentScopeCompleter.complete(scope);
+      if (wasCurrentScopeNull) {
+        _currentScopeCompleter.complete(scope);
+      }
       _streamController.add(scope);
     } else {
       _currentScope = null;

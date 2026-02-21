@@ -18,7 +18,6 @@ abstract class SwitchScopeHandler<T> extends ScopeHandler<T> {
     if (event is EnterScope) {
       if (currentScope != null && currentScope?.name != event.scope.name) {
         final currentScopeName = currentScope!.name;
-        currentScope = null;
         await onLeaveScopeByName(currentScopeName);
       }
       await onEnterScopeByScope(event.scope);

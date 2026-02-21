@@ -51,10 +51,15 @@ class _GeneratedTestScope2 {
 }
 
 void main() {
+  late GeneratedTestScopeHandler testScopeHandler;
+  late GeneratedTest2ScopeHandler test2ScopeHandler;
+
   setUp(() async {
     weaver.allowReassignment = true;
-    await weaver.addScopeHandler(GeneratedTestScopeHandler(weaver));
-    await weaver.addScopeHandler(GeneratedTest2ScopeHandler(weaver));
+    testScopeHandler = GeneratedTestScopeHandler(weaver);
+    test2ScopeHandler = GeneratedTest2ScopeHandler(weaver);
+    await weaver.addScopeHandler(testScopeHandler);
+    await weaver.addScopeHandler(test2ScopeHandler);
   });
 
   tearDown(() async {
@@ -134,6 +139,49 @@ void main() {
         expect(weaver.isRegistered(name: namedKey3), isFalse);
       },
     );
+  });
+
+  group('stream', () {
+    test('Should emit scope when entering scope and null when leaving scope', () async {
+      final emittedValues = <Scope<GeneratedTestScopeArgs>?>[];
+      final completer = Completer<void>();
+      testScopeHandler.stream.listen((final value) {
+        emittedValues.add(value);
+        if (emittedValues.length == 2) {
+          completer.complete();
+        }
+      });
+
+      await weaver.enterScope(GeneratedTestScope(arg: 42));
+      await weaver.leaveScope(GeneratedTestScope.scopeName);
+      await completer.future;
+
+      expect(emittedValues.length, 2);
+      expect(emittedValues[0], isA<GeneratedTestScope>());
+      expect((emittedValues[0] as GeneratedTestScope).args.arg, 42);
+      expect(emittedValues[1], isNull);
+    });
+
+    test('Should emit scopes for multiple enter/leave cycles', () async {
+      final emittedValues = <Scope<GeneratedTestScopeArgs>?>[];
+      final completer = Completer<void>();
+      testScopeHandler.stream.listen((final value) {
+        emittedValues.add(value);
+        if (emittedValues.length == 3) {
+          completer.complete();
+        }
+      });
+
+      await weaver.enterScope(GeneratedTestScope(arg: 1));
+      await weaver.leaveScope(GeneratedTestScope.scopeName);
+      await weaver.enterScope(GeneratedTestScope(arg: 2));
+      await completer.future;
+
+      expect(emittedValues.length, 3);
+      expect((emittedValues[0] as GeneratedTestScope).args.arg, 1);
+      expect(emittedValues[1], isNull);
+      expect((emittedValues[2] as GeneratedTestScope).args.arg, 2);
+    });
   });
 
   group('ensureEnterScope', () {

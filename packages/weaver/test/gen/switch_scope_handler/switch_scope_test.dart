@@ -269,6 +269,75 @@ void main() {
     });
   });
 
+  group('stream', () {
+    test('Should emit scope when entering scope and null when leaving scope', () async {
+      final handler = weaver.handlers.whereType<AccessScopeHandler>().first;
+
+      final emittedValues = <Scope<BaseAccessScopeArgs>?>[];
+      final completer = Completer<void>();
+      handler.stream.listen((final value) {
+        emittedValues.add(value);
+        if (emittedValues.length == 2) {
+          completer.complete();
+        }
+      });
+
+      await weaver.enterScope(AccessScope.admin(adminKey: 'admin-key', id: 42));
+      await weaver.leaveScope(AccessScope.adminScopeName);
+      await completer.future;
+
+      expect(emittedValues.length, 2);
+      expect(emittedValues[0], isA<AccessAdminScope>());
+      expect((emittedValues[0] as AccessAdminScope).args.adminKey, 'admin-key');
+      expect(emittedValues[1], isNull);
+    });
+
+    test('Should emit scopes when switching between child scopes', () async {
+      final handler = weaver.handlers.whereType<AccessScopeHandler>().first;
+
+      final emittedValues = <Scope<BaseAccessScopeArgs>?>[];
+      final completer = Completer<void>();
+      handler.stream.listen((final value) {
+        emittedValues.add(value);
+        if (emittedValues.length == 3) {
+          completer.complete();
+        }
+      });
+
+      await weaver.enterScope(AccessScope.admin(adminKey: 'admin-key', id: 1));
+      await weaver.enterScope(AccessScope.user(userId: 100));
+      await weaver.enterScope(AccessScope.public(flag: true));
+      await completer.future;
+
+      expect(emittedValues.length, 3);
+      expect(emittedValues[0], isA<AccessAdminScope>());
+      expect(emittedValues[1], isA<AccessUserScope>());
+      expect((emittedValues[1] as AccessUserScope).args.userId, 100);
+      expect(emittedValues[2], isA<AccessPublicScope>());
+    });
+
+    test('Should emit default scope when handler is added with defaultScope', () async {
+      weaver.reset();
+
+      final handler = AccessScopeHandler(weaver, defaultScope: AccessScope.public(flag: true));
+      final emittedValues = <Scope<BaseAccessScopeArgs>?>[];
+      final completer = Completer<void>();
+      handler.stream.listen((final value) {
+        emittedValues.add(value);
+        if (emittedValues.length == 1) {
+          completer.complete();
+        }
+      });
+
+      await weaver.addScopeHandler(handler);
+      await completer.future;
+
+      expect(emittedValues.length, 1);
+      expect(emittedValues[0], isA<AccessPublicScope>());
+      expect((emittedValues[0] as AccessPublicScope).args.flag, isTrue);
+    });
+  });
+
   group('ensureEnterScope', () {
     test('Should return current scope immediately when scope is already entered', () async {
       await weaver.enterScope(AccessScope.admin(adminKey: 'admin-key', id: 42));
