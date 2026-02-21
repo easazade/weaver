@@ -300,6 +300,19 @@ void writeClassesForSwitchScopes({
             return handler.ensureEnterScope();
           }
 
+          Stream<Scope<$baseScopeArgsClassName>?> get stream {
+            final matches = weaverInstance.handlers.whereType<$scopeHandlerClassName>();
+            if (matches.isEmpty) {
+              throw WeaverException(
+                'Tried to listen on stream of $baseScopeName without a handler class registered. '
+                'Please register an instance of $scopeHandlerClassName first before trying to listen to its stream',
+              );
+            }
+
+            final handler = matches.first;
+            return handler.stream;
+          }
+
         }
       ''',
     );
