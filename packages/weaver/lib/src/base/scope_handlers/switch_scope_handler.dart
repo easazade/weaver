@@ -13,53 +13,31 @@ abstract class SwitchScopeHandler<T> extends ScopeHandler<T> {
 
   final Scope<T>? defaultScope;
 
-  Completer<Scope<T>> _currentScopeCompleter = Completer();
-
-  /// This method can be used to wait and ensure for enter scope.
-  /// If scope has already entered Returns current scope.
-  Future<Scope<T>> ensureEnterScope() async {
-    if (currentScope != null) {
-      return currentScope!;
-    } else {
-      return _currentScopeCompleter.future;
-    }
-  }
-
   @override
   Future<void> handle(final HandlerEvent event) async {
     if (event is EnterScope) {
       if (currentScope != null && currentScope?.name != event.scope.name) {
         final currentScopeName = currentScope!.name;
-        _setCurrentScope(null);
+        currentScope = null;
         await onLeaveScopeByName(currentScopeName);
       }
       await onEnterScopeByScope(event.scope);
-      _setCurrentScope(event.scope as Scope<T>);
+      currentScope = event.scope as Scope<T>;
     } else if (event is LeaveScope) {
       if (currentScope != null) {
         await onLeaveScopeByName(event.scopeName);
-        _setCurrentScope(null);
+        currentScope = null;
       }
     } else if (event is HandlerAddedToWeaver) {
       if (currentScope == null && defaultScope != null) {
         await onEnterScopeByScope(defaultScope!);
-        _setCurrentScope(defaultScope);
+        currentScope = defaultScope;
       }
     }
 
     if (currentScope == null && defaultScope != null) {
       await onEnterScopeByScope(defaultScope!);
-      _setCurrentScope(defaultScope);
-    }
-  }
-
-  void _setCurrentScope(final Scope<T>? scope) {
-    if (scope != null) {
-      currentScope = scope;
-      _currentScopeCompleter.complete(scope);
-    } else {
-      currentScope = null;
-      _currentScopeCompleter = Completer();
+      currentScope = defaultScope;
     }
   }
 

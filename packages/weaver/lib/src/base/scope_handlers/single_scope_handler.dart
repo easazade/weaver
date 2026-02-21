@@ -9,7 +9,7 @@ import 'package:weaver/src/base/weaver.dart';
 /// this handler is notified and calls [onEnterScope] or [onLeaveScope] accordingly.
 ///
 /// [T] is the type of arguments required when entering the scope.
-abstract class SingleScopeHandler<T> extends ScopeHandler {
+abstract class SingleScopeHandler<T> extends ScopeHandler<T> {
   /// The [Weaver] proxy used to manage dependencies within this scope.
   final ScopeHandlerWeaverProxy weaverInstance;
 
@@ -29,8 +29,8 @@ abstract class SingleScopeHandler<T> extends ScopeHandler {
         );
       }
 
-      currentScope = scope;
-      await onEnterScope(weaverInstance, scope.args as T);
+      currentScope = scope as Scope<T>;
+      await onEnterScope(weaverInstance, scope.args);
     } else if (event is LeaveScope && currentScope != null) {
       await onLeaveScope(weaverInstance);
       currentScope = null;
