@@ -1,4 +1,3 @@
-import 'package:example/app/app.dart';
 import 'package:example/app/stores/auth_store.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_weaver/flutter_weaver.dart';

@@ -1,4 +1,3 @@
-import 'package:example/app/app.dart';
 import 'package:example/app/models/shoe.dart';
 import 'package:example/app/router.dart';
 import 'package:example/app/stores/auth_store.dart';
