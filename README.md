@@ -250,6 +250,20 @@ weaver.get<AuthBloc>().stream.listen((state){
 })
 ```
 
+## Listen for scope changes 👂
+
+The generated scope extension (e.g. `weaver.authScope`) has a `stream` property that can be used to listen for scope changes when needed. The stream emits the current scope when entering and `null` when leaving, so you can react to scope lifecycle changes in your application.
+
+```dart
+weaver.authScope.stream.listen((scope) {
+  if (scope != null) {
+    // Scope was entered
+  } else {
+    // Scope was left
+  }
+});
+```
+
 ## Define named dependencies for scopes 🗂️
 
 In weaver it is possible to define named dependencies specific to a scope.
