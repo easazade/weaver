@@ -188,6 +188,19 @@ void writeClassesForScopes({
           bool get isIn => weaverInstance.scopes.where((scope) => scope.name == "$scopeName").isNotEmpty;
 
           ${namedDependenciesQuickAccessMethodsPart.toString()}
+
+          Stream<Scope<$scopeArgsClassName>?> get stream {
+            final matches = weaverInstance.handlers.whereType<$scopeHandlerClassName>();
+            if (matches.isEmpty) {
+              throw WeaverException(
+                'Tried to listen on stream of $scopeClassName without a handler class registered. '
+                'Please register an instance of $scopeHandlerClassName first before trying to listen to its stream',
+              );
+            }
+
+            final handler = matches.first;
+            return handler.stream;
+          }
         }
       ''',
     );

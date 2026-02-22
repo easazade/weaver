@@ -304,7 +304,7 @@ void writeClassesForSwitchScopes({
             final matches = weaverInstance.handlers.whereType<$scopeHandlerClassName>();
             if (matches.isEmpty) {
               throw WeaverException(
-                'Tried to listen on stream of $baseScopeName without a handler class registered. '
+                'Tried to listen on stream of $baseScopeName switch-scope without a handler class registered. '
                 'Please register an instance of $scopeHandlerClassName first before trying to listen to its stream',
               );
             }

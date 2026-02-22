@@ -63,6 +63,19 @@ class AdminScopeOnWeaver {
       .isNotEmpty;
 
   String get adminKey => weaverInstance.get<String>(name: "admin-key");
+
+  Stream<Scope<AdminScopeArgs>?> get stream {
+    final matches = weaverInstance.handlers.whereType<AdminScopeHandler>();
+    if (matches.isEmpty) {
+      throw WeaverException(
+        'Tried to listen on stream of AdminScope without a handler class registered. '
+        'Please register an instance of AdminScopeHandler first before trying to listen to its stream',
+      );
+    }
+
+    final handler = matches.first;
+    return handler.stream;
+  }
 }
 
 class ShoppingScope extends Scope<void> {
@@ -105,6 +118,19 @@ class ShoppingScopeOnWeaver {
   bool get isIn => weaverInstance.scopes
       .where((scope) => scope.name == "shopping")
       .isNotEmpty;
+
+  Stream<Scope<void>?> get stream {
+    final matches = weaverInstance.handlers.whereType<ShoppingScopeHandler>();
+    if (matches.isEmpty) {
+      throw WeaverException(
+        'Tried to listen on stream of ShoppingScope without a handler class registered. '
+        'Please register an instance of ShoppingScopeHandler first before trying to listen to its stream',
+      );
+    }
+
+    final handler = matches.first;
+    return handler.stream;
+  }
 }
 
 class EditScope extends Scope<void> {
@@ -149,6 +175,19 @@ class EditScopeOnWeaver {
 
   bool get isIn =>
       weaverInstance.scopes.where((scope) => scope.name == "edit").isNotEmpty;
+
+  Stream<Scope<void>?> get stream {
+    final matches = weaverInstance.handlers.whereType<EditScopeHandler>();
+    if (matches.isEmpty) {
+      throw WeaverException(
+        'Tried to listen on stream of EditScope without a handler class registered. '
+        'Please register an instance of EditScopeHandler first before trying to listen to its stream',
+      );
+    }
+
+    final handler = matches.first;
+    return handler.stream;
+  }
 }
 
 extension NamedDependencyUserIdX on WeaverNamed {

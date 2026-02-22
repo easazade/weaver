@@ -171,4 +171,17 @@ class AccessScopeOnWeaver {
     final handler = matches.first;
     return handler.ensureEnterScope();
   }
+
+  Stream<Scope<BaseAccessScopeArgs>?> get stream {
+    final matches = weaverInstance.handlers.whereType<AccessScopeHandler>();
+    if (matches.isEmpty) {
+      throw WeaverException(
+        'Tried to listen on stream of access switch-scope without a handler class registered. '
+        'Please register an instance of AccessScopeHandler first before trying to listen to its stream',
+      );
+    }
+
+    final handler = matches.first;
+    return handler.stream;
+  }
 }

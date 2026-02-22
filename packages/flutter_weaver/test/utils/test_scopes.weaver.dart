@@ -50,6 +50,19 @@ class Test1ScopeOnWeaver {
   bool get isIn => weaverInstance.scopes
       .where((scope) => scope.name == "test-scope-1")
       .isNotEmpty;
+
+  Stream<Scope<Test1ScopeArgs>?> get stream {
+    final matches = weaverInstance.handlers.whereType<Test1ScopeHandler>();
+    if (matches.isEmpty) {
+      throw WeaverException(
+        'Tried to listen on stream of Test1Scope without a handler class registered. '
+        'Please register an instance of Test1ScopeHandler first before trying to listen to its stream',
+      );
+    }
+
+    final handler = matches.first;
+    return handler.stream;
+  }
 }
 
 class Test2Scope extends Scope<Test2ScopeArgs> {
@@ -99,4 +112,17 @@ class Test2ScopeOnWeaver {
   bool get isIn => weaverInstance.scopes
       .where((scope) => scope.name == "test-scope-2")
       .isNotEmpty;
+
+  Stream<Scope<Test2ScopeArgs>?> get stream {
+    final matches = weaverInstance.handlers.whereType<Test2ScopeHandler>();
+    if (matches.isEmpty) {
+      throw WeaverException(
+        'Tried to listen on stream of Test2Scope without a handler class registered. '
+        'Please register an instance of Test2ScopeHandler first before trying to listen to its stream',
+      );
+    }
+
+    final handler = matches.first;
+    return handler.stream;
+  }
 }

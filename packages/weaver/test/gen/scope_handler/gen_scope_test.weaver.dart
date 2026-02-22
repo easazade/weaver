@@ -72,6 +72,20 @@ class GeneratedTestScopeOnWeaver {
 
   String get namedKey1 => weaverInstance.get<String>(name: "named-key-1");
   String get namedKey2 => weaverInstance.get<String>(name: "named-key-2");
+
+  Stream<Scope<GeneratedTestScopeArgs>?> get stream {
+    final matches = weaverInstance.handlers
+        .whereType<GeneratedTestScopeHandler>();
+    if (matches.isEmpty) {
+      throw WeaverException(
+        'Tried to listen on stream of GeneratedTestScope without a handler class registered. '
+        'Please register an instance of GeneratedTestScopeHandler first before trying to listen to its stream',
+      );
+    }
+
+    final handler = matches.first;
+    return handler.stream;
+  }
 }
 
 class GeneratedTest2Scope extends Scope<void> {
@@ -125,4 +139,18 @@ class GeneratedTest2ScopeOnWeaver {
       .isNotEmpty;
 
   String get namedKey3 => weaverInstance.get<String>(name: "named-key-3");
+
+  Stream<Scope<void>?> get stream {
+    final matches = weaverInstance.handlers
+        .whereType<GeneratedTest2ScopeHandler>();
+    if (matches.isEmpty) {
+      throw WeaverException(
+        'Tried to listen on stream of GeneratedTest2Scope without a handler class registered. '
+        'Please register an instance of GeneratedTest2ScopeHandler first before trying to listen to its stream',
+      );
+    }
+
+    final handler = matches.first;
+    return handler.stream;
+  }
 }
