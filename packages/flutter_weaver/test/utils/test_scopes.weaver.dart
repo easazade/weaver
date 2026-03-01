@@ -17,7 +17,7 @@ class Test1ScopeArgs {
 }
 
 class Test1ScopeHandler extends SingleScopeHandler<Test1ScopeArgs> {
-  Test1ScopeHandler(super.weaver);
+  Test1ScopeHandler(super.weaver, {super.changeScopeStream});
 
   final _scopeHandlerDelegate = _TestScope1();
 
@@ -79,7 +79,7 @@ class Test2ScopeArgs {
 }
 
 class Test2ScopeHandler extends SingleScopeHandler<Test2ScopeArgs> {
-  Test2ScopeHandler(super.weaver);
+  Test2ScopeHandler(super.weaver, {super.changeScopeStream});
 
   final _scopeHandlerDelegate = _TestScope2();
 

@@ -9,7 +9,8 @@ abstract class SwitchScopeHandler<T> extends ScopeHandler<T> {
   /// The [Weaver] proxy used to manage dependencies within this scope.
   final ScopeHandlerWeaverProxy weaverInstance;
 
-  SwitchScopeHandler(final Weaver weaver, {this.defaultScope}) : weaverInstance = ScopeHandlerWeaverProxy(weaver);
+  SwitchScopeHandler(final Weaver weaver, {super.changeScopeStream, this.defaultScope})
+      : weaverInstance = ScopeHandlerWeaverProxy(weaver);
 
   final Scope<T>? defaultScope;
 

@@ -162,7 +162,7 @@ void writeClassesForSwitchScopes({
     buffer.writeln(
       '''
         class $scopeHandlerClassName extends SwitchScopeHandler<$baseScopeArgsClassName> {
-        $scopeHandlerClassName(super.weaver, {super.defaultScope});
+        $scopeHandlerClassName(super.weaver, {super.changeScopeStream, super.defaultScope});
 
         final _scopeHandlerDelegate = ${classElement.displayName}();
         final _allScopeNames = [${childScopeInfos.map((e) => "'${e.fullName}'").join(',')}];

@@ -79,7 +79,11 @@ class AccessScope {
 }
 
 class AccessScopeHandler extends SwitchScopeHandler<BaseAccessScopeArgs> {
-  AccessScopeHandler(super.weaver, {super.defaultScope});
+  AccessScopeHandler(
+    super.weaver, {
+    super.changeScopeStream,
+    super.defaultScope,
+  });
 
   final _scopeHandlerDelegate = _AccessScope();
   final _allScopeNames = [

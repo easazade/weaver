@@ -1,11 +1,34 @@
 import 'dart:async';
 
+import 'package:meta/meta.dart';
 import 'package:weaver/src/base/scope.dart';
+import 'package:weaver/src/base/weaver.dart';
 
+/// ScopeHandler is a class that handles registering and removing dependencies for the scope name or names
+/// it is responsible for.
 /// [T] is the type of arguments required when entering the scope.
 abstract class ScopeHandler<T> {
-  bool canHandleScope(final String scopeName);
+  ScopeHandler({final Stream<Scope<T>?>? changeScopeStream}) {
+    _changeScopeSubscription = changeScopeStream?.listen((final scope) async {
+      if (scope == null) {
+        if (_currentScope != null) {
+          await handle(LeaveScope(scopeName: _currentScope!.name));
+        }
+      } else {
+        if (canHandleScope(scope.name)) {
+          await handle(EnterScope(scope));
+        } else {
+          throw WeaverException(
+            'ScopeHandler responsible for "$scopeName" scope received a '
+            'scope that it cannot handle ${scope.name}',
+          );
+        }
+      }
+    });
+  }
 
+  StreamSubscription? _changeScopeSubscription;
+  bool canHandleScope(final String scopeName);
   Scope<T>? _currentScope;
   Scope<T>? get currentScope => _currentScope;
 
@@ -47,5 +70,8 @@ abstract class ScopeHandler<T> {
 
   Future<void> clearAllRegisteredObjects();
 
-  void dispose();
+  @mustCallSuper
+  void dispose() {
+    _changeScopeSubscription?.cancel();
+  }
 }

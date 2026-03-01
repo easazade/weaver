@@ -133,7 +133,7 @@ void writeClassesForScopes({
 
     buffer.writeln('''
         class $scopeHandlerClassName extends SingleScopeHandler<$scopeArgsClassName> {
-        $scopeHandlerClassName(super.weaver);
+        $scopeHandlerClassName(super.weaver, {super.changeScopeStream});
 
         final _scopeHandlerDelegate = ${classElement.displayName}();
 

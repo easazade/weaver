@@ -13,7 +13,7 @@ abstract class SingleScopeHandler<T> extends ScopeHandler<T> {
   /// The [Weaver] proxy used to manage dependencies within this scope.
   final ScopeHandlerWeaverProxy weaverInstance;
 
-  SingleScopeHandler(final Weaver weaver) : weaverInstance = ScopeHandlerWeaverProxy(weaver);
+  SingleScopeHandler(final Weaver weaver, {super.changeScopeStream}) : weaverInstance = ScopeHandlerWeaverProxy(weaver);
 
   /// Handles the scope state transition by checking if the scope is currently active in [weaverInstance].
   @override
@@ -45,10 +45,6 @@ abstract class SingleScopeHandler<T> extends ScopeHandler<T> {
 
   @override
   bool canHandleScope(final String scope) => scope == scopeName;
-
-  /// Called when the [SingleScopeHandler] is being removed from [Weaver].
-  @override
-  void dispose() {}
 
   @override
   Future<void> clearAllRegisteredObjects() => onLeaveScope(weaverInstance);

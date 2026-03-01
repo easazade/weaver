@@ -18,7 +18,7 @@ class AdminScopeArgs {
 }
 
 class AdminScopeHandler extends SingleScopeHandler<AdminScopeArgs> {
-  AdminScopeHandler(super.weaver);
+  AdminScopeHandler(super.weaver, {super.changeScopeStream});
 
   final _scopeHandlerDelegate = _AdminScope();
 
@@ -85,7 +85,7 @@ class ShoppingScope extends Scope<void> {
 }
 
 class ShoppingScopeHandler extends SingleScopeHandler<void> {
-  ShoppingScopeHandler(super.weaver);
+  ShoppingScopeHandler(super.weaver, {super.changeScopeStream});
 
   final _scopeHandlerDelegate = _ShoppingScope();
 
@@ -140,7 +140,7 @@ class EditScope extends Scope<void> {
 }
 
 class EditScopeHandler extends SingleScopeHandler<void> {
-  EditScopeHandler(super.weaver);
+  EditScopeHandler(super.weaver, {super.changeScopeStream});
 
   final _scopeHandlerDelegate = _EditScope();
 

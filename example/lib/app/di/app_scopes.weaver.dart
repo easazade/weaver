@@ -31,7 +31,7 @@ class AuthScope {
 }
 
 class AuthScopeHandler extends SwitchScopeHandler<BaseAuthScopeArgs> {
-  AuthScopeHandler(super.weaver, {super.defaultScope});
+  AuthScopeHandler(super.weaver, {super.changeScopeStream, super.defaultScope});
 
   final _scopeHandlerDelegate = _AuthScope();
   final _allScopeNames = ['auth-user-logged-in', 'auth-logged-out'];
