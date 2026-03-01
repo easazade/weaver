@@ -57,7 +57,7 @@ class HomePage extends StatelessWidget {
                         itemCount: shoes.length,
                         itemBuilder: (context, index) {
                           final shoe = shoes[index];
-                          return _ShoeCard(shoe: shoe);
+                          return ShoeCard(shoe: shoe);
                         },
                       ),
               ),
@@ -69,10 +69,10 @@ class HomePage extends StatelessWidget {
   }
 }
 
-class _ShoeCard extends StatelessWidget {
+class ShoeCard extends StatelessWidget {
   final Data<Shoe> shoe;
 
-  const _ShoeCard({required this.shoe});
+  const ShoeCard({super.key, required this.shoe});
 
   @override
   Widget build(BuildContext context) {
