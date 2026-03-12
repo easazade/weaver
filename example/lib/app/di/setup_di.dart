@@ -25,7 +25,6 @@ Future<void> bootstrapDependencies() async {
     AuthScopeHandler(
       weaver,
       changeScopeStream: authStore.streamWith(skipUntilInitialized: true).map((store) {
-        print('SSSSSS emitted');
         if (store.isLoggedIn) {
           return AuthScope.userLoggedIn();
         } else {
