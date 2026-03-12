@@ -28,12 +28,11 @@ class UserApi {
   /// Login method that returns a fixed user.
   /// If username is "admin", returns admin user, otherwise returns regular user.
   Future<User> login(String username, String password) async {
-    // Simulate network delay
+    await preferences.setString(_USERNAME, username);
 
     if (username.toLowerCase() == 'admin') {
       return _adminUser;
     }
-    await preferences.setString(_USERNAME, username);
     return _regularUser.copyWith(username: username);
   }
 

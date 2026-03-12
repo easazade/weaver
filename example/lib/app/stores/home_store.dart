@@ -12,7 +12,7 @@ abstract class _HomeStore extends Store {
   final shoes = ListData<Shoe>([]);
 
   @override
-  Future<void> init() async {
+  Future<void> onInitialize() async {
     shoes.failure = null;
     shoes.operation = Operation.read;
     publish();

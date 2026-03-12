@@ -5,11 +5,12 @@ import 'package:example/app/api/shoe_api.dart';
 import 'package:example/app/api/user_api.dart';
 import 'package:example/app/di/app_scopes.dart';
 import 'package:example/app/stores/auth_store.dart';
-import 'package:flutter_crystalline/flutter_crystalline.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_weaver/flutter_weaver.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> bootstrapDependencies() async {
+  WidgetsFlutterBinding.ensureInitialized();
   weaver.register(await SharedPreferences.getInstance());
   weaver.register(UserApi(preferences: weaver.get()));
   weaver.register(ShoeApi());
@@ -19,15 +20,19 @@ Future<void> bootstrapDependencies() async {
 
   final authStore = AuthStore(weaver.get());
   weaver.register(authStore);
-  weaver.addScopeHandler(AuthScopeHandler(weaver));
 
-  authStore.observers.add(
-    Observer(() {
-      if (!weaver.authScope.isUserLoggedIn && authStore.user.hasValue) {
-        weaver.enterScope(AuthScope.userLoggedIn());
-      } else if (!weaver.authScope.isLoggedOut && authStore.user.hasNoValue) {
-        weaver.enterScope(AuthScope.loggedOut());
-      }
-    }),
+  weaver.addScopeHandler(
+    AuthScopeHandler(
+      weaver,
+      changeScopeStream: authStore.stream.map((store) {
+        if (store.isLoggedIn) {
+          return AuthScope.userLoggedIn();
+        } else {
+          return AuthScope.loggedOut();
+        }
+      }),
+    ),
   );
+
+  authStore.initialize();
 }

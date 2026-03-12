@@ -29,7 +29,7 @@ abstract class _ProfileStore extends Store {
   });
 
   @override
-  Future<void> init() async {
+  Future<void> onInitialize() async {
     SharedState.instance.user.observers.add(userObserver, emitCurrent: true);
   }
 

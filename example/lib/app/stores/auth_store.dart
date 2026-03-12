@@ -15,13 +15,15 @@ abstract class _AuthStore extends Store {
   bool get isLoggedIn => user.hasValue;
 
   @override
-  Future<void> init() async {
+  Future<void> onInitialize() async {
     user.operation = Operation.read;
+    publish();
     final loggedInUser = await api.currentUser();
     if (loggedInUser != null) {
       user.value = loggedInUser;
     }
     user.operation = Operation.none;
+    publish();
   }
 
   Future<void> login({
