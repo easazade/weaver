@@ -37,4 +37,38 @@ class ProfileStore extends _ProfileStore {
 
   @override
   Stream<ProfileStore> get stream => streamController.stream.map((e) => this);
+
+  @override
+  Stream<ProfileStore> streamWith({bool skipUntilInitialized = false}) {
+    if (!skipUntilInitialized) {
+      return streamController.stream.map((e) => this);
+    }
+    return _streamWithSkipUntilInitialized();
+  }
+
+  Stream<ProfileStore> _streamWithSkipUntilInitialized() {
+    var hadSkippedEmission = false;
+    final sc = StreamController<ProfileStore>(sync: true);
+    StreamSubscription<bool>? streamSub;
+
+    sc.onListen = () {
+      streamSub = streamController.stream.listen((_) {
+        if (isInitialized) {
+          if (!sc.isClosed) sc.add(this);
+        } else {
+          hadSkippedEmission = true;
+        }
+      });
+
+      ensureInitialized().then((_) {
+        if (hadSkippedEmission && !sc.isClosed) {
+          sc.add(this);
+        }
+      });
+    };
+
+    sc.onCancel = () => streamSub?.cancel();
+
+    return sc.stream;
+  }
 }

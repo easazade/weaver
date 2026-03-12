@@ -37,4 +37,38 @@ class HomeStore extends _HomeStore {
 
   @override
   Stream<HomeStore> get stream => streamController.stream.map((e) => this);
+
+  @override
+  Stream<HomeStore> streamWith({bool skipUntilInitialized = false}) {
+    if (!skipUntilInitialized) {
+      return streamController.stream.map((e) => this);
+    }
+    return _streamWithSkipUntilInitialized();
+  }
+
+  Stream<HomeStore> _streamWithSkipUntilInitialized() {
+    var hadSkippedEmission = false;
+    final sc = StreamController<HomeStore>(sync: true);
+    StreamSubscription<bool>? streamSub;
+
+    sc.onListen = () {
+      streamSub = streamController.stream.listen((_) {
+        if (isInitialized) {
+          if (!sc.isClosed) sc.add(this);
+        } else {
+          hadSkippedEmission = true;
+        }
+      });
+
+      ensureInitialized().then((_) {
+        if (hadSkippedEmission && !sc.isClosed) {
+          sc.add(this);
+        }
+      });
+    };
+
+    sc.onCancel = () => streamSub?.cancel();
+
+    return sc.stream;
+  }
 }

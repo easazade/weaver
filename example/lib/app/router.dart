@@ -1,3 +1,4 @@
+import 'package:example/app/di/app_scopes.dart';
 import 'package:example/app/pages/home_page.dart';
 import 'package:example/app/pages/login_page.dart';
 import 'package:example/app/pages/profile_page.dart';
@@ -22,15 +23,16 @@ class Routes {
 final router = GoRouter(
   initialLocation: Routes.splash,
   // currently there is bug on store stream.
-  refreshListenable: GoRouterRefreshStream(weaver.get<AuthStore>().user.stream),
+  refreshListenable: GoRouterRefreshStream(weaver.authScope.stream),
   redirect: (context, state) async {
-    final authStore = weaver.get<AuthStore>();
-    await authStore.ensureInitialized();
+    final scope = await weaver.authScope.ensureEnterScope();
+    print('current auth scope is ${scope.name}');
+    
     var route = state.uri.toString();
     print('route: route is $route');
 
     if (!publicRoutes.contains(route)) {
-      if (!authStore.isLoggedIn) {
+      if (!weaver.authScope.isUserLoggedIn) {
         route = Routes.login;
       }
     }

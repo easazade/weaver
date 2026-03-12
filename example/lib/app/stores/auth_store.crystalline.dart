@@ -42,4 +42,38 @@ class AuthStore extends _AuthStore {
 
   @override
   Stream<AuthStore> get stream => streamController.stream.map((e) => this);
+
+  @override
+  Stream<AuthStore> streamWith({bool skipUntilInitialized = false}) {
+    if (!skipUntilInitialized) {
+      return streamController.stream.map((e) => this);
+    }
+    return _streamWithSkipUntilInitialized();
+  }
+
+  Stream<AuthStore> _streamWithSkipUntilInitialized() {
+    var hadSkippedEmission = false;
+    final sc = StreamController<AuthStore>(sync: true);
+    StreamSubscription<bool>? streamSub;
+
+    sc.onListen = () {
+      streamSub = streamController.stream.listen((_) {
+        if (isInitialized) {
+          if (!sc.isClosed) sc.add(this);
+        } else {
+          hadSkippedEmission = true;
+        }
+      });
+
+      ensureInitialized().then((_) {
+        if (hadSkippedEmission && !sc.isClosed) {
+          sc.add(this);
+        }
+      });
+    };
+
+    sc.onCancel = () => streamSub?.cancel();
+
+    return sc.stream;
+  }
 }
