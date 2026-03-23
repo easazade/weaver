@@ -184,6 +184,93 @@ void main() {
     });
   });
 
+  group('changeScopeStream', () {
+    late StreamController<Scope<GeneratedTestScopeArgs>?> scopeSignal;
+    late GeneratedTestScopeHandler streamDrivenHandler;
+
+    setUp(() async {
+      weaver.allowReassignment = true;
+      weaver.reset();
+      scopeSignal = StreamController<Scope<GeneratedTestScopeArgs>?>();
+      streamDrivenHandler = GeneratedTestScopeHandler(
+        weaver,
+        changeScopeStream: scopeSignal.stream,
+      );
+      await weaver.addScopeHandler(streamDrivenHandler);
+    });
+
+    tearDown(() async {
+      await scopeSignal.close();
+      weaver.reset();
+    });
+
+    Future<void> pumpScopeStream() async {
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+    }
+
+    test('Should enter scope and register dependencies when stream emits a scope', () async {
+      expect(weaver.isInScope(GeneratedTestScope.scopeName), isFalse);
+      expect(weaver.isRegistered<String>(), isFalse);
+
+      scopeSignal.add(GeneratedTestScope(arg: 7));
+      await pumpScopeStream();
+
+      expect(weaver.isInScope(GeneratedTestScope.scopeName), isTrue);
+      expect(weaver.isRegistered<String>(), isTrue);
+      expect(weaver.get<int>(), 7);
+    });
+
+    test('Should leave scope and run @OnLeaveScope when stream emits null', () async {
+      scopeSignal.add(GeneratedTestScope(arg: 1));
+      await pumpScopeStream();
+      expect(weaver.isRegistered<String>(), isTrue);
+
+      scopeSignal.add(null);
+      await pumpScopeStream();
+
+      expect(weaver.isInScope(GeneratedTestScope.scopeName), isFalse);
+      expect(weaver.isRegistered<String>(), isFalse);
+      expect(weaver.isRegistered<int>(), isFalse);
+    });
+
+    test('Should re-enter with new args after null then a new scope emission', () async {
+      scopeSignal.add(GeneratedTestScope(arg: 10));
+      await pumpScopeStream();
+      expect(weaver.get<int>(), 10);
+
+      scopeSignal.add(null);
+      await pumpScopeStream();
+
+      scopeSignal.add(GeneratedTestScope(arg: 20, optionalArg: 3.5));
+      await pumpScopeStream();
+
+      expect(weaver.isInScope(GeneratedTestScope.scopeName), isTrue);
+      expect(weaver.get<int>(), 20);
+      expect(weaver.get<double>(), 3.5);
+    });
+
+    test('Should emit on handler stream when scope is driven by changeScopeStream', () async {
+      final emissions = <Scope<GeneratedTestScopeArgs>?>[];
+      final done = Completer<void>();
+      streamDrivenHandler.stream.listen((final value) {
+        emissions.add(value);
+        if (emissions.length == 2) {
+          done.complete();
+        }
+      });
+
+      scopeSignal.add(GeneratedTestScope(arg: 5));
+      await pumpScopeStream();
+      scopeSignal.add(null);
+      await pumpScopeStream();
+      await done.future;
+
+      expect(emissions.length, 2);
+      expect((emissions[0] as GeneratedTestScope).args.arg, 5);
+      expect(emissions[1], isNull);
+    });
+  });
+
   group('ensureEnterScope', () {
     test('Should return current scope immediately when scope is already entered', () async {
       await weaver.enterScope(GeneratedTestScope(arg: 42));

@@ -338,6 +338,114 @@ void main() {
     });
   });
 
+  group('changeScopeStream', () {
+    late StreamController<Scope<BaseAccessScopeArgs>?> scopeSignal;
+
+    setUp(() async {
+      weaver.allowReassignment = true;
+      weaver.reset();
+      scopeSignal = StreamController<Scope<BaseAccessScopeArgs>?>();
+      await weaver.addScopeHandler(
+        AccessScopeHandler(weaver, changeScopeStream: scopeSignal.stream),
+      );
+    });
+
+    tearDown(() async {
+      await scopeSignal.close();
+      weaver.reset();
+    });
+
+    Future<void> pumpScopeStream() async {
+      await Future<void>.delayed(const Duration(milliseconds: 50));
+    }
+
+    test('Should enter admin scope when stream emits admin scope', () async {
+      expect(weaver.isInScope(AccessScope.adminScopeName), isFalse);
+
+      scopeSignal.add(AccessScope.admin(adminKey: 'stream-key', id: 11));
+      await pumpScopeStream();
+
+      expect(weaver.isInScope(AccessScope.adminScopeName), isTrue);
+      expect(weaver.get<AdminAPI>().adminKey, 'stream-key');
+      expect(weaver.get<AdminAPI>().id, 11);
+    });
+
+    test('Should switch from admin to user when stream emits a different child scope', () async {
+      scopeSignal.add(AccessScope.admin(adminKey: 'a', id: 1));
+      await pumpScopeStream();
+      expect(weaver.isRegistered<AdminAPI>(), isTrue);
+
+      scopeSignal.add(AccessScope.user(userId: 55));
+      await pumpScopeStream();
+
+      expect(weaver.isInScope(AccessScope.adminScopeName), isFalse);
+      expect(weaver.isRegistered<AdminAPI>(), isFalse);
+      expect(weaver.isInScope(AccessScope.userScopeName), isTrue);
+      expect(weaver.get<UserAPI>().userId, 55);
+    });
+
+    test('Should leave active child when stream emits null and no defaultScope', () async {
+      scopeSignal.add(AccessScope.public(flag: false));
+      await pumpScopeStream();
+      expect(weaver.isInScope(AccessScope.publicScopeName), isTrue);
+
+      scopeSignal.add(null);
+      await pumpScopeStream();
+
+      expect(weaver.isInScope(AccessScope.publicScopeName), isFalse);
+      expect(weaver.isRegistered<PublicAPI>(), isFalse);
+      expect(weaver.accessScope.currentScope, isNull);
+    });
+
+    test('Should return to defaultScope when stream emits null after leaving a child', () async {
+      await scopeSignal.close();
+      weaver.reset();
+      scopeSignal = StreamController<Scope<BaseAccessScopeArgs>?>();
+      await weaver.addScopeHandler(
+        AccessScopeHandler(
+          weaver,
+          changeScopeStream: scopeSignal.stream,
+          defaultScope: AccessScope.public(flag: true),
+        ),
+      );
+
+      scopeSignal.add(AccessScope.admin(adminKey: 'x', id: 1));
+      await pumpScopeStream();
+      expect(weaver.accessScope.isAdmin, isTrue);
+
+      scopeSignal.add(null);
+      await pumpScopeStream();
+
+      expect(weaver.accessScope.isPublic, isTrue);
+      expect(weaver.get<PublicAPI>().flag, isTrue);
+    });
+
+    test('Should emit on handler stream when switching via changeScopeStream', () async {
+      final handler = weaver.handlers.whereType<AccessScopeHandler>().first;
+      final emissions = <Scope<BaseAccessScopeArgs>?>[];
+      final done = Completer<void>();
+      handler.stream.listen((final value) {
+        emissions.add(value);
+        if (emissions.length == 3) {
+          done.complete();
+        }
+      });
+
+      scopeSignal.add(AccessScope.dev());
+      await pumpScopeStream();
+      scopeSignal.add(AccessScope.user(userId: 9));
+      await pumpScopeStream();
+      scopeSignal.add(AccessScope.public(flag: true));
+      await pumpScopeStream();
+      await done.future;
+
+      expect(emissions[0], isA<AccessDevScope>());
+      expect(emissions[1], isA<AccessUserScope>());
+      expect((emissions[1] as AccessUserScope).args.userId, 9);
+      expect(emissions[2], isA<AccessPublicScope>());
+    });
+  });
+
   group('ensureEnterScope', () {
     test('Should return current scope immediately when scope is already entered', () async {
       await weaver.enterScope(AccessScope.admin(adminKey: 'admin-key', id: 42));
