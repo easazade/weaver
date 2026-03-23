@@ -16,7 +16,9 @@ abstract class ScopeHandler<T> {
         }
       } else {
         if (canHandleScope(scope.name)) {
-          await handle(EnterScope(scope));
+          if (_currentScope != scope) {
+            await handle(EnterScope(scope));
+          }
         } else {
           throw WeaverException(
             'ScopeHandler responsible for "$scopeName" scope received a '

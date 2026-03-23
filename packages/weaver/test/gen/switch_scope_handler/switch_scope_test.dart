@@ -370,6 +370,25 @@ void main() {
       expect(weaver.get<AdminAPI>().id, 11);
     });
 
+    test('Should enter admin scope again if same scope is entered with different args', () async {
+      expect(weaver.isInScope(AccessScope.adminScopeName), isFalse);
+
+      scopeSignal.add(AccessScope.admin(adminKey: 'stream-key', id: 11));
+      await pumpScopeStream();
+
+      expect(weaver.isInScope(AccessScope.adminScopeName), isTrue);
+      expect(weaver.get<AdminAPI>().adminKey, 'stream-key');
+      expect(weaver.get<AdminAPI>().id, 11);
+
+      // entering same scope with different arguments
+      scopeSignal.add(AccessScope.admin(adminKey: 'admin-access-key', id: 14));
+      await pumpScopeStream();
+
+      expect(weaver.isInScope(AccessScope.adminScopeName), isTrue);
+      expect(weaver.get<AdminAPI>().adminKey, 'admin-access-key');
+      expect(weaver.get<AdminAPI>().id, 14);
+    });
+
     test('Should switch from admin to user when stream emits a different child scope', () async {
       scopeSignal.add(AccessScope.admin(adminKey: 'a', id: 1));
       await pumpScopeStream();
@@ -443,6 +462,27 @@ void main() {
       expect(emissions[1], isA<AccessUserScope>());
       expect((emissions[1] as AccessUserScope).args.userId, 9);
       expect(emissions[2], isA<AccessPublicScope>());
+    });
+
+    test('Should not enter the exact same scope again', () async {
+      final handler = weaver.handlers.whereType<AccessScopeHandler>().first;
+      final emissions = <Scope<BaseAccessScopeArgs>?>[];
+      handler.stream.listen(emissions.add);
+
+      final first = AccessScope.admin(adminKey: 'dedupe-key', id: 7);
+      final second = AccessScope.admin(adminKey: 'dedupe-key', id: 7);
+      expect(first, isNot(same(second)));
+      expect(first, equals(second));
+
+      scopeSignal.add(first);
+      await pumpScopeStream();
+      expect(emissions.length, 1);
+
+      scopeSignal.add(second);
+      await pumpScopeStream();
+      expect(emissions.length, 1);
+      expect(weaver.get<AdminAPI>().adminKey, 'dedupe-key');
+      expect(weaver.get<AdminAPI>().id, 7);
     });
   });
 

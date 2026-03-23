@@ -63,6 +63,30 @@ void writeClassesForScopes({
       ':super(name: "$scopeName", args: $argsValue);',
     ); // constructor end
 
+    if (scopeClassArgs.isEmpty) {
+      buffer.writeln('''
+        @override
+        bool operator ==(Object other) =>
+            identical(this, other) ||
+            other is $scopeClassName && name == other.name;
+
+        @override
+        int get hashCode => Object.hashAll([name]);
+    ''');
+    } else {
+      buffer.writeln('''
+        @override
+        bool operator ==(Object other) =>
+            identical(this, other) ||
+            other is $scopeClassName &&
+                name == other.name &&
+                args == other.args;
+
+        @override
+        int get hashCode => Object.hashAll([name, args]);
+    ''');
+    }
+
     buffer.writeln('}'); // scope class end
 
     // create an args class for this scope if the scope requires argument to be created.
@@ -79,6 +103,17 @@ void writeClassesForScopes({
         buffer.writeln('this.${param.displayName},');
       }
       buffer.writeln(');');
+
+      buffer.writeln('''
+        @override
+        bool operator ==(Object other) =>
+            identical(this, other) ||
+            other is $scopeArgsClassName &&
+                ${scopeClassArgs.map((param) => '${param.displayName} == other.${param.displayName}').join(' && ')};
+
+        @override
+        int get hashCode => Object.hashAll([${scopeClassArgs.map((e) => e.displayName).join(', ')}]);
+    ''');
 
       buffer.writeln('}');
     }

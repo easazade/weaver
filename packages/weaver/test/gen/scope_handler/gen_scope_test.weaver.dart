@@ -11,6 +11,13 @@ class GeneratedTestScope extends Scope<GeneratedTestScopeArgs> {
         name: "generated-test",
         args: GeneratedTestScopeArgs(optionalArg, arg),
       );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is GeneratedTestScope && name == other.name && args == other.args;
+
+  @override
+  int get hashCode => Object.hashAll([name, args]);
 }
 
 class GeneratedTestScopeArgs {
@@ -18,6 +25,15 @@ class GeneratedTestScopeArgs {
   final int arg;
 
   GeneratedTestScopeArgs(this.optionalArg, this.arg);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is GeneratedTestScopeArgs &&
+          optionalArg == other.optionalArg &&
+          arg == other.arg;
+
+  @override
+  int get hashCode => Object.hashAll([optionalArg, arg]);
 }
 
 class GeneratedTestScopeHandler
@@ -92,6 +108,13 @@ class GeneratedTest2Scope extends Scope<void> {
   static const String scopeName = 'generated-test-2';
 
   GeneratedTest2Scope() : super(name: "generated-test-2", args: null);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is GeneratedTest2Scope && name == other.name;
+
+  @override
+  int get hashCode => Object.hashAll([name]);
 }
 
 class GeneratedTest2ScopeHandler extends SingleScopeHandler<void> {

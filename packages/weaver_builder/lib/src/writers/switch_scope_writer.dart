@@ -26,10 +26,18 @@ void writeClassesForSwitchScopes({
     final baseScopeClassName = '${baseScopeName.pascalCase.replaceAll('Scope', '')}Scope';
     final baseScopeArgsClassName = 'Base${baseScopeClassName}Args';
 
-    // create arg class
+    // create arg class (value equality so changeScopeStream can de-dupe re-emits)
     buffer.writeln(
       '''
-      class $baseScopeArgsClassName {}
+      class $baseScopeArgsClassName {
+        @override
+        bool operator ==(Object other) =>
+            identical(this, other) ||
+            other is $baseScopeArgsClassName && runtimeType == other.runtimeType;
+
+        @override
+        int get hashCode => runtimeType.hashCode;
+      }
     ''',
     );
 
@@ -80,6 +88,16 @@ void writeClassesForSwitchScopes({
         static const String scopeName = '$scopeName';
 
         $childScopeClassName($constructorArguments):super(name: "$scopeName", args: $argsValue);
+
+        @override
+        bool operator ==(Object other) =>
+            identical(this, other) ||
+            other is $childScopeClassName &&
+                name == other.name &&
+                args == other.args;
+
+        @override
+        int get hashCode => Object.hashAll([name, args]);
       }
       ''',
       );
@@ -102,6 +120,15 @@ void writeClassesForSwitchScopes({
           $scopeArgsClassName(
             ${scopeClassArgs.map((arg) => 'this.${arg.displayName},').join('')}
           );
+
+          @override
+          bool operator ==(Object other) =>
+              identical(this, other) ||
+              other is $scopeArgsClassName &&
+                  ${scopeClassArgs.map((arg) => '${arg.displayName} == other.${arg.displayName}').join(' && ')};
+
+          @override
+          int get hashCode => Object.hashAll([${scopeClassArgs.map((e) => e.displayName).join(', ')}]);
 
           }
           ''',

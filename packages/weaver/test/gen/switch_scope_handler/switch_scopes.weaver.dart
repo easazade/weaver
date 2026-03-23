@@ -3,13 +3,29 @@
 
 part of 'switch_scopes.dart';
 
-class BaseAccessScopeArgs {}
+class BaseAccessScopeArgs {
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BaseAccessScopeArgs && runtimeType == other.runtimeType;
+
+  @override
+  int get hashCode => runtimeType.hashCode;
+}
 
 class AccessAdminScope extends Scope<AccessScopeAdminArgs> {
   static const String scopeName = 'access-admin';
 
   AccessAdminScope({required String adminKey, int? id})
     : super(name: "access-admin", args: AccessScopeAdminArgs(adminKey, id));
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AccessAdminScope && name == other.name && args == other.args;
+
+  @override
+  int get hashCode => Object.hashAll([name, args]);
 }
 
 class AccessScopeAdminArgs extends BaseAccessScopeArgs {
@@ -20,6 +36,16 @@ class AccessScopeAdminArgs extends BaseAccessScopeArgs {
 
   // constructor
   AccessScopeAdminArgs(this.adminKey, this.id);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AccessScopeAdminArgs &&
+          adminKey == other.adminKey &&
+          id == other.id;
+
+  @override
+  int get hashCode => Object.hashAll([adminKey, id]);
 }
 
 class AccessUserScope extends Scope<AccessScopeUserArgs> {
@@ -27,6 +53,14 @@ class AccessUserScope extends Scope<AccessScopeUserArgs> {
 
   AccessUserScope({required int userId})
     : super(name: "access-user", args: AccessScopeUserArgs(userId));
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AccessUserScope && name == other.name && args == other.args;
+
+  @override
+  int get hashCode => Object.hashAll([name, args]);
 }
 
 class AccessScopeUserArgs extends BaseAccessScopeArgs {
@@ -35,6 +69,14 @@ class AccessScopeUserArgs extends BaseAccessScopeArgs {
 
   // constructor
   AccessScopeUserArgs(this.userId);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AccessScopeUserArgs && userId == other.userId;
+
+  @override
+  int get hashCode => Object.hashAll([userId]);
 }
 
 class AccessPublicScope extends Scope<AccessScopePublicArgs> {
@@ -42,6 +84,14 @@ class AccessPublicScope extends Scope<AccessScopePublicArgs> {
 
   AccessPublicScope({required bool flag})
     : super(name: "access-public", args: AccessScopePublicArgs(flag));
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AccessPublicScope && name == other.name && args == other.args;
+
+  @override
+  int get hashCode => Object.hashAll([name, args]);
 }
 
 class AccessScopePublicArgs extends BaseAccessScopeArgs {
@@ -50,12 +100,28 @@ class AccessScopePublicArgs extends BaseAccessScopeArgs {
 
   // constructor
   AccessScopePublicArgs(this.flag);
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AccessScopePublicArgs && flag == other.flag;
+
+  @override
+  int get hashCode => Object.hashAll([flag]);
 }
 
 class AccessDevScope extends Scope<BaseAccessScopeArgs> {
   static const String scopeName = 'access-dev';
 
   AccessDevScope() : super(name: "access-dev", args: BaseAccessScopeArgs());
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is AccessDevScope && name == other.name && args == other.args;
+
+  @override
+  int get hashCode => Object.hashAll([name, args]);
 }
 
 class AccessScope {
