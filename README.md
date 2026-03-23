@@ -233,22 +233,39 @@ To leave a scope `leaveScope()` method should be used
 weaver.leaveScope(AdminScope.scopeName);
 ```
 
-### Example: 🎯
+### Automatic enter and leave via `changeScopeStream` 🔄
 
-Here is a practical example of how to enter a scope based on business logic of the application
+Often the correct scope is already determined elsewhere: auth state, the active account type, a session object, a BLoC, and so on. Repeating `if` / `enterScope` / `leaveScope` in every listener is easy to get wrong (for example leaving a scope too late or not at all).
+
+The generated scope handler accepts an optional **`changeScopeStream`**: a **`Stream<Scope<…>?>`** that tells Weaver what should be active **for that handler**:
+
+- **Non-null scope** — Weaver **enters** that scope using the same logic as `weaver.enterScope(...)`.
+- **`null`** — The handler **leaves** the scope it currently tracks, same idea as calling `weaver.leaveScope(...)` for that scope’s name.
+
+You map your existing stream (store, `Stream`, etc.) into `Scope?` values once, when registering the handler.
+
+**Example:**
 
 ```dart
-weaver.get<AuthBloc>().stream.listen((state){
-  // check if should enter admin scope
-  if(state.authenticatedUser.isAdmin && !weaver.adminScope.isIn){
-    // entering admin scope
-    weaver.enterScope(AdminScope(adminId: 24, adminAccessLevel: 'editor'));
-  }else{
-    // leaving admin scope
-    weaver.leaveScope(AdminScope.scopeName);
-  }
-})
+weaver.addScopeHandler(
+  AdminScopeHandler(
+    weaver,
+    changeScopeStream: authBloc.stream.map((state) {
+      if (state.authenticatedUser.isAdmin) {
+        return AdminScope(
+          adminId: state.authenticatedUser.id,
+          adminAccessLevel: state.authenticatedUser.accessLevel,
+        );
+      }
+      return null;
+    }),
+  ),
+);
 ```
+
+While the user is an admin, each matching event keeps the admin scope active; when they are not (or log out), emitting `null` leaves the scope.
+
+**Why this helps:** One source of truth keeps DI boundaries aligned with app state, less duplicated branching, and fewer places that must remember to call `leaveScope` when conditions change. 
 
 ## Listen for scope changes 👂
 
