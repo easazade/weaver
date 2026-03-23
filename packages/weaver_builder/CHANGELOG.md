@@ -1,3 +1,10 @@
+## 0.9.2
+
+- Bump [weaver](https://pub.dev/packages/weaver) to 0.9.2
+- Fix generated scopes not overriding equals & hashCode
+- Update weaver_writer to generate stream extensions
+- Update generated scope extensions to expose the stream of scope handler
+
 ## 0.9.1
 
 - Bump LICENSE year

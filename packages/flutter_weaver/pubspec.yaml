@@ -1,6 +1,6 @@
 name: flutter_weaver
 description: Best dependency injection library for Flutter, Rethought and redesigned specifically for flutter
-version: 0.9.1
+version: 0.9.2
 repository: https://github.com/easazade/weaver
 issue_tracker: https://github.com/easazade/weaver/issues
 
@@ -11,11 +11,11 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  weaver: ^0.9.1
+  weaver: ^0.9.2
 
 dev_dependencies:
   build_runner:
   flutter_lints: ^5.0.0
   flutter_test:
     sdk: flutter
-  weaver_builder: ^0.9.1
+  weaver_builder: ^0.9.2

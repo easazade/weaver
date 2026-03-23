@@ -1,3 +1,14 @@
+## 0.9.2
+
+- Update docs
+- Add missing doc on awaitEnterScope() method
+- Add feature to pass scope changes from an input stream argument passed to scope-handler class
+- Fix bug in base ScopeHandler class
+- Expose a stream of scope changes from ScopeHandler class
+- Add tests for ensureEnterScope method in ScopeHandler class
+- Move ensureEnterScope to base ScopeHandler class
+- Change method name awaitEnterScope to ensureEnterScope
+
 ## 0.9.1
 
 - Bump LICENSE year

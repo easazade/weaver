@@ -49,7 +49,4 @@ abstract class SwitchScopeHandler<T> extends ScopeHandler<T> {
   Future<void> onLeaveScopeByName(final String name);
 
   Future<void> onEnterScopeByScope(final Scope scope);
-
-  @override
-  void dispose() {}
 }
