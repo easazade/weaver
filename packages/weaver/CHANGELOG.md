@@ -65,6 +65,7 @@
 - Fix repository links in pubspec.yaml file
 
 ## 0.6.0
+
 - Update & Fix Documentation
 - Move flutter code into flutter_weaver
 - Add more tests
@@ -78,9 +79,9 @@
 
 ## 0.5.0
 
- - Update documentation
- - Improve error message when user tries to retrieve a registered named object without passing the name
- - Update builder to support generating named dependency getters on weaver for defined scopes
+- Update documentation
+- Improve error message when user tries to retrieve a registered named object without passing the name
+- Update builder to support generating named dependency getters on weaver for defined scopes
 
 ## 0.4.0
 

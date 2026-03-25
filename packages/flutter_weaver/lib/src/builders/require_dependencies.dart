@@ -1,14 +1,16 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:weaver/weaver.dart';
+import 'package:weaver/weaver.dart' hide weaver;
+import 'package:weaver/weaver.dart' as wv show weaver;
 
 /// A widget that waits for a set of dependencies to be registered before building its child.
 ///
-/// [RequireDependencies] observes the [weaver] instance and rebuilds whenever
+/// [RequireDependencies] observes the [Weaver] instance and rebuilds whenever
 /// a dependency is registered or unregistered. It passes an `isReady` flag to the
 /// [builder] function, which is true only when all specified [dependencies] are
 /// registered and available in [weaver].
 ///
+/// By default uses the default global instance of weaver. pass your own weaver instance if needed
 /// This widget is useful for ensuring that a widget tree is only built when its
 /// required dependencies (e.g., Blocs, Services) are ready, avoiding
 /// `WeaverException` or null-reference errors.
@@ -16,7 +18,6 @@ import 'package:weaver/weaver.dart';
 /// Example:
 /// ```dart
 /// RequireDependencies(
-///   weaver: weaver,
 ///   dependencies: const [
 ///     DependencyKey(type: UserBloc),
 ///     DependencyKey(type: SettingsBloc),
@@ -32,6 +33,8 @@ import 'package:weaver/weaver.dart';
 /// ```
 class RequireDependencies extends StatefulWidget {
   /// The [Weaver] instance to observe for dependency changes.
+  ///
+  /// When omitted at construction time, the default `weaver` from `package:weaver/weaver.dart` is used.
   final Weaver weaver;
 
   /// The list of [DependencyKey]s that must be registered for [isReady] to be true.
@@ -51,13 +54,13 @@ class RequireDependencies extends StatefulWidget {
   /// An optional child widget that is passed to the [builder].
   final Widget? child;
 
-  const RequireDependencies({
+  RequireDependencies({
     super.key,
-    required this.weaver,
+    final Weaver? weaver,
     required this.dependencies,
     required this.builder,
     this.child,
-  });
+  }) : weaver = weaver ?? wv.weaver;
 
   @override
   State<RequireDependencies> createState() => _State();

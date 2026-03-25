@@ -14,7 +14,6 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RequireDependencies(
-      weaver: weaver,
       dependencies: [DependencyKey(type: HomeStore)],
       builder: (context, child, isReady) {
         if (!isReady) {

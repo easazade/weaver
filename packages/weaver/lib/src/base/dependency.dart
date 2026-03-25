@@ -58,7 +58,7 @@ class DependencyKey {
   final String? name;
 
   /// Creates a [DependencyKey] with the given [type] and optional [name].
-  DependencyKey({required this.type, this.name});
+  const DependencyKey({required this.type, this.name});
 
   @override
   String toString() {

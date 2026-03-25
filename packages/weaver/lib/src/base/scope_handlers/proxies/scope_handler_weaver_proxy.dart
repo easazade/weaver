@@ -25,10 +25,16 @@ class ScopeHandlerWeaverProxy implements Weaver {
   }
 
   @override
-  void registerIfIsNot<T extends Object>(final T instance, {final String? name, final String? session}) {
+  void registerIfAbsent<T extends Object>(final T instance, {final String? name, final String? session}) {
     if (!isRegistered<T>(name: name)) {
       register<T>(instance, name: name, session: session);
     }
+  }
+
+  @override
+  @Deprecated('Use registerIfAbsent')
+  void registerIfIsNot<T extends Object>(final T instance, {final String? name, final String? session}) {
+    registerIfAbsent<T>(instance, name: name, session: session);
   }
 
   /// unregister all dependency objects registered using this proxy-weaver by the scope handler

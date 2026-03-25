@@ -57,7 +57,7 @@ Register objects 🧰
 weaver.register(UserRepository());
 weaver.registerLazy(() => UserBloc(userRepository: weaver.get()));
 
-weaver.registerIfIsNot(CartSession(cartService: weaver.get()));
+weaver.registerIfAbsent(CartSession(cartService: weaver.get()));
 ```
 
 And then get them anywhere in your code 🔍
@@ -80,9 +80,10 @@ The `RequireDependencies` widget waits for specified dependency objects to be re
 
 `RequireDependencies` lets you list the type of objects you need, then rebuilds when those registrations appear. It does not care when, where, or how they were registered.
 
+By default it watches the package `weaver` instance. Pass `weaver: yourWeaver` only if you use a custom `Weaver` (e.g. in tests).
+
 ```dart
 RequireDependencies(
-    weaver: weaver,
     dependencies: const [DependencyKey(type: UserBloc), DependencyKey(type: ProductsBloc)],
     builder: (context, child, isReady) {
         if (isReady) {
@@ -325,7 +326,6 @@ This provides similar functionality to Provider's `Provider` widget—making dep
 
 ```dart
 AutoScope(
-  weaver: weaver,
   scope: ProductDetailScope(productId: 123),
   child: ProductDetailPage(),
 )
@@ -357,7 +357,6 @@ class Routes {
   static Route<dynamic> productDetailRoute(int productId) {
     return MaterialPageRoute(
       builder: (context) => AutoScope(
-        weaver: weaver,
         scope: ProductDetailScope(productId: productId), // registers ProductBloc, CommentBloc
         child: const ProductDetailPage(),
       ),
@@ -372,7 +371,6 @@ class ProductDetailPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RequireDependencies(
-      weaver: weaver,
       dependencies: const [
         DependencyKey(type: ProductBloc),
         DependencyKey(type: CommentBloc),

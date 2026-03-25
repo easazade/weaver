@@ -10,7 +10,11 @@ import 'package:weaver/src/utils/observable.dart';
 
 import 'dependency.dart';
 
-/// default instance of [Weaver]
+/// The package-default [Weaver] instance.
+///
+/// Use this for normal apps so widgets and scopes share one container. Create
+/// your own [Weaver] only when you need isolation (e.g. parallel tests or
+/// multiple independent trees).
 final weaver = Weaver();
 
 /// The main dependency injection container for Weaver.
@@ -75,13 +79,18 @@ class Weaver extends Observable {
     notifyObservers();
   }
 
-  /// Registers an object if it is not already registered.
-  ///
-  /// If an object with the same type and name is already registered, this method does nothing.
-  void registerIfIsNot<T extends Object>(final T instance, {final String? name, final String? session}) {
+  /// Registers [instance] only if nothing is already registered for the same
+  /// type and optional [name].
+  void registerIfAbsent<T extends Object>(final T instance, {final String? name, final String? session}) {
     if (!isRegistered<T>(name: name)) {
       register<T>(instance, name: name, session: session);
     }
+  }
+
+  /// Use [registerIfAbsent] instead.
+  @Deprecated('Use registerIfAbsent')
+  void registerIfIsNot<T extends Object>(final T instance, {final String? name, final String? session}) {
+    registerIfAbsent<T>(instance, name: name, session: session);
   }
 
   /// Unregisters a dependency object by its type [T] or [name].
@@ -177,7 +186,7 @@ class Weaver extends Observable {
 
       if (matchKeyForOnlyType.isNotEmpty) {
         message = '$message But there are named dependencies registered with this type: $matchKeyForOnlyType. '
-            'To retrieve named registered named objects you must pass both type & name when calling weaver.get()';
+            'Pass [name] when calling get (e.g. weaver.get<$T>(name: ...)).';
       }
 
       throw WeaverException(message);

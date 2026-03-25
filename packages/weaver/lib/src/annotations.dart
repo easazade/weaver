@@ -12,7 +12,13 @@ class WeaverScope {
   const WeaverScope({required this.name});
 }
 
+/// Defines a **switch** scope: several labeled child entry points, only one active at a time.
+///
+/// Use with multiple [OnEnterScope] methods, each with a distinct [OnEnterScope.name].
+/// `weaver_builder` generates a handler and a scope type with one factory per child
+/// (similar to an enum of modes). See [WeaverScope] for ordinary single-entry scopes.
 class WeaverSwitchScope {
+  /// Parent scope name (used for registration and `leaveScope`).
   final String name;
 
   const WeaverSwitchScope({required this.name});
@@ -20,8 +26,8 @@ class WeaverSwitchScope {
 
 /// Annotation used to mark a method that should be called when entering a scope.
 ///
-/// The method should be inside a class annotated with `@WeaverScope`.
-/// It is responsible for registering dependencies specific to that scope.
+/// Use on a class annotated with [WeaverScope] (single entry) or [WeaverSwitchScope]
+/// (one method per child scope; set [name] to distinguish children).
 class OnEnterScope {
   final String? name;
 
@@ -30,9 +36,15 @@ class OnEnterScope {
 
 /// Annotation used to mark a method that should be called when leaving a scope.
 ///
-/// The method should be inside a class annotated with `@WeaverScope`.
-/// It is responsible for unregistering dependencies or performing cleanup.
-/// If not provided, Weaver handles unregistering dependencies automatically.
+/// The method should be inside a class annotated with [WeaverScope] or [WeaverSwitchScope].
+///
+/// **Single scope:** If you omit [OnLeaveScope], the generated handler unregisters
+/// dependencies you registered in [OnEnterScope]. If you add [OnLeaveScope], you must
+/// unregister (or dispose) those yourself; [NamedDependency] fields are still cleaned up
+/// unless [NamedDependency.autoDispose] is `false`.
+///
+/// **Switch scope:** Same idea per child; omit [OnLeaveScope] for automatic cleanup when
+/// switching away from that child.
 class OnLeaveScope {
   final String? name;
 

@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
-import 'package:weaver/weaver.dart';
+import 'package:weaver/weaver.dart' hide weaver;
+import 'package:weaver/weaver.dart' as wv show weaver;
 
 /// A widget that automatically manages the lifecycle of a [Scope].
 ///
@@ -8,19 +9,22 @@ import 'package:weaver/weaver.dart';
 /// defined within the scope are only available while this widget (or its subtree)
 /// is part of the widget tree.
 ///
+/// Omit [weaver] to use the default `weaver` from `package:weaver/weaver.dart`.
+///
 /// This is particularly useful for tying dependencies to specific routes or
 /// features in a Flutter application.
 ///
 /// Example:
 /// ```dart
 /// AutoScope(
-///   weaver: weaver,
 ///   scope: ProductDetailScope(productId: 123),
 ///   child: ProductDetailPage(),
 /// )
 /// ```
 class AutoScope extends StatefulWidget {
   /// The [Weaver] instance used to manage the scope.
+  ///
+  /// When omitted, the default `weaver` from `package:weaver/weaver.dart` is used.
   final Weaver weaver;
 
   /// The [Scope] to enter when mounted and leave when disposed.
@@ -30,12 +34,12 @@ class AutoScope extends StatefulWidget {
   final Widget child;
 
   /// Creates an [AutoScope] widget.
-  const AutoScope({
+  AutoScope({
     super.key,
-    required this.weaver,
+    final Weaver? weaver,
     required this.scope,
     required this.child,
-  });
+  }) : weaver = weaver ?? wv.weaver;
 
   @override
   State<AutoScope> createState() => _AutoScopeState();

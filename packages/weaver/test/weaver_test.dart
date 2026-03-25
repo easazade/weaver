@@ -86,8 +86,7 @@ void main() {
 
                       return e.message.contains('There is no instance of $dependencyKey registered.') &&
                           e.message.contains('But there are named dependencies registered with this type:') &&
-                          e.message.contains(
-                              'To retrieve named registered named objects you must pass both type & name when calling weaver.get()');
+                          e.message.contains('Pass [name] when calling get');
                     },
                   ),
                 ),
@@ -257,7 +256,7 @@ void main() {
               'Should register object if not already registered',
               () {
                 expect(weaverInstance.isRegistered<String>(), false);
-                weaverInstance.registerIfIsNot('ali');
+                weaverInstance.registerIfAbsent('ali');
                 expect(weaverInstance.isRegistered<String>(), true);
                 expect(weaverInstance.get<String>(), 'ali');
               },
@@ -270,7 +269,7 @@ void main() {
                 expect(weaverInstance.get<String>(), 'ali');
 
                 // This should do nothing and not throw
-                weaverInstance.registerIfIsNot('hasan');
+                weaverInstance.registerIfAbsent('hasan');
                 expect(weaverInstance.get<String>(), 'ali');
               },
             );
@@ -279,8 +278,8 @@ void main() {
               'Should work with named dependencies',
               () {
                 weaverInstance.register('ali', name: 'user');
-                weaverInstance.registerIfIsNot('hasan', name: 'user');
-                weaverInstance.registerIfIsNot('hasan', name: 'admin');
+                weaverInstance.registerIfAbsent('hasan', name: 'user');
+                weaverInstance.registerIfAbsent('hasan', name: 'admin');
 
                 expect(weaverInstance.get<String>(name: 'user'), 'ali');
                 expect(weaverInstance.get<String>(name: 'admin'), 'hasan');

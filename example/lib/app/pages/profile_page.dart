@@ -11,7 +11,6 @@ class ProfilePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RequireDependencies(
-      weaver: weaver,
       dependencies: [DependencyKey(type: ProfileStore)],
       builder: (context, child, isReady) {
         if (!isReady) {
