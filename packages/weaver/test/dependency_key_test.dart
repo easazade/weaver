@@ -5,8 +5,8 @@ void main() {
   test(
     'DependencyKey object hashCode should work correctly',
     () {
-      final dependencyKey1 = DependencyKey(type: String, name: 'name');
-      final dependencyKey2 = DependencyKey(type: String, name: 'name');
+      final dependencyKey1 = const DependencyKey(type: String, name: 'name');
+      final dependencyKey2 = const DependencyKey(type: String, name: 'name');
       expect(dependencyKey1.hashCode, dependencyKey2.hashCode);
     },
   );
@@ -14,9 +14,9 @@ void main() {
   test(
     'DependencyKey object equals operator should work correctly',
     () {
-      final dependencyKey1 = DependencyKey(type: String, name: 'name');
-      final dependencyKey2 = DependencyKey(type: String, name: 'name');
-      final dependencyKey3 = DependencyKey(type: String);
+      final dependencyKey1 = const DependencyKey(type: String, name: 'name');
+      final dependencyKey2 = const DependencyKey(type: String, name: 'name');
+      final dependencyKey3 = const DependencyKey(type: String);
 
       expect(dependencyKey1, equals(dependencyKey2));
       expect(dependencyKey1, isNot(equals(dependencyKey3)));

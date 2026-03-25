@@ -12,7 +12,7 @@ void main() {
 
     group('set', () {
       test('should set a dependency to the map', () {
-        final key = DependencyKey(type: String);
+        final key = const DependencyKey(type: String);
         final dependency = Dependency.value('test');
 
         dependencyMap.set(key, dependency);
@@ -21,7 +21,7 @@ void main() {
       });
 
       test('should overwrite existing dependency when setting with same key', () {
-        final key = DependencyKey(type: String);
+        final key = const DependencyKey(type: String);
         final dependency1 = Dependency.value('first');
         final dependency2 = Dependency.value('second');
 
@@ -33,8 +33,8 @@ void main() {
       });
 
       test('should set multiple dependencies with different keys', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
         final dependency1 = Dependency.value('test');
         final dependency2 = Dependency.value(42);
 
@@ -46,8 +46,8 @@ void main() {
       });
 
       test('should set named dependencies correctly', () {
-        final key1 = DependencyKey(type: String, name: 'first');
-        final key2 = DependencyKey(type: String, name: 'second');
+        final key1 = const DependencyKey(type: String, name: 'first');
+        final key2 = const DependencyKey(type: String, name: 'second');
         final dependency1 = Dependency.value('first');
         final dependency2 = Dependency.value('second');
 
@@ -59,7 +59,7 @@ void main() {
       });
 
       test('Should put the dependency object in the given session', () {
-        final key1 = DependencyKey(type: String);
+        final key1 = const DependencyKey(type: String);
         final dependency1 = Dependency.value('shoes');
 
         dependencyMap.set(key1, dependency1, session: 'cart-session');
@@ -72,13 +72,13 @@ void main() {
 
     group('find', () {
       test('should return null when dependency does not exist', () {
-        final key = DependencyKey(type: String);
+        final key = const DependencyKey(type: String);
 
         expect(dependencyMap.find(key), isNull);
       });
 
       test('should return the correct dependency when it exists', () {
-        final key = DependencyKey(type: String);
+        final key = const DependencyKey(type: String);
         final dependency = Dependency.value('test');
 
         dependencyMap.set(key, dependency);
@@ -87,8 +87,8 @@ void main() {
       });
 
       test('should return null for different key even if type matches', () {
-        final key1 = DependencyKey(type: String, name: 'first');
-        final key2 = DependencyKey(type: String, name: 'second');
+        final key1 = const DependencyKey(type: String, name: 'first');
+        final key2 = const DependencyKey(type: String, name: 'second');
         final dependency = Dependency.value('test');
 
         dependencyMap.set(key1, dependency);
@@ -103,9 +103,9 @@ void main() {
       });
 
       test('should return all keys that were added', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
-        final key3 = DependencyKey(type: double, name: 'named');
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
+        final key3 = const DependencyKey(type: double, name: 'named');
 
         dependencyMap.set(key1, Dependency.value('test'));
         dependencyMap.set(key2, Dependency.value(42));
@@ -119,8 +119,8 @@ void main() {
       });
 
       test('should update keys when dependencies are removed', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
 
         dependencyMap.set(key1, Dependency.value('test'));
         dependencyMap.set(key2, Dependency.value(42));
@@ -138,13 +138,13 @@ void main() {
 
     group('remove', () {
       test('should return null when removing non-existent dependency', () {
-        final key = DependencyKey(type: String);
+        final key = const DependencyKey(type: String);
 
         expect(dependencyMap.remove(key), isNull);
       });
 
       test('should return the removed dependency when it exists', () {
-        final key = DependencyKey(type: String);
+        final key = const DependencyKey(type: String);
         final dependency = Dependency.value('test');
 
         dependencyMap.set(key, dependency);
@@ -156,7 +156,7 @@ void main() {
       });
 
       test('should remove dependency and make it unfindable', () {
-        final key = DependencyKey(type: String);
+        final key = const DependencyKey(type: String);
         final dependency = Dependency.value('test');
 
         dependencyMap.set(key, dependency);
@@ -172,8 +172,8 @@ void main() {
       });
 
       test('should only remove the specified dependency', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
         final dependency1 = Dependency.value('test');
         final dependency2 = Dependency.value(42);
 
@@ -189,9 +189,9 @@ void main() {
 
     group('clear', () {
       test('should clear all dependencies', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
-        final key3 = DependencyKey(type: double, name: 'named');
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
+        final key3 = const DependencyKey(type: double, name: 'named');
 
         dependencyMap.set(key1, Dependency.value('test'));
         dependencyMap.set(key2, Dependency.value(42));
@@ -213,8 +213,8 @@ void main() {
       });
 
       test('should allow adding dependencies after clearing', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
 
         dependencyMap.set(key1, Dependency.value('test'));
         dependencyMap.clear();
@@ -228,13 +228,13 @@ void main() {
 
     group('containsKey', () {
       test('should return false when key does not exist', () {
-        final key = DependencyKey(type: String);
+        final key = const DependencyKey(type: String);
 
         expect(dependencyMap.containsKey(key), isFalse);
       });
 
       test('should return true when key exists', () {
-        final key = DependencyKey(type: String);
+        final key = const DependencyKey(type: String);
         final dependency = Dependency.value('test');
 
         dependencyMap.set(key, dependency);
@@ -243,7 +243,7 @@ void main() {
       });
 
       test('should return false after removing a key', () {
-        final key = DependencyKey(type: String);
+        final key = const DependencyKey(type: String);
         final dependency = Dependency.value('test');
 
         dependencyMap.set(key, dependency);
@@ -254,8 +254,8 @@ void main() {
       });
 
       test('should return false for different key even if type matches', () {
-        final key1 = DependencyKey(type: String, name: 'first');
-        final key2 = DependencyKey(type: String, name: 'second');
+        final key1 = const DependencyKey(type: String, name: 'first');
+        final key2 = const DependencyKey(type: String, name: 'second');
         final dependency = Dependency.value('test');
 
         dependencyMap.set(key1, dependency);
@@ -265,9 +265,9 @@ void main() {
       });
 
       test('should return true for multiple existing keys', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
-        final key3 = DependencyKey(type: double, name: 'named');
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
+        final key3 = const DependencyKey(type: double, name: 'named');
 
         dependencyMap.set(key1, Dependency.value('test'));
         dependencyMap.set(key2, Dependency.value(42));
@@ -279,7 +279,7 @@ void main() {
       });
 
       test('should return false after clearing', () {
-        final key = DependencyKey(type: String);
+        final key = const DependencyKey(type: String);
         final dependency = Dependency.value('test');
 
         dependencyMap.set(key, dependency);
@@ -292,9 +292,9 @@ void main() {
 
     group('removeWhere', () {
       test('should remove dependencies matching predicate', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
-        final key3 = DependencyKey(type: double);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
+        final key3 = const DependencyKey(type: double);
 
         dependencyMap.set(key1, Dependency.value('test'));
         dependencyMap.set(key2, Dependency.value(42));
@@ -308,9 +308,9 @@ void main() {
       });
 
       test('should remove multiple dependencies matching predicate', () {
-        final key1 = DependencyKey(type: String, name: 'first');
-        final key2 = DependencyKey(type: String, name: 'second');
-        final key3 = DependencyKey(type: int);
+        final key1 = const DependencyKey(type: String, name: 'first');
+        final key2 = const DependencyKey(type: String, name: 'second');
+        final key3 = const DependencyKey(type: int);
 
         dependencyMap.set(key1, Dependency.value('first'));
         dependencyMap.set(key2, Dependency.value('second'));
@@ -324,9 +324,9 @@ void main() {
       });
 
       test('should remove all dependencies when predicate always returns true', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
-        final key3 = DependencyKey(type: double);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
+        final key3 = const DependencyKey(type: double);
 
         dependencyMap.set(key1, Dependency.value('test'));
         dependencyMap.set(key2, Dependency.value(42));
@@ -338,8 +338,8 @@ void main() {
       });
 
       test('should remove no dependencies when predicate always returns false', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
 
         dependencyMap.set(key1, Dependency.value('test'));
         dependencyMap.set(key2, Dependency.value(42));
@@ -357,9 +357,9 @@ void main() {
       });
 
       test('should remove dependencies based on name', () {
-        final key1 = DependencyKey(type: String, name: 'first');
-        final key2 = DependencyKey(type: String, name: 'second');
-        final key3 = DependencyKey(type: String);
+        final key1 = const DependencyKey(type: String, name: 'first');
+        final key2 = const DependencyKey(type: String, name: 'second');
+        final key3 = const DependencyKey(type: String);
 
         dependencyMap.set(key1, Dependency.value('first'));
         dependencyMap.set(key2, Dependency.value('second'));
@@ -375,13 +375,13 @@ void main() {
 
     group('hasValue', () {
       test('should return false when key does not exist', () {
-        final key = DependencyKey(type: String);
+        final key = const DependencyKey(type: String);
 
         expect(dependencyMap.hasValue(key), isFalse);
       });
 
       test('should return true for dependency with value', () {
-        final key = DependencyKey(type: String);
+        final key = const DependencyKey(type: String);
         final dependency = Dependency.value('test');
 
         dependencyMap.set(key, dependency);
@@ -390,7 +390,7 @@ void main() {
       });
 
       test('should return true for lazy dependency', () {
-        final key = DependencyKey(type: String);
+        final key = const DependencyKey(type: String);
         final dependency = Dependency.lazy(() => 'lazy');
 
         dependencyMap.set(key, dependency);
@@ -399,7 +399,7 @@ void main() {
       });
 
       test('should return false for placeholder dependency', () {
-        final key = DependencyKey(type: String);
+        final key = const DependencyKey(type: String);
         final dependency = Dependency.placeHolder();
 
         dependencyMap.set(key, dependency);
@@ -408,7 +408,7 @@ void main() {
       });
 
       test('should return true for dependency with null value but lazy callback', () {
-        final key = DependencyKey(type: String);
+        final key = const DependencyKey(type: String);
         final dependency = Dependency.lazy(() => 'lazy');
 
         dependencyMap.set(key, dependency);
@@ -417,7 +417,7 @@ void main() {
       });
 
       test('should return false after removing dependency', () {
-        final key = DependencyKey(type: String);
+        final key = const DependencyKey(type: String);
         final dependency = Dependency.value('test');
 
         dependencyMap.set(key, dependency);
@@ -428,9 +428,9 @@ void main() {
       });
 
       test('should return true for multiple dependencies with values', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
-        final key3 = DependencyKey(type: double);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
+        final key3 = const DependencyKey(type: double);
 
         dependencyMap.set(key1, Dependency.value('test'));
         dependencyMap.set(key2, Dependency.value(42));
@@ -442,7 +442,7 @@ void main() {
       });
 
       test('should return false after clearing', () {
-        final key = DependencyKey(type: String);
+        final key = const DependencyKey(type: String);
         final dependency = Dependency.value('test');
 
         dependencyMap.set(key, dependency);
@@ -459,9 +459,9 @@ void main() {
       });
 
       test('should return all entries that were added', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
-        final key3 = DependencyKey(type: double, name: 'named');
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
+        final key3 = const DependencyKey(type: double, name: 'named');
         final dependency1 = Dependency.value('test');
         final dependency2 = Dependency.value(42);
         final dependency3 = Dependency.value(3.14);
@@ -480,8 +480,8 @@ void main() {
       });
 
       test('should update entries when dependencies are removed', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
         final dependency1 = Dependency.value('test');
         final dependency2 = Dependency.value(42);
 
@@ -500,8 +500,8 @@ void main() {
       });
 
       test('should return entries with correct keys and values', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
         final dependency1 = Dependency.value('test');
         final dependency2 = Dependency.lazy(() => 42);
 
@@ -519,8 +519,8 @@ void main() {
       });
 
       test('should return empty entries after clearing', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
 
         dependencyMap.set(key1, Dependency.value('test'));
         dependencyMap.set(key2, Dependency.value(42));
@@ -533,7 +533,7 @@ void main() {
       });
 
       test('should reflect changes when dependencies are overwritten', () {
-        final key = DependencyKey(type: String);
+        final key = const DependencyKey(type: String);
         final dependency1 = Dependency.value('first');
         final dependency2 = Dependency.value('second');
 
@@ -549,9 +549,9 @@ void main() {
       });
 
       test('should return entries for different dependency types', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
-        final key3 = DependencyKey(type: bool);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
+        final key3 = const DependencyKey(type: bool);
         final dependency1 = Dependency.value('test');
         final dependency2 = Dependency.value(42);
         final dependency3 = Dependency.placeHolder();
@@ -572,8 +572,8 @@ void main() {
 
     group('findBySession', () {
       test('should return empty map when no dependencies match the session', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
         dependencyMap.set(key1, Dependency.value('test'), session: 'session1');
         dependencyMap.set(key2, Dependency.value(42), session: 'session2');
 
@@ -589,8 +589,8 @@ void main() {
       });
 
       test('should return correct dependencies for a given session', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
         final dependency1 = Dependency.value('test');
         final dependency2 = Dependency.value(42);
 
@@ -605,9 +605,9 @@ void main() {
       });
 
       test('should return only dependencies from the specified session', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
-        final key3 = DependencyKey(type: double);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
+        final key3 = const DependencyKey(type: double);
         final dependency1 = Dependency.value('test');
         final dependency2 = Dependency.value(42);
         final dependency3 = Dependency.value(3.14);
@@ -625,8 +625,8 @@ void main() {
       });
 
       test('should not include dependencies without sessions', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
         final dependency1 = Dependency.value('test');
         final dependency2 = Dependency.value(42);
 
@@ -641,10 +641,10 @@ void main() {
       });
 
       test('should handle multiple dependencies in the same session', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
-        final key3 = DependencyKey(type: double);
-        final key4 = DependencyKey(type: bool);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
+        final key3 = const DependencyKey(type: double);
+        final key4 = const DependencyKey(type: bool);
         final dependency1 = Dependency.value('test');
         final dependency2 = Dependency.value(42);
         final dependency3 = Dependency.value(3.14);
@@ -665,7 +665,7 @@ void main() {
       });
 
       test('should return empty map when session does not exist', () {
-        final key1 = DependencyKey(type: String);
+        final key1 = const DependencyKey(type: String);
         dependencyMap.set(key1, Dependency.value('test'), session: 'session1');
 
         final result = dependencyMap.findBySession('non-existent-session');
@@ -674,9 +674,9 @@ void main() {
       });
 
       test('should handle different session names correctly', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
-        final key3 = DependencyKey(type: double);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
+        final key3 = const DependencyKey(type: double);
         final dependency1 = Dependency.value('test');
         final dependency2 = Dependency.value(42);
         final dependency3 = Dependency.value(3.14);
@@ -702,8 +702,8 @@ void main() {
 
     group('removeBySession', () {
       test('should remove all dependencies from the specified session', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
         final dependency1 = Dependency.value('test');
         final dependency2 = Dependency.value(42);
 
@@ -719,9 +719,9 @@ void main() {
       });
 
       test('should not remove dependencies from other sessions', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
-        final key3 = DependencyKey(type: double);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
+        final key3 = const DependencyKey(type: double);
         final dependency1 = Dependency.value('test');
         final dependency2 = Dependency.value(42);
         final dependency3 = Dependency.value(3.14);
@@ -741,8 +741,8 @@ void main() {
       });
 
       test('should not remove dependencies without sessions', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
         final dependency1 = Dependency.value('test');
         final dependency2 = Dependency.value(42);
 
@@ -763,8 +763,8 @@ void main() {
       });
 
       test('should handle non-existent session', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
         final dependency1 = Dependency.value('test');
         final dependency2 = Dependency.value(42);
 
@@ -780,10 +780,10 @@ void main() {
       });
 
       test('should remove multiple dependencies from the same session', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
-        final key3 = DependencyKey(type: double);
-        final key4 = DependencyKey(type: bool);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
+        final key3 = const DependencyKey(type: double);
+        final key4 = const DependencyKey(type: bool);
         final dependency1 = Dependency.value('test');
         final dependency2 = Dependency.value(42);
         final dependency3 = Dependency.value(3.14);
@@ -806,8 +806,8 @@ void main() {
       });
 
       test('should verify dependencies are completely removed', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
         final dependency1 = Dependency.value('test');
         final dependency2 = Dependency.value(42);
 
@@ -826,10 +826,10 @@ void main() {
       });
 
       test('should handle mixed scenario with sessions and non-session dependencies', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
-        final key3 = DependencyKey(type: double);
-        final key4 = DependencyKey(type: bool);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
+        final key3 = const DependencyKey(type: double);
+        final key4 = const DependencyKey(type: bool);
         final dependency1 = Dependency.value('test');
         final dependency2 = Dependency.value(42);
         final dependency3 = Dependency.value(3.14);
@@ -852,8 +852,8 @@ void main() {
 
     group('integration tests', () {
       test('should handle full lifecycle: add, find, remove, clear', () {
-        final key1 = DependencyKey(type: String);
-        final key2 = DependencyKey(type: int);
+        final key1 = const DependencyKey(type: String);
+        final key2 = const DependencyKey(type: int);
         final dependency1 = Dependency.value('test');
         final dependency2 = Dependency.value(42);
 
@@ -880,10 +880,10 @@ void main() {
       });
 
       test('should handle different dependency types', () {
-        final stringKey = DependencyKey(type: String);
-        final intKey = DependencyKey(type: int);
-        final doubleKey = DependencyKey(type: double);
-        final boolKey = DependencyKey(type: bool);
+        final stringKey = const DependencyKey(type: String);
+        final intKey = const DependencyKey(type: int);
+        final doubleKey = const DependencyKey(type: double);
+        final boolKey = const DependencyKey(type: bool);
 
         dependencyMap.set(stringKey, Dependency.value('test'));
         dependencyMap.set(intKey, Dependency.value(42));
@@ -898,7 +898,7 @@ void main() {
       });
 
       test('should handle lazy dependencies', () {
-        final key = DependencyKey(type: String);
+        final key = const DependencyKey(type: String);
         final dependency = Dependency.lazy(() => 'lazy');
 
         dependencyMap.set(key, dependency);
@@ -908,7 +908,7 @@ void main() {
       });
 
       test('should handle placeholder dependencies', () {
-        final key = DependencyKey(type: String);
+        final key = const DependencyKey(type: String);
         final dependency = Dependency.placeHolder();
 
         dependencyMap.set(key, dependency);

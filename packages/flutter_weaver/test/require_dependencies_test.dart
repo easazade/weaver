@@ -29,7 +29,7 @@ void main() {
               MaterialApp(
                 home: RequireDependencies(
                   weaver: weaverInstance,
-                  dependencies: [DependencyKey(type: String)],
+                  dependencies: [const DependencyKey(type: String)],
                   builder: (final context, final child, final isReady) {
                     if (isReady) {
                       return const Text('Ready');
@@ -53,7 +53,7 @@ void main() {
               MaterialApp(
                 home: RequireDependencies(
                   weaver: weaverInstance,
-                  dependencies: [DependencyKey(type: String)],
+                  dependencies: [const DependencyKey(type: String)],
                   builder: (final context, final child, final isReady) {
                     if (isReady) {
                       return const Text('Ready');
@@ -84,7 +84,7 @@ void main() {
               MaterialApp(
                 home: RequireDependencies(
                   weaver: weaverInstance,
-                  dependencies: [DependencyKey(type: String)],
+                  dependencies: [const DependencyKey(type: String)],
                   builder: (final context, final child, final isReady) {
                     if (isReady) {
                       return const Text('Ready');
@@ -114,8 +114,8 @@ void main() {
                 home: RequireDependencies(
                   weaver: weaverInstance,
                   dependencies: [
-                    DependencyKey(type: String),
-                    DependencyKey(type: int),
+                    const DependencyKey(type: String),
+                    const DependencyKey(type: int),
                   ],
                   builder: (final context, final child, final isReady) {
                     if (isReady) {
@@ -154,8 +154,8 @@ void main() {
                 home: RequireDependencies(
                   weaver: weaverInstance,
                   dependencies: [
-                    DependencyKey(type: String),
-                    DependencyKey(type: int),
+                    const DependencyKey(type: String),
+                    const DependencyKey(type: int),
                   ],
                   builder: (final context, final child, final isReady) {
                     if (isReady) {
@@ -187,7 +187,7 @@ void main() {
               MaterialApp(
                 home: RequireDependencies(
                   weaver: weaverInstance,
-                  dependencies: [DependencyKey(type: String)],
+                  dependencies: [const DependencyKey(type: String)],
                   child: childWidget,
                   builder: (final context, final child, final isReady) {
                     return child ?? const SizedBox();
@@ -208,7 +208,7 @@ void main() {
                 home: RequireDependencies(
                   weaver: weaverInstance,
                   dependencies: [
-                    DependencyKey(type: String, name: 'user'),
+                    const DependencyKey(type: String, name: 'user'),
                   ],
                   builder: (final context, final child, final isReady) {
                     if (isReady) {
@@ -239,7 +239,7 @@ void main() {
             await tester.pumpWidget(RequireDependenciesTester(
               controller: controller,
               weaver: weaverInstance,
-              dependencies: [DependencyKey(type: String)],
+              dependencies: [const DependencyKey(type: String)],
               builder: (final context, final child, final isReady) {
                 if (isReady) {
                   return const Text('Ready');
@@ -268,7 +268,7 @@ void main() {
             await tester.pumpWidget(RequireDependenciesTester(
               controller: controller,
               weaver: weaverInstance,
-              dependencies: [DependencyKey(type: String)],
+              dependencies: [const DependencyKey(type: String)],
               builder: (final context, final child, final isReady) {
                 if (isReady) {
                   return const Text('Ready');
@@ -280,7 +280,7 @@ void main() {
 
             expect(find.text('Ready'), findsOneWidget);
 
-            controller.changeDependencies([DependencyKey(type: int)]);
+            controller.changeDependencies([const DependencyKey(type: int)]);
             await tester.pump();
             expect(find.byType(CircularProgressIndicator), findsOneWidget);
 

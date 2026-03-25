@@ -333,7 +333,7 @@ void main() {
                   scope: Test1Scope(objects: ['test-value']),
                   child: RequireDependencies(
                     weaver: weaverInstance,
-                    dependencies: [DependencyKey(type: String)],
+                    dependencies: [const DependencyKey(type: String)],
                     builder: (final context, final child, final isReady) {
                       if (isReady) {
                         return const Text('Ready');
@@ -370,7 +370,7 @@ void main() {
                   scope: Test1Scope(objects: ['test-value']),
                   child: RequireDependencies(
                     weaver: weaverInstance,
-                    dependencies: [DependencyKey(type: String)],
+                    dependencies: [const DependencyKey(type: String)],
                     builder: (final context, final child, final isReady) {
                       if (isReady) {
                         return const Text('Ready');

@@ -82,7 +82,7 @@ void main() {
                 throwsA(
                   predicate<WeaverException>(
                     (final e) {
-                      final dependencyKey = DependencyKey(type: String);
+                      final dependencyKey = const DependencyKey(type: String);
 
                       return e.message.contains('There is no instance of $dependencyKey registered.') &&
                           e.message.contains('But there are named dependencies registered with this type:') &&
