@@ -24,30 +24,32 @@ Dependency injection logic often becomes intertwined with other types of code (s
 
 # Features ✨
 
-These are the features that make weaver package unlike any other Dependency Injection library
+These features set Weaver apart from typical service-locator DI libraries:
 
-- ⏳ **Get objects asynchronously** Wait for objects to be created and retrieve them as soon as they are available.
-- 🧠 **Safe widget builds:** Build widgets that wait for their dependencies before rendering. No more ProviderNotFoundException.
-- 📦 **Scopes:** Register objects either globally or within the lifecycle of a defined scope.
-- 🔀 **Switch scopes:** Manage mutually exclusive child scopes within a parent scope; only one is active at a time, and switching automatically cleans up the previous one. Great for auth states (logged in, guest, admin).
-- 🗂️ **Sessions:** Group related dependencies created incrementally during a workflow and clear them together when done. Supports code generation for a type-safe API.
-- 🏷️ **Named dependencies:** with generated quick access methods.
+- ⏳ **Get objects asynchronously:** Wait for objects to be created and retrieve them as soon as they are available.
+- 🧠 **Safe widget builds:** Build widgets that wait for their dependencies before rendering. No more `ProviderNotFoundException`.
+- 📦 **Scopes:** Register objects globally or only for the lifetime of a defined scope.
+- 🔀 **Switch scopes:** Mutually exclusive child scopes under one parent; only one is active, and switching cleans up the previous one—useful for auth modes (guest, user, admin).
+- 🗂️ **Sessions:** Group related dependencies created during a workflow and clear them together. Code generation optional for a type-safe API.
+- 🏷️ **Named dependencies:** Optional code generation for quick, readable access to multiple instances of the same type.
 
 # Install 📦
 
-Add following dependencies to pubspec.yaml ⬇️
+Add the following dependencies to `pubspec.yaml` ⬇️
 
 ```yaml
 dependencies:
-  weaver: ^0.9.1 # for dart only projects
-  flutter_weaver: ^0.9.1 # for flutter projects
+  weaver: ^0.9.2 # Dart-only projects
+  flutter_weaver: ^0.9.2 # Flutter projects (re-exports weaver + widgets)
 
 dev_dependencies:
   build_runner:
-  weaver_builder: ^0.9.1
+  weaver_builder: ^0.9.2
 ```
 
 # Getting started 🚀
+
+Import the library: in Flutter use `package:flutter_weaver/flutter_weaver.dart`; in Dart-only code use `package:weaver/weaver.dart`. The global `weaver` instance is ready to use.
 
 Register objects 🧰
 
@@ -64,7 +66,7 @@ And then get them anywhere in your code 🔍
 final userBloc = weaver.get<UserBloc>();
 ```
 
-**NOTE:** that below style also works
+**Note:** Type inference works too. Just omit the type argument when the left-hand side is explicit:
 
 ```dart
 final UserBloc userBloc = weaver.get();
@@ -76,7 +78,7 @@ final UserBloc userBloc = weaver.get();
 
 The `RequireDependencies` widget waits for specified dependency objects to be registered elsewhere and become available. Once those dependencies are ready, it automatically rebuilds the widget tree.
 
-`RequireDependencies` allows specifying the type of dependency objects that are required, then builds the widget as soon as those dependency objects are created. It doesn't care when, where or how those objects are created and registered in weaver.
+`RequireDependencies` lets you list the type of objects you need, then rebuilds when those registrations appear. It does not care when, where, or how they were registered.
 
 ```dart
 RequireDependencies(
@@ -100,7 +102,7 @@ This provides a significant advantage over traditional dependency injection appr
 
 ## Get objects asynchronously ⏱️
 
-With weaver it is possible to wait for registration of an object and then get it as soon as it is registered using `getAsync()` method.
+You can wait until a type is registered with `getAsync()` and resolve it as soon as it is registered.
 
 ```dart
 // registers UserBloc 2 seconds later
@@ -112,7 +114,7 @@ Future.delayed(const Duration(seconds: 2), (){
 final userBloc = await weaver.getAsync<UserBloc>();
 ```
 
-**NOTE:** When building widgets there is no need to use `getAsync()` method. Please use `RequireDependencies` widget instead.
+**Note:** For widgets, prefer `RequireDependencies` over `getAsync()` so the tree stays declarative.
 
 ## Named Dependencies 🏷️
 
@@ -145,8 +147,7 @@ Profile _adminProfile() {
 }
 ```
 
-After running `dart run build_runner build` above code will code generate a custom getter in Weaver for this object that allows easier access.
-Also the code will be more clear while fetching and using multiple dependencies of the same type.
+After `dart run build_runner build`, Weaver gets generated getters for each named dependency, which keeps access readable when you have several instances of the same type.
 
 ```dart
 final userProfile = weaver.named.userProfile;
@@ -155,14 +156,11 @@ final adminProfile = weaver.named.adminProfile;
 
 ## Scoped Dependencies 🧩
 
-When it comes to dependency injection, usually dependency objects are required to exists as long as the app is running. But sometimes it is required for a dependency object to exist only in certain scenario or scope of a lifecycle. In short some dependencies only live in certain scopes.
+Often dependencies should live for the whole app run; sometimes they should exist only in a particular scenario or lifecycle phase. A **scope** is that boundary: register on enter, unregister on leave. You choose what the boundary means (signed-in user, route, feature flag, and so on).
 
-A scope is a boundary where certain dependency objects should live. Objects get registered when entering the boundary and removed when exiting it. A boundary can be anything you define—like an authentication state, access level, or navigation route.
+For example, you might register certain types only after login and tear them down on logout—those types “live” in an authentication-related scope (`AuthenticationScope`, `AccessLevelScope`, `ProfileRouteScope`, or whatever you name it).
 
-For example in an application it might make sense to only register some dependency objects after user is authenticated and unregister them after user has logged out. Hence it can be said those dependency objects only live within the authentication scope.
-eg: AuthenticationScope, AccessLevelScope, ProfilePageScope
-
-Weaver makes it easy to define scopes that have their own dependencies. These dependencies will become available when weaver enters that scope.
+Weaver lets you define scopes with their own dependencies; those types become available whenever that scope is active.
 
 ```dart
 @WeaverScope(name: 'admin-scope')
@@ -175,12 +173,12 @@ class _AdminScope {
 }
 ```
 
-Then run `dart run build_runner build -d` in your code. It will generate a `AdminScopeHandler` & `AdminScope` class.
+Then run `dart run build_runner build` in your project. It generates an `AdminScopeHandler` and an `AdminScope` class.
 
-**NOTE:**
+**Notes:**
 
-1. In the above code, in the method annotated with `@OnEnterScope` you can add as many arguments as you need after the first argument (which always should be of type `Weaver`)
-2. Unregistering of objects is automatically handled by the generated `AdminScopeHandler`. But there is the option to do it manually by adding a method annotated with `@OnLeaveScope`. If you need to perform custom disposal or actions before unregistering dependency objects registered in this scope, you can optionally add an `@OnLeaveScope` method:
+1. In `@OnEnterScope`, the first parameter must be `Weaver`; add any extra parameters you need after it. They become fields on the generated `AdminScope` type.
+2. If you omit `@OnLeaveScope`, the generated handler unregisters whatever you registered in `@OnEnterScope`. If you add `@OnLeaveScope`, you must unregister (or dispose) those registrations yourself; `@NamedDependency` fields are still unregistered by generated code unless you set `autoDispose: false`.
 
 ```dart
 @WeaverScope(name: 'admin-scope')
@@ -200,34 +198,32 @@ class _AdminScope {
 }
 ```
 
-## Entering and Leaving scope 🚪
+## Entering and leaving a scope 🚪
 
-After defining the scope, it is required to first register the scope-handler class to weaver.
-
-```dart
-weaver.addScopeHandler(AdminScopeHandler());
-```
-
-Weaver can be signaled that application has entered the admin scope. That can be done using the `enterScope()` method and the `AdminScope` class defined above. When weaver enters that scope the method annotated with `@OnEnterScope` in our defined `_AdminScope` class will be called and dependencies will be registered.
+Register the generated handler with the same `Weaver` instance you use everywhere else:
 
 ```dart
-  weaver.enterScope(
-    AdminScope(adminId: 24, adminAccessLevel: 'editor'),
-  );
+weaver.addScopeHandler(AdminScopeHandler(weaver));
 ```
 
-Above call will trigger `AdminScopeHandler` that was registered and annotated method `@OnEnterScope` will be called with the passed parameters.
+Enter the scope by passing the generated args object. That runs your `@OnEnterScope` method and registers dependencies.
 
-### Check Scope:
+```dart
+await weaver.enterScope(
+  AdminScope(adminId: 24, adminAccessLevel: 'editor'),
+);
+```
 
-It is possible to check whether application has entered a defined scope or not
+### Checking whether a scope is active
+
+You can ask whether a given scope is currently entered:
 
 ```dart
 final isInScope = weaver.adminScope.isIn;
 // will return true if weaver has entered AdminScope
 ```
 
-To leave a scope `leaveScope()` method should be used
+To leave, call `leaveScope` with that scope’s name:
 
 ```dart
 weaver.leaveScope(AdminScope.scopeName);
@@ -308,13 +304,12 @@ class _MyScope {
 }
 ```
 
-**Important:** All named dependencies defined in the scope, their register and unregister are always handled automatically by Weaver's generated code. You don't need to manually register or unregister them. Though there is an option to do it manually if you need to by setting `autoDispose: false`
-in `@NamedDependency` annotation. After setting `autoDispose: false`, the unregistering of the named object should be handled inside the method annotated with `@OnLeaveScope`
+**Important:** Named dependencies on the scope class are registered and unregistered by generated code. To own teardown yourself, set `autoDispose: false` on `@NamedDependency` and handle unregister (or disposal) in `@OnLeaveScope`.
 
 To access the named dependencies generated for a scope:
 
 ```dart
-if(weaver.myScope.isIn){
+if (weaver.myScope.isIn) {
   final component1 = weaver.myScope.myComponent1;
   final component2 = weaver.myScope.myComponent2;
 }
@@ -336,7 +331,7 @@ AutoScope(
 )
 ```
 
-When `ProductDetailPage` mounts, `ProductDetailScope` is entered automatically. When the page is removed, the scope is left and its dependencies are cleaned up.
+When `AutoScope` mounts (for example when the route is pushed), `ProductDetailScope` is entered; when `AutoScope` is disposed, the scope is left and its dependencies are cleaned up.
 
 ### Using AutoScope with RequireDependencies
 
@@ -478,9 +473,7 @@ await weaver.enterScope(AccessScope.public(flag: true));
 await weaver.enterScope(AccessScope.dev());
 ```
 
-### Check Current Child Scope
-
-To check current childScope
+### Current child scope
 
 ```dart
 final currentScope = weaver.accessScope.currentScope;
@@ -525,22 +518,16 @@ class SplashPageState extends State<SplashPage> {
 - If no scope is active, it waits until a scope is entered (e.g., via `enterScope()` elsewhere) and then returns the new scope.
 - Throws if the switch scope handler is not registered with Weaver.
 
-When you switch to a new child scope, the previous child scope is automatically left. This means:
+When you switch to a new child scope, the previous child is left first: its dependencies are unregistered, then the new child’s `@OnEnterScope` runs and its dependencies are registered.
 
-- The previous child scope's dependencies are removed (unregistered)
-- The new child scope's `@OnEnterScope` callback is called
-- The new child scope's dependencies are registered and become available
-
-For example, if you're in the admin scope and switch to the user scope:
-
-### Custom On-Leave Scope Callbacks
+### Custom `@OnLeaveScope` callbacks
 
 You can optionally add custom `@OnLeaveScope` callbacks for each child scope to perform cleanup or custom disposal before the dependencies are removed:
 
 ```dart
 @WeaverSwitchScope(name: 'access')
 class _AccessScope {
-  ...
+  // … other @OnEnterScope methods
 
   @OnEnterScope(name: 'user')
   Future<void> userAccess(Weaver weaver, int userId) async {
@@ -642,22 +629,22 @@ The generated extension provides:
 
 This approach makes your code more readable and less error-prone, as you don't need to remember session names as strings. The generated code ensures type safety and provides a consistent API for managing session-based dependencies.
 
-# Observer changes in dependencies 👀
+# Observing registration changes 👀
 
-All registrations and un-registrations can be observed to by adding an observer on `weaver`
+`addObserver` runs your callback after registrations change (register, unregister, session clear, scope-driven unregisters, etc.). Use it to react to the container’s contents.
 
 ```dart
 weaver.addObserver(() {
-    if(weaver.isRegistered<UserCubit>()){
-        // ...
-    }
+  if (weaver.isRegistered<UserCubit>()) {
+    // ...
+  }
 });
 ```
 
 # Testing 🧪
 
-For testing purposes it is possible to:
+For tests you can:
 
-- Allow re-registration of objects by setting `allowReassignment` to true.
-- Allow entering scopes without a scope-handler registered for them by `allowScopesWithoutHandler` to true
-- Call `weaver.reset()` to clear all registered dependencies and scopes.
+- Set `allowReassignment` to `true` to replace existing registrations and handlers.
+- Set `allowScopesWithoutHandler` to `true` so `enterScope` does not throw when no handler is registered.
+- Call `weaver.reset()` to clear registrations and scope state.
