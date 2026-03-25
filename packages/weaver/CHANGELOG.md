@@ -1,3 +1,9 @@
+## 0.9.3
+
+- Add `Weaver.registerIfAbsent`; deprecate `registerIfIsNot` (same behavior).
+- `DependencyKey` constructor is `const`.
+- Simplify and improve API & Add more code comments
+
 ## 0.9.2
 
 - Update docs

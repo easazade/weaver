@@ -1,3 +1,10 @@
+## 0.9.3
+
+- `RequireDependencies` and `AutoScope`: optional `weaver` (defaults to package `weaver`).
+- `DependencyKey` constructor is `const`.
+- Simplify and improve API & Add more code comments
+- Bump [weaver](https://pub.dev/packages/weaver) to 0.9.3
+
 ## 0.9.2
 
 - Bump [weaver](https://pub.dev/packages/weaver) to 0.9.2
