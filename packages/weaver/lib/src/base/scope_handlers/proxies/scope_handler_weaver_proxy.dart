@@ -8,6 +8,8 @@ import 'package:weaver/src/base/weaver.dart';
 /// and only required by scope-handlers.
 class ScopeHandlerWeaverProxy implements Weaver {
   final Weaver _realWeaver;
+
+  /// Creates a proxy that delegates to the underlying [Weaver] and records registrations for [unregisterDependenciesRegisteredByThisProxy].
   ScopeHandlerWeaverProxy(this._realWeaver);
 
   final keys = <DependencyKey>[];

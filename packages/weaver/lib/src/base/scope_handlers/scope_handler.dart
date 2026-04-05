@@ -8,6 +8,9 @@ import 'package:weaver/src/base/weaver.dart';
 /// it is responsible for.
 /// [T] is the type of arguments required when entering the scope.
 abstract class ScopeHandler<T> {
+  /// Creates a [ScopeHandler].
+  ///
+  /// When [changeScopeStream] is non-null, each emitted [Scope] triggers enter/leave handling for this handler.
   ScopeHandler({final Stream<Scope<T>?>? changeScopeStream}) {
     _changeScopeSubscription = changeScopeStream?.listen((final scope) async {
       if (scope == null) {

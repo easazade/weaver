@@ -9,6 +9,7 @@ class WeaverScope {
   /// The unique name of the scope.
   final String name;
 
+  /// Creates a [WeaverScope] annotation with the given [name].
   const WeaverScope({required this.name});
 }
 
@@ -21,6 +22,7 @@ class WeaverSwitchScope {
   /// Parent scope name (used for registration and `leaveScope`).
   final String name;
 
+  /// Creates a [WeaverSwitchScope] annotation with the given [name].
   const WeaverSwitchScope({required this.name});
 }
 
@@ -31,6 +33,9 @@ class WeaverSwitchScope {
 class OnEnterScope {
   final String? name;
 
+  /// Creates an [OnEnterScope] annotation.
+  ///
+  /// For [WeaverSwitchScope], set [name] to match the child entry (see [WeaverSwitchScope]).
   const OnEnterScope({this.name});
 }
 
@@ -48,6 +53,9 @@ class OnEnterScope {
 class OnLeaveScope {
   final String? name;
 
+  /// Creates an [OnLeaveScope] annotation.
+  ///
+  /// For [WeaverSwitchScope], set [name] to match the child entry when leaving that branch.
   const OnLeaveScope({this.name});
 }
 

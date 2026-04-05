@@ -1,6 +1,8 @@
 import 'package:weaver/weaver.dart';
 
 /// Customized Map for managing the dependency objects.
+///
+/// Creates an empty [DependencyMap].
 class DependencyMap {
   final _dependencies = <DependencyKey, Dependency>{};
   final _sessions = <DependencyKey, String>{};

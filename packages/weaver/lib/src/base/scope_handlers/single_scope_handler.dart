@@ -13,6 +13,9 @@ abstract class SingleScopeHandler<T> extends ScopeHandler<T> {
   /// The [Weaver] proxy used to manage dependencies within this scope.
   final ScopeHandlerWeaverProxy weaverInstance;
 
+  /// Creates a [SingleScopeHandler] for [weaver].
+  ///
+  /// [changeScopeStream] is passed to the superclass [ScopeHandler] constructor.
   SingleScopeHandler(final Weaver weaver, {super.changeScopeStream}) : weaverInstance = ScopeHandlerWeaverProxy(weaver);
 
   /// Handles the scope state transition by checking if the scope is currently active in [weaverInstance].

@@ -1,7 +1,7 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:weaver/weaver.dart' hide weaver;
 import 'package:weaver/weaver.dart' as wv show weaver;
+import 'package:weaver/weaver.dart' hide weaver;
 
 /// A widget that waits for a set of dependencies to be registered before building its child.
 ///
@@ -54,6 +54,9 @@ class RequireDependencies extends StatefulWidget {
   /// An optional child widget that is passed to the [builder].
   final Widget? child;
 
+  /// Creates a [RequireDependencies] widget.
+  ///
+  /// When [weaver] is omitted, the default `weaver` from `package:weaver/weaver.dart` is used.
   RequireDependencies({
     super.key,
     final Weaver? weaver,

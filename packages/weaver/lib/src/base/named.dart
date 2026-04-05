@@ -5,5 +5,8 @@ import 'package:weaver/weaver.dart';
 class WeaverNamed {
   final Weaver weaverInstance;
 
+  /// Creates a [WeaverNamed] wrapper for [weaverInstance].
+  ///
+  /// Normally use [Weaver.named] instead of calling this constructor directly.
   WeaverNamed({required this.weaverInstance});
 }
