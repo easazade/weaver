@@ -1,3 +1,8 @@
+## 0.9.4
+
+- Move example to weaver package to fix pub scores
+- Document constructors
+
 ## 0.9.3
 
 - Add `Weaver.registerIfAbsent`; deprecate `registerIfIsNot` (same behavior).

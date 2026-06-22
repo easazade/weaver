@@ -1,3 +1,7 @@
+## 0.9.4
+
+- Bump [weaver](https://pub.dev/packages/weaver) to 0.9.4
+
 ## 0.9.3
 
 - Bump [weaver](https://pub.dev/packages/weaver) to 0.9.3
