@@ -39,11 +39,11 @@ dev_dependencies:
 
 dependency_overrides:
   weaver:
-    path: ../packages/weaver
+    path: ../../weaver
   weaver_builder:
-    path: ../packages/weaver_builder
+    path: ../../weaver_builder
   flutter_weaver:
-    path: ../packages/flutter_weaver
+    path: ../../flutter_weaver
   crystalline_builder:
     git:
       url: https://github.com/easazade/crystalline.git

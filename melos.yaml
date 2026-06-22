@@ -2,7 +2,7 @@ name: weaver
 
 packages:
   - packages/*
-  - example/
+  - packages/weaver/example
 
 command:
   bootstrap:

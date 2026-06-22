@@ -3,7 +3,6 @@ import 'package:example/app/pages/home_page.dart';
 import 'package:example/app/pages/login_page.dart';
 import 'package:example/app/pages/profile_page.dart';
 import 'package:example/app/pages/splash_page.dart';
-import 'package:example/app/stores/auth_store.dart';
 import 'package:example/app/utils/stream_listenable.dart';
 import 'package:flutter_weaver/flutter_weaver.dart';
 import 'package:go_router/go_router.dart';
@@ -27,7 +26,7 @@ final router = GoRouter(
   redirect: (context, state) async {
     final scope = await weaver.authScope.ensureEnterScope();
     print('current auth scope is ${scope.name}');
-    
+
     var route = state.uri.toString();
     print('route: route is $route');
 
