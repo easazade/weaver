@@ -17,7 +17,7 @@ import 'dependency.dart';
 /// multiple independent trees).
 final weaver = Weaver();
 
-// short hand variable for [weaver] global instance
+/// Shorthand alias for the global [weaver] instance.
 final w = weaver;
 
 /// The main dependency injection container for Weaver.

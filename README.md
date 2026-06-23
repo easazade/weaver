@@ -49,7 +49,7 @@ dev_dependencies:
 
 # Getting started 🚀
 
-Import the library: in Flutter use `package:flutter_weaver/flutter_weaver.dart`; in Dart-only code use `package:weaver/weaver.dart`. The global `weaver` instance is ready to use.
+Import the library: in Flutter use `package:flutter_weaver/flutter_weaver.dart`; in Dart-only code use `package:weaver/weaver.dart`. The global `weaver` instance is ready to use, and `w` is available as a shorthand alias for the same global instance.
 
 Register objects 🧰
 
@@ -58,6 +58,10 @@ weaver.register(UserRepository());
 weaver.registerLazy(() => UserBloc(userRepository: weaver.get()));
 
 weaver.registerIfAbsent(CartSession(cartService: weaver.get()));
+
+// Same instance, shorter name:
+w.register(UserRepository());
+final userBloc = w.get<UserBloc>();
 ```
 
 And then get them anywhere in your code 🔍
