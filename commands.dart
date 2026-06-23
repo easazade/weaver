@@ -388,6 +388,7 @@ Future<void> tagLatestVersion() async {
       '${highestVersion.major}.${highestVersion.minor}.${highestVersion.patch}';
   print('Latest unified version: $versionString\n');
 
+  await updateReadmeVersion(versionString);
   await createGitTag(versionString);
 }
 
@@ -668,28 +669,48 @@ Future<void> updateReadmeVersion(String newVersion) async {
   }
 
   try {
-    String content = await readmeFile.readAsString();
+    final content = await readmeFile.readAsString();
+    final updatedContent = updateReadmeInstallSection(content, newVersion);
 
-    // Replace version placeholders in the Install section
-    // Pattern: ^x.y.z should be replaced with ^newVersion
-    final versionPattern = RegExp(r'\^x\.y\.z');
-
-    if (versionPattern.hasMatch(content)) {
-      content = content.replaceAll(versionPattern, '^$newVersion');
-      await readmeFile.writeAsString(content);
-      print('✓ Updated README.md with version $newVersion');
+    if (updatedContent != content) {
+      await readmeFile.writeAsString(updatedContent);
+      print('✓ Updated README.md Install section with version $newVersion');
     } else {
-      // Also check for other possible patterns like just x.y.z without ^
-      final versionPatternNoCaret = RegExp(r':\s*x\.y\.z');
-      if (versionPatternNoCaret.hasMatch(content)) {
-        content = content.replaceAll(versionPatternNoCaret, ': $newVersion');
-        await readmeFile.writeAsString(content);
-        print('✓ Updated README.md with version $newVersion');
-      }
+      print('⊘ README.md Install section already uses version $newVersion');
     }
   } catch (e) {
     print('Warning: Failed to update README.md: $e');
   }
+}
+
+String updateReadmeInstallSection(String content, String newVersion) {
+  final installHeaderRegex = RegExp(r'^# Install 📦\s*$', multiLine: true);
+  final installMatch = installHeaderRegex.firstMatch(content);
+  if (installMatch == null) {
+    return content;
+  }
+
+  final sectionStart = installMatch.end;
+  final nextHeaderRegex = RegExp(r'^#\s+', multiLine: true);
+  final nextHeaderMatch = nextHeaderRegex.firstMatch(
+    content.substring(sectionStart),
+  );
+
+  final sectionEnd = nextHeaderMatch == null
+      ? content.length
+      : sectionStart + nextHeaderMatch.start;
+  final installSection = content.substring(sectionStart, sectionEnd);
+
+  final dependencyVersionRegex = RegExp(
+    r'^(\s*(?:weaver|flutter_weaver|weaver_builder):\s*)\^?(?:x\.y\.z|\d+\.\d+\.\d+)(.*)$',
+    multiLine: true,
+  );
+  final updatedSection = installSection.replaceAllMapped(
+    dependencyVersionRegex,
+    (match) => '${match.group(1)}^$newVersion${match.group(2)}',
+  );
+
+  return content.replaceRange(sectionStart, sectionEnd, updatedSection);
 }
 
 Future<List<Directory>> getPackages() async {
