@@ -1,3 +1,8 @@
+## 0.9.5
+
+- Update docs
+- Add a short-hand alias for global weaver instance
+
 ## 0.9.4
 
 - Move example to weaver package to fix pub scores
